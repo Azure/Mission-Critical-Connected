@@ -1,0 +1,67 @@
+parameters:
+  terraformStorageAccountName: ''
+  terraformStorageResourceGroupName: ''
+  terraformStateFilename:    ''
+  terraformWorkingDirectory: ''
+
+steps:
+# Install Terraform tooling
+- task: Bash@3
+  displayName: 'Install Terraform CLI v$(terraformVersion)'
+  inputs:
+    targetType: 'inline'
+    script: |
+      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      sudo apt-get update && sudo apt install terraform=$(terraformVersion)
+
+# Setting env vars for Terraform Backend configuration
+# Using Terraform CLI instead of Terraform Tasks
+# https://cloudarchitected.com/2021/02/using-terraform-in-azure-pipelines-without-extensions/
+# https://github.com/Microsoft/azure-pipelines-tasks/issues/9554#issuecomment-526391527
+- task: AzureCLI@2
+  displayName: 'Set Terraform Backend config env vars'
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    addSpnToEnvironment: true
+    scriptType: pscore
+    scriptLocation: inlineScript
+    inlineScript: |
+
+      echo "*** Setting Subscription environment variables for Terraform backend config"
+
+      $SUBSCRIPTION_ID=$(az account show --query id --output tsv)
+
+      # Set pipeline variables
+      # Values for ARM_CLIENT_ID, ARM_CLIENT_SECRET and ARM_TENANT_ID are getting sourced directly from the AzureCli task injection (with: addSpnToEnvironment: true)
+      echo "##vso[task.setvariable variable=ARM_CLIENT_ID]$($env:servicePrincipalId)"
+      echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET;issecret=true]$($env:servicePrincipalKey)"
+      echo "##vso[task.setvariable variable=ARM_TENANT_ID]$($env:tenantId)"
+      echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$SUBSCRIPTION_ID"
+
+- task: Bash@3
+  displayName: 'Terraform init'
+  inputs:
+    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
+    targetType: 'inline'
+    script: |
+      set -eux  # fail on error
+
+      # terraform init sometimes fails intermittently, so we do a simple retry here. Based on https://serverfault.com/a/80897/247455
+      until terraform init \
+        -backend-config=resource_group_name=${{ parameters.terraformStorageResourceGroupName }} \
+        -backend-config=storage_account_name=${{ parameters.terraformStorageAccountName }} \
+        -backend-config=container_name=tfstate \
+        -backend-config=key=${{ parameters.terraformStateFilename }} \
+        -backend-config=subscription_id="$(ARM_SUBSCRIPTION_ID)" \
+        -backend-config=tenant_id="$(ARM_TENANT_ID)" \
+        -backend-config=client_id="$(ARM_CLIENT_ID)" \
+        -backend-config=client_secret="$(ARM_CLIENT_SECRET)" \
+        -backend-config=use_azuread_auth="true"; do
+
+        # Set terraform debug for next run if it failed once
+        export TF_LOG=DEBUG
+
+        echo "*** Error on terraform init. Will retry in 10 sec"
+        sleep 10
+      done
