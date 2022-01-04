@@ -157,6 +157,8 @@ steps:
                        -var=queued_by="$(Build.QueuedBy)"
                        -var=contact_email="$(contactEmail)"
                        -var=''stamps=$(stampLocations)''
+                       -var=buildagent_resource_group_name="$(buildAgentResourceGroupName)"
+                       -var=buildagent_vnet_name="$(buildAgentVnetName)"
                        $(tfParameterFrontDoorBackendApis)
                        $(tfParameterFrontDoorStaticStorage)
                        $(terraformAdditionalParametersCustomDomains)'
