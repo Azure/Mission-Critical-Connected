@@ -37,4 +37,4 @@ variables:
 - name: 'envDnsZoneRG'
   value: 'ao-dns-rg'
 - name: 'envDomainName'
-  value: 'int.shop.always-on.app'
+  value: 'int.shop-private.always-on.app'
