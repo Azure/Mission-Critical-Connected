@@ -9,6 +9,12 @@ variable "prefix" {
   }
 }
 
+variable "suffix" {
+  description = "A suffix used for all resources in this example. Must not contain any special characters. Must not be longer than 10 characters."
+  type        = string
+  default     = ""
+}
+
 variable "stamps" {
   description = "List of Azure regions into which stamps are deployed. Important: The main location (var.location) MUST be included as the first item in this list."
   type        = list(string)
@@ -140,19 +146,4 @@ variable "event_hub_auto_inflate_maximum_tu" {
 variable "global_storage_account_name" {
   description = "Name of the globally shared storage account, which is used for image storage"
   type        = string
-}
-
-# Settings for private deployment mode
-
-# Build agent settings, required for Private Endpoint creations
-variable "buildagent_resource_group_name" {
-  description = "Name of the resource group of the build agent and its VNet etc. for Private Endpoint creation"
-  type        = string
-  default     = ""
-}
-
-variable "buildagent_vnet_name" {
-  description = "Name of the VNet of the build agent for Private Endpoint creation"
-  type        = string
-  default     = ""
 }

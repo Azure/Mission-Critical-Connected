@@ -25,7 +25,8 @@ module "stamp" {
 
   kubernetes_version = var.kubernetes_version # kubernetes version
 
-  prefix       = local.prefix       # handing over the resource prefix
+  prefix       = var.prefix       # handing over the resource prefix
+  suffix       = var.suffix       # handing over the resource suffix
   default_tags = local.default_tags # handing over the resource tags
   queued_by    = var.queued_by
 
@@ -49,7 +50,4 @@ module "stamp" {
 
   alerts_enabled = var.alerts_enabled
   api_key        = random_password.api_key.result
-
-  buildagent_resource_group_name = var.buildagent_resource_group_name
-  buildagent_vnet_name           = var.buildagent_vnet_name
 }

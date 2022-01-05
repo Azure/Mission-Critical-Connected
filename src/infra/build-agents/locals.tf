@@ -8,5 +8,5 @@ locals {
     Prefix      = var.prefix
   }
 
-  prefix = "${lower(var.prefix)}buildagents"
+  prefix = "${lower(var.prefix)}-buildagents"
 }

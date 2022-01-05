@@ -6,18 +6,18 @@ locals {
     Toolkit     = "Terraform"
     Contact     = var.contact_email
     Environment = var.environment
-    Prefix      = var.prefix
+    Prefix      = local.prefix
     Branch      = var.branch
   }
 
   location = var.stamps[0] # we use the first location in the list of stamps as the "main" location to root our global resources in, which need it. E.g. Cosmos DB
 
-  frontdoor_name             = "${lower(var.prefix)}-global-fd"
+  frontdoor_name             = "${local.prefix}-global-fd"
   frontdoor_default_dns_name = "${local.frontdoor_name}.azurefd.net"
 
   kql_queries = "${path.root}/../../monitoring/queries/global" # directory that contains the kql queries
 
-  prefix = lower(var.prefix)
+  prefix = "${lower(var.prefix)}${lower(var.suffix)}"
 
   # var.custom_fqdn is expected to be something like "www.int.myapp.net"
   # custom_domain_subdomain will then be "www"

@@ -4,7 +4,7 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'ao2prod'          # Needs to be a unique prefix
+  value: 'ao2prod'          # <===== CHANGE THIS! Needs to be a unique prefix
 
 - name: 'stampLocations'
   value: '["northeurope", "canadacentral"]' # Check which regions are valid. There is a list in /src/infra/README.md
@@ -15,26 +15,20 @@ variables:
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
-  value: 'terraformstate-rg'
+  value: 'terraformstate-rg'          # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: 'ao2prodterraformstate'      # Needs to be a globally unique name
+  value: 'ao2prodterraformstate'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
   # Resource Group name where the Terraform state store of the private build agent deployment will be created
 - name:  'buildAgentTerraformResourceGroup'
-  value: 'terraformstate-rg'   # Could be the same resource group as above ('terraformResourceGroup') (based on your subscription structure)
+  value: 'terraformstate-rg'   # <===== CHANGE THIS VALUE IF NEEDED! Could be the same resource group as above ('terraformResourceGroup') (based on your subscription structure)
+
 # Globally unique name of the storage account. Must be a different name than above! ('terraformStorageAccount')
 - name:  'buildAgentTerraformStorageAccount'
-  value: 'ao2prodtfstatestoreba' # Needs to be a globally unique name, must NOT be the same as the storage account above.
-
-# Resource group name in which the private build agents were deployed
-- name: 'buildAgentResourceGroupName'
-  value: 'ao2prodbuildagents-rg'
-# Name of the VNet of the private build agents
-- name: 'buildAgentVnetName'
-  value: 'ao2prodbuildagents-vnet'
+  value: 'ao2prodtfstatestoreba' # <===== CHANGE THIS VALUE! Needs to be a globally unique name, must NOT be the same as the storage account above.
 
 # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: 'ao-dns-rg'
+  value: 'ao-dns-rg'                    # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
 - name: 'envDomainName'
-  value: 'shop-private.always-on.app'
+  value: 'shop-private.always-on.app'   # <===== CHANGE THIS OR LEAVE THE VALUE BLANK

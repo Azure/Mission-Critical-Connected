@@ -124,13 +124,12 @@ stages:
             parameters:
               jobName:                    'GlobalInfra'
               terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
-              customPrefix:               '$(prefix)$(globalSuffix)'      # custom resource prefix
+              customPrefix:               '$(prefix)'      # custom resource prefix
+              customSuffix:               '$(globalSuffix)'
               customAttributes:           '-var=branch="$(sourceBranch)"
                                           -var=queued_by="$(Build.QueuedBy)"
                                           -var=contact_email="$(contactEmail)"
                                           -var=''stamps=$(stampLocations)''
-                                          -var=buildagent_resource_group_name="$(buildAgentResourceGroupName)"
-                                          -var=buildagent_vnet_name="$(buildAgentVnetName)"
                                           $(tfParameterFrontDoorBackendApis)
                                           $(tfParameterFrontDoorStaticStorage)
                                           $(terraformAdditionalParametersCustomDomains)'
@@ -206,7 +205,8 @@ stages:
       parameters:
         jobName:                    'ReleaseUnitInfra'
         terraformWorkingDirectory:  '$(workingDirectory)/releaseunit'
-        customPrefix:               '$(prefix)$(customSuffix)'
+        customPrefix:               '$(prefix)'
+        customSuffix:               '$(customSuffix)'
         customAttributes:           '-var=branch="$(sourceBranch)"
                                     -var=queued_by="$(Build.QueuedBy)"
                                     -var=contact_email="$(contactEmail)"
@@ -221,9 +221,7 @@ stages:
                                     -var=frontdoor_name="$(frontdoor_name)"
                                     -var=frontdoor_id_header="$(frontdoor_id_header)"
                                     -var=global_storage_account_name="$(global_storage_account_name)"
-                                    -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"
-                                    -var=buildagent_resource_group_name="$(buildAgentResourceGroupName)"
-                                    -var=buildagent_vnet_name="$(buildAgentVnetName)"'
+                                    -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
 
 - stage: deployconfiguration
   displayName: 'Deploy Configuration' # Apply configuration to Azure Infrastructure
@@ -389,7 +387,9 @@ stages:
                       $disabledBackendAddress -match "^(?<prefix>.+)-cluster"
                       $extractedPrefix = $Matches.prefix
                       echo "*** Extracted prefix $extractedPrefix"
-                      echo "##vso[task.setvariable variable=oldReleasePrefix]$extractedPrefix" # set pipeline variable
+
+                      # TODO extract suffix!
+                      echo "##vso[task.setvariable variable=oldReleasePrefixSuffix]$extractedPrefix" # set pipeline variable
                     }
 
                     if((-not $disabledBackendAddress) -or ($extractedPrefix -eq ""))
@@ -400,13 +400,16 @@ stages:
 
             - ${{ if eq(parameters.environment, 'e2e') }}: # Special case for E2E only
               - task: PowerShell@2
-                displayName: '(E2E-only) Set oldReleasePrefix to prefix-customSuffix'
+                displayName: '(E2E-only) Set oldReleasePrefixSuffix to prefix-customSuffix'
                 inputs:
                   targetType: inline
                   script: |
                     # Setting oldReleasePrefix=prefix-customSuffix means that we target the same release unit that was deployed earlier by this very pipeline
-                    echo "*** Setting pipeline variable oldReleasePrefix = $(prefix)$(customSuffix)"
-                    echo "##vso[task.setvariable variable=oldReleasePrefix]$(prefix)$(customSuffix)"
+                    echo "*** Setting pipeline variable oldReleasePrefixSuffix = $(prefix)$(customSuffix)"
+                    echo "##vso[task.setvariable variable=oldReleasePrefixSuffix]$(prefix)$(customSuffix)"
+
+                    echo "##vso[task.setvariable variable=oldReleasePrefix]$(prefix)"
+                    echo "##vso[task.setvariable variable=oldReleaseSuffix]$(customSuffix)"
 
             - template: steps-parse-terraform-output.yaml
               parameters:
@@ -424,9 +427,9 @@ stages:
                 inlineScript: |
 
                   # Find AKS clusters with the prefix $(oldReleasePrefix)
-                  $aksClusters = az resource list --tag prefix="$(oldReleasePrefix)" --query "[?type == 'Microsoft.ContainerService/managedClusters']" | ConvertFrom-Json
+                  $aksClusters = az resource list --tag prefix="$(oldReleasePrefixSuffix)" --query "[?type == 'Microsoft.ContainerService/managedClusters']" | ConvertFrom-Json
 
-                  echo "*** Found $($aksClusters.Count) AKS cluster(s) for prefix $(oldReleasePrefix)"
+                  echo "*** Found $($aksClusters.Count) AKS cluster(s) for prefix-suffix $(oldReleasePrefixSuffix)"
 
                   # loop through all clusters
                   foreach($cluster in $aksClusters) {
@@ -446,9 +449,10 @@ stages:
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
                 terraformStorageResourceGroupName: '$(terraformResourceGroup)'
-                terraformStateFilename:            'terraform-$(oldReleasePrefix).state'
+                terraformStateFilename:            'terraform-$(oldReleasePrefixSuffix).state'
                 terraformWorkingDirectory:         '$(workingDirectory)/releaseunit'
                 customAttributes:        '-var=prefix="$(oldReleasePrefix)"
+                                          -var=suffix="$(oldReleaseSuffix)"
                                           -var=branch="$(sourceBranch)"
                                           -var=queued_by="$(Build.QueuedBy)"
                                           -var=contact_email="$(contactEmail)"
@@ -463,9 +467,7 @@ stages:
                                           -var=frontdoor_name="$(frontdoor_name)"
                                           -var=frontdoor_id_header="$(frontdoor_id_header)"
                                           -var=global_storage_account_name="$(global_storage_account_name)"
-                                          -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"
-                                          -var=buildagent_resource_group_name="$(buildAgentResourceGroupName)"
-                                          -var=buildagent_vnet_name="$(buildAgentVnetName)"'
+                                          -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
 
             # Remove disabled backends from Front Door and reset weight on current ones to 50. (Not required for E2E since we destroy E2E Front Door anyway below)
             - ${{ if ne(parameters.environment, 'e2e') }}:
@@ -501,7 +503,5 @@ stages:
                                               -var=branch="$(sourceBranch)"
                                               -var=queued_by="$(Build.QueuedBy)"
                                               -var=contact_email="$(contactEmail)"
-                                              -var=buildagent_resource_group_name="$(buildAgentResourceGroupName)"
-                                              -var=buildagent_vnet_name="$(buildAgentVnetName)"
                                               -var=''stamps=$(stampLocations)''
                                               $(terraformAdditionalParametersCustomDomains)'

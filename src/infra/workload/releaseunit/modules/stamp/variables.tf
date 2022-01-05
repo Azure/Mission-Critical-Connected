@@ -8,6 +8,12 @@ variable "prefix" {
   type        = string
 }
 
+variable "suffix" {
+  description = "A suffix used for all resources in this example. Must not contain any special characters. Must not be longer than 10 characters."
+  type        = string
+  default     = ""
+}
+
 variable "queued_by" {
   description = "Name of the user who has queued the pipeline run that has deployed this environment. Used as an Azure Resource Tag."
   type        = string
@@ -105,19 +111,4 @@ variable "api_key" {
   description = "API Key for protecting sensitive APIs in the CatalogService"
   type        = string
   sensitive   = true
-}
-
-# Settings for private deployment mode
-
-# Build agent settings, required for Private Endpoint creations
-variable "buildagent_resource_group_name" {
-  description = "Name of the resource group of the build agent and its VNet etc. for Private Endpoint creation"
-  type        = string
-  default     = ""
-}
-
-variable "buildagent_vnet_name" {
-  description = "Name of the VNet of the build agent for Private Endpoint creation"
-  type        = string
-  default     = ""
 }

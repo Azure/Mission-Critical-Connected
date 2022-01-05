@@ -80,21 +80,6 @@ This also creates a second Terraform state storage account which is only being u
 
     ![self-hosted agent resources in azure](/docs/media/self-hosted-agents-resources-in-azure.png)
 
-## Update pipelines variables
-
-After we have deployed the private build agents, we need to update the pipeline so that Terraform will later know where to deploy Private Endpoints for the build agents.
-
-1. Locate the variables file(s) for the respective environments in the `/.ado./pipelines/config` directory. E.g `/.ado/pipelines/config/variables-values-e2e.yaml`. (Adjust this, based on which environment your are configuring right now).
-1. Find and fill out the following lines based on the output of the previous step:
-
-```yaml
-- name: 'buildAgentResourceGroupName'
-  value: 'aoe2ebuildagents-rg' # <=== Change this!
-- name: 'buildAgentVnetName'
-  value: 'aoe2ebuildagents-vnet' # <=== Change this!
-```
-
-3. Commit the changes to git and push them.
 
 ## Configure self-hosted Build Agents in ADO
 

@@ -85,7 +85,10 @@ steps:
                                                       --resource-group ${{ parameters.resourceGroupName }} `
                                                       --query "id" -o tsv)
         $peName = "${{ parameters.storageAccountName }}-pe"
-        $existingPe = $(az network private-endpoint show -n $peName -g $(buildAgentResourceGroupName) ) | ConvertFrom-JSON
+
+        $buildAgentResourceGroupName = "$(prefix)-buildagents-rg"
+
+        $existingPe = $(az network private-endpoint show -n $peName -g $buildAgentResourceGroupName ) | ConvertFrom-JSON
         if($existingPe)
         {
           echo "*** Private Endpoint $peName already exists"
@@ -96,7 +99,7 @@ steps:
           # Create the private endpoint itself
           az network private-endpoint create `
           --name $peName `
-          --resource-group $(buildAgentResourceGroupName) `
+          --resource-group $buildAgentResourceGroupName `
           --vnet-name $(buildAgentVnetName) `
           --subnet "private-endpoints-snet" `
           --private-connection-resource-id $storageAccountId `
@@ -104,7 +107,7 @@ steps:
           --connection-name myConnection
           # Create a DNS entry in the private blob.core.windows.net DNS zone of the build agent
           az network private-endpoint dns-zone-group create `
-          --resource-group $(buildAgentResourceGroupName) `
+          --resource-group $buildAgentResourceGroupName `
           --endpoint-name $peName `
           --name "tfprivatednsstorageblob" `
           --private-dns-zone "privatelink.blob.core.windows.net" `

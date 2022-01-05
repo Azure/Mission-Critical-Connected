@@ -1,6 +1,7 @@
 parameters:
   terraformWorkingDirectory:       ''
   customPrefix:                    ''         # custom prefix for resources
+  customSuffix:                    ''         # custom suffix for resources. May be empty
   customAttributes:                ''         # custom attributes for terraform
   jobName:                         ''
 
@@ -30,6 +31,7 @@ steps:
       terraform plan -input=false -out=tf_plan \
                      -var=environment="$(environment)" \
                      -var=prefix="${{ parameters.customPrefix }}" \
+                     -var=suffix="${{ parameters.customSuffix }}" \
                      -var-file="variables-$(environment).tfvars" \
                      ${{ parameters.customAttributes }}
 

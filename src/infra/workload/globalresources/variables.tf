@@ -9,6 +9,12 @@ variable "prefix" {
   }
 }
 
+variable "suffix" {
+  description = "A suffix used for all resources in this example. Must not contain any special characters. Must not be longer than 10 characters."
+  type        = string
+  default     = ""
+}
+
 variable "stamps" {
   description = "List of Azure regions into which stamps are deployed. Important: The first location in this list will be used as the main location for this deployment."
   type        = list(string)
@@ -110,17 +116,4 @@ variable "backends_StaticStorage" {
     weight  = 1
     enabled = true
   }]
-}
-
-# Build agent settings, required for Private Endpoint creations
-variable "buildagent_resource_group_name" {
-  description = "Name of the resource group of the build agent and its VNet etc. for Private Endpoint creation"
-  type        = string
-  default     = ""
-}
-
-variable "buildagent_vnet_name" {
-  description = "Name of the VNet of the build agent for Private Endpoint creation"
-  type        = string
-  default     = ""
 }

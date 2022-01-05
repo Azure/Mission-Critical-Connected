@@ -185,7 +185,7 @@ resource "azurerm_frontdoor_custom_https_configuration" "custom_domain_https" {
 }
 
 resource "azurerm_frontdoor_firewall_policy" "main" {
-  name                = "${lower(var.prefix)}globalfdfp"
+  name                = "${local.prefix}globalfdfp"
   resource_group_name = azurerm_resource_group.global.name
   enabled             = true
   mode                = "Prevention"

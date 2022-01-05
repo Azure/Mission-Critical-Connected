@@ -6,9 +6,9 @@ locals {
     Toolkit     = "Terraform"
     Contact     = var.contact_email
     Environment = var.environment
-    Prefix      = var.prefix
+    Prefix      = local.prefix
     Branch      = var.branch
   }
 
-  prefix = lower(var.prefix)
+  prefix = "${lower(var.prefix)}${lower(var.suffix)}"
 }
