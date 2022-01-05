@@ -77,6 +77,7 @@ steps:
                                                 --delete-retention-days 7 `
                                                 --enable-container-delete-retention true `
                                                 --container-delete-retention-days 7
+
       # In private mode, create Private Endpoints for the private Build Agents
       if('${{ parameters.usePrivateEndpoints }}' -eq [bool]::TrueString)
       {
@@ -87,6 +88,7 @@ steps:
         $peName = "${{ parameters.storageAccountName }}-pe"
 
         $buildAgentResourceGroupName = "$(prefix)-buildagents-rg"
+        $buildAgentVnetName = "$(prefix)-buildagents-vnet"
 
         $existingPe = $(az network private-endpoint show -n $peName -g $buildAgentResourceGroupName ) | ConvertFrom-JSON
         if($existingPe)
@@ -100,7 +102,7 @@ steps:
           az network private-endpoint create `
           --name $peName `
           --resource-group $buildAgentResourceGroupName `
-          --vnet-name $(buildAgentVnetName) `
+          --vnet-name $buildAgentVnetName `
           --subnet "private-endpoints-snet" `
           --private-connection-resource-id $storageAccountId `
           --group-id blob `
