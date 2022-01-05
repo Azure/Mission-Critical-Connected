@@ -31,7 +31,7 @@ steps:
       terraform plan -input=false -out=tf_plan \
                      -var=environment="$(environment)" \
                      -var=prefix="${{ parameters.customPrefix }}" \
-                     -var=suffix="${{ parameters.customSuffix }}" \
+                     -var=suffix='${{ parameters.customSuffix }}' \
                      -var-file="variables-$(environment).tfvars" \
                      ${{ parameters.customAttributes }}
 
