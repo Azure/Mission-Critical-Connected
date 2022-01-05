@@ -1,7 +1,7 @@
 parameters:
   terraformWorkingDirectory:       ''
   customPrefix:                    ''         # custom prefix for resources
-  customSuffix:                    'null'     # custom suffix for resources. May be empty (=null)
+  customSuffix:                    ''         # custom suffix for resources. May be empty
   customAttributes:                ''         # custom attributes for terraform
   jobName:                         ''
 

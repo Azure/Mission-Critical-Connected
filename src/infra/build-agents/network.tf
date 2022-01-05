@@ -58,52 +58,52 @@ resource "azurerm_network_security_group" "azurebastion" {
   resource_group_name = azurerm_resource_group.deployment.name
 
   security_rule {
-        name                       = "GatewayManager"
-        priority                   = 1001
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "443"
-        source_address_prefix      = "GatewayManager"
-        destination_address_prefix = "*"
-    }
+    name                       = "GatewayManager"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "GatewayManager"
+    destination_address_prefix = "*"
+  }
 
-    security_rule {
-        name                       = "Internet-Bastion-PublicIP"
-        priority                   = 1002
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "443"
-        source_address_prefix      = "*"
-        destination_address_prefix = "*"
-    }
+  security_rule {
+    name                       = "Internet-Bastion-PublicIP"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 
-    security_rule {
-        name                       = "OutboundVirtualNetwork"
-        priority                   = 1001
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_ranges    = ["22", "3389"]
-        source_address_prefix      = "*"
-        destination_address_prefix = "VirtualNetwork"
-    }
+  security_rule {
+    name                       = "OutboundVirtualNetwork"
+    priority                   = 1001
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["22", "3389"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "VirtualNetwork"
+  }
 
-     security_rule {
-        name                       = "OutboundToAzureCloud"
-        priority                   = 1002
-        direction                  = "Outbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "443"
-        source_address_prefix      = "*"
-        destination_address_prefix = "AzureCloud"
-    }
+  security_rule {
+    name                       = "OutboundToAzureCloud"
+    priority                   = 1002
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "AzureCloud"
+  }
 
   tags = local.default_tags
 }

@@ -5,8 +5,8 @@ locals {
     Toolkit     = "Terraform"
     Contact     = "alwaysonappnet@microsoft.com"
     Environment = var.environment
-    Prefix      = var.prefix
+    Prefix      = local.prefix
   }
 
-  prefix = "${lower(var.prefix)}-buildagents"
+  prefix = "${lower(var.prefix)}${lower(var.suffix)}-buildagents"
 }

@@ -7,6 +7,12 @@ variable "prefix" {
   }
 }
 
+variable "suffix" {
+  description = "Optional suffix used for all resources in this example. Must not contain any special characters. Must not be longer than 10 characters."
+  type        = string
+  default     = ""
+}
+
 variable "location" {
   description = "Azure Region"
   type        = string
