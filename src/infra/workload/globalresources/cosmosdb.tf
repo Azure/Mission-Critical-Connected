@@ -92,8 +92,8 @@ resource "azurerm_cosmosdb_sql_container" "itemComments" {
 
 }
 
-resource "azurerm_cosmosdb_sql_container" "itemRating" {
-  name                = "itemRating"
+resource "azurerm_cosmosdb_sql_container" "itemRatings" {
+  name                = "itemRatings"
   resource_group_name = azurerm_cosmosdb_account.main.resource_group_name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_sql_database.main.name
