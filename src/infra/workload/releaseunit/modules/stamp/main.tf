@@ -1,6 +1,6 @@
 # Azure Resource Group used for all resources (per stamp)
 resource "azurerm_resource_group" "stamp" {
-  name     = "${var.prefix}-stamp-${var.location}-rg"
+  name     = "${local.prefix}-stamp-${var.location}-rg"
   location = var.location
   tags = merge(var.default_tags,
     {
