@@ -36,6 +36,7 @@ steps:
 
         if('${{ parameters.usePrivateEndpoints }}' -eq [bool]::TrueString)
         {
+          echo "*** Creating storage account with public-network-access Disabled"
           # If enabling private endpoints down below, we create the storage account with public access disabled to comply with Azure polices that might be in place
           az storage account create --name ${{ parameters.storageAccountName }} `
                                     --resource-group ${{ parameters.resourceGroupName }} `
