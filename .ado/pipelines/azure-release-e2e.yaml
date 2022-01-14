@@ -12,7 +12,7 @@ trigger:
 pr: none
 
 pool:
-  name: 'eslz-private-agents' # self-hosted agentpool
+  name: 'e2e-private-agents' # self-hosted agentpool
 
 parameters:
 - name: destroyEnvironment
@@ -33,7 +33,7 @@ parameters:
 
 variables:
 - name:  'environment' # set the environment name as variable
-  value: 'eslz'
+  value: 'e2e'
 
 - template: config/configuration.yaml # contains version numbers and global configuration settings
 - name:  'workingDirectory'    # Terraform root working directory
