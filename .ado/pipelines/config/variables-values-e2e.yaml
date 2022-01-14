@@ -4,7 +4,7 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'ape2e'          # <===== CHANGE THIS! Needs to be a unique prefix
+  value: 'ace2e'          # <===== CHANGE THIS! Needs to be a unique prefix
 
 - name: 'stampLocations'
   value: '["westeurope"]'    # Check which regions are valid. There is a list in /src/infra/README.md
@@ -22,7 +22,7 @@ variables:
 - name:  'terraformResourceGroup'
   value: 'alwayson-terraformstate-rg'       # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: 'ape2etfstatestore'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
+  value: 'ace2etfstatestore'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
 # Resource Group name where the Terraform state store of the private build agent deployment will be created
 - name:  'buildAgentTerraformResourceGroup'
@@ -30,4 +30,4 @@ variables:
 
 # Globally unique name of the storage account. Must be a different name than above! ('terraformStorageAccount')
 - name:  'buildAgentTerraformStorageAccount'
-  value: 'ape2etfstatestoreba' # <===== CHANGE THIS VALUE! Needs to be a globally unique name, must NOT be the same as the storage account above.
+  value: 'ace2etfstatestoreba' # <===== CHANGE THIS VALUE! Needs to be a globally unique name, must NOT be the same as the storage account above.
