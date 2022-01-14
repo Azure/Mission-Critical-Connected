@@ -38,7 +38,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "buildagents" {
     ip_configuration {
       name      = "${local.prefix}-buildagents-vmss-ipconfig"
       primary   = true
-      subnet_id = azurerm_subnet.buildagents_vmss.id
+      subnet_id = "${azurerm_virtual_network.deployment.id}/subnets/buildagents-snet"
     }
   }
 

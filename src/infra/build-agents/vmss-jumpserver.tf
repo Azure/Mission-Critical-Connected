@@ -37,7 +37,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "jumpserver" {
     ip_configuration {
       name      = "${local.prefix}-jumpserver-vmss-ipconfig"
       primary   = true
-      subnet_id = azurerm_subnet.jumpservers_vmss.id
+      subnet_id = "${azurerm_virtual_network.deployment.id}/subnets/jumpservers-snet"
     }
   }
 

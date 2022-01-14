@@ -14,7 +14,7 @@ module "subnet_addrs" {
       new_bits = 24 - local.netmask # For Build Agents VMSS we want a /24 sized subnet. So we calculate based on the provided input address space # Size: /24
     },
     {
-      name     = "jumpservers"
+      name     = "jumpservers-vmss"
       new_bits = 24 - local.netmask # For Jump Server VMSS we want a /24 sized subnet.
     },
     {
@@ -35,6 +35,30 @@ resource "azurerm_virtual_network" "deployment" {
   resource_group_name = azurerm_resource_group.deployment.name
 
   tags = local.default_tags
+
+  subnet {
+    name           = "buildagents-snet"
+    address_prefix = module.subnet_addrs.network_cidr_blocks["buildagents-vmss"]
+    security_group = azurerm_network_security_group.default.id
+  }
+
+  subnet {
+    name           = "jumpservers-snet"
+    address_prefix = module.subnet_addrs.network_cidr_blocks["jumpservers-vmss"]
+    security_group = azurerm_network_security_group.default.id
+  }
+
+  subnet {
+    name           = "AzureBastionSubnet"
+    address_prefix = module.subnet_addrs.network_cidr_blocks["bastion"]
+    security_group = azurerm_network_security_group.default.id
+  }
+
+  subnet {
+    name           = "private-endpoints-snet"
+    address_prefix = module.subnet_addrs.network_cidr_blocks["private-endpoints"]
+    security_group = azurerm_network_security_group.default.id
+  }
 }
 
 # Default Network Security Group (nsg) definition
@@ -107,64 +131,3 @@ resource "azurerm_network_security_group" "azurebastion" {
 
   tags = local.default_tags
 }
-
-# Subnet for the build agents
-resource "azurerm_subnet" "buildagents_vmss" {
-  name                 = "buildagents-vmss"
-  resource_group_name  = azurerm_resource_group.deployment.name
-  virtual_network_name = azurerm_virtual_network.deployment.name
-  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["buildagents-vmss"]]
-}
-
-# NSG - Assign default nsg to buildagents subnet
-resource "azurerm_subnet_network_security_group_association" "buildagents_vmss_default_nsg" {
-  subnet_id                 = azurerm_subnet.buildagents_vmss.id
-  network_security_group_id = azurerm_network_security_group.default.id
-}
-
-# Subnet for the jump servers
-resource "azurerm_subnet" "jumpservers_vmss" {
-  name                 = "jumpservers-vmss"
-  resource_group_name  = azurerm_resource_group.deployment.name
-  virtual_network_name = azurerm_virtual_network.deployment.name
-  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["jumpservers"]]
-}
-
-# NSG - Assign default nsg to jumpservers subnet
-resource "azurerm_subnet_network_security_group_association" "jumpservers_vmss_default_nsg" {
-  subnet_id                 = azurerm_subnet.jumpservers_vmss.id
-  network_security_group_id = azurerm_network_security_group.default.id
-}
-
-# Subnet for Bastion. Name must be exactly like this
-resource "azurerm_subnet" "bastion" {
-  name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.deployment.name
-  virtual_network_name = azurerm_virtual_network.deployment.name
-  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["bastion"]]
-}
-
-# NSG - Assign default nsg to AzureBastionSubnet subnet
-resource "azurerm_subnet_network_security_group_association" "bastion_default_nsg" {
-  subnet_id                 = azurerm_subnet.bastion.id
-  network_security_group_id = azurerm_network_security_group.azurebastion.id
-}
-
-#### This subnet is for the private endpoints which will be created during actual environment deployments
-resource "azurerm_subnet" "private_endpoints" {
-  name                 = "private-endpoints-snet"
-  resource_group_name  = azurerm_resource_group.deployment.name
-  virtual_network_name = azurerm_virtual_network.deployment.name
-  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["private-endpoints"]]
-
-  enforce_private_link_endpoint_network_policies = true
-}
-
-# NSG - Assign default nsg to private-endpoints-snet subnet
-resource "azurerm_subnet_network_security_group_association" "private_endpoints_default_nsg" {
-  subnet_id                 = azurerm_subnet.private_endpoints.id
-  network_security_group_id = azurerm_network_security_group.default.id
-}
-
-
-
