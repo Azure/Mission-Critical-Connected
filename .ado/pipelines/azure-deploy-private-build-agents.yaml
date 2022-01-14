@@ -13,7 +13,6 @@ parameters:
   - e2e
   - int
   - prod
-  - eslz
 
 pool:
   vmImage: 'ubuntu-20.04'
