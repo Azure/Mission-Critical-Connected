@@ -10,7 +10,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
   name                  = "acr-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.acr.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "acr" {
@@ -46,7 +46,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmosdb" {
   name                  = "cosmosdb-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.cosmosdb.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "cosmosdb" {
@@ -82,7 +82,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "servicebus" {
   name                  = "servicebus-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.servicebus.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "eventhub_namespace" {
@@ -118,7 +118,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
   name                  = "keyvault-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.keyvault.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "keyvault" {
@@ -154,7 +154,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage" {
   name                  = "storage-blob-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.blob_storage.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "blob_storage" {
@@ -189,7 +189,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "table_storage" {
   name                  = "storage-table-private-dns-link"
   resource_group_name   = azurerm_resource_group.stamp.name
   private_dns_zone_name = azurerm_private_dns_zone.table_storage.name
-  virtual_network_id    = azurerm_virtual_network.stamp.id
+  virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
 resource "azurerm_private_endpoint" "table_storage" {

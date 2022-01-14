@@ -22,8 +22,8 @@ variable "queued_by" {
 
 variable "default_tags" {}
 
-variable "vnet_address_space" {
-  description = "Address space used for the VNet. Must be at least of size /20"
+variable "vnet_resource_id" {
+  description = "VNet resource IDs for this stamp"
   type        = string
 }
 
