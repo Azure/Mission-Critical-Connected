@@ -42,7 +42,8 @@ steps:
                                     --resource-group ${{ parameters.resourceGroupName }} `
                                     --https-only true `
                                     --sku Standard_GZRS `
-                                    --public-network-access Disabled
+                                    --public-network-access Disabled `
+                                    --allow-blob-public-access false
         }
         else
         {
