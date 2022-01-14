@@ -33,10 +33,23 @@ steps:
                                        --resource-group ${{ parameters.resourceGroupName }} | ConvertFrom-Json
       if (!$check) {
         Write-Warning "*** WARN! Storage Account ${{ parameters.storageAccountName }} does not exist. Creating..."
-        az storage account create --name ${{ parameters.storageAccountName }} `
-                                  --resource-group ${{ parameters.resourceGroupName }} `
-                                  --https-only true `
-                                  --sku Standard_GZRS
+
+        if('${{ parameters.usePrivateEndpoints }}' -eq [bool]::TrueString)
+        {
+          # If enabling private endpoints down below, we create the storage account with public access disabled to comply with Azure polices that might be in place
+          az storage account create --name ${{ parameters.storageAccountName }} `
+                                    --resource-group ${{ parameters.resourceGroupName }} `
+                                    --https-only true `
+                                    --sku Standard_GZRS `
+                                    --public-network-access Disabled
+        }
+        else
+        {
+          az storage account create --name ${{ parameters.storageAccountName }} `
+                                    --resource-group ${{ parameters.resourceGroupName }} `
+                                    --https-only true `
+                                    --sku Standard_GZRS `
+        }
       }
       else
       {
@@ -114,10 +127,6 @@ steps:
           --name "tfprivatednsstorageblob" `
           --private-dns-zone "privatelink.blob.core.windows.net" `
           --zone-name blob
-          # Disable public access (access now only via Private Endpoint)
-          az storage account update --name ${{ parameters.storageAccountName }} `
-                                    --resource-group ${{ parameters.resourceGroupName }} `
-                                    --public-network-access Disabled
           echo "*** Sleeping for 120 seconds to let the private endpoint become effective"
           start-sleep -s 120
         }
