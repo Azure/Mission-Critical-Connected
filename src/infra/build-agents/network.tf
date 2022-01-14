@@ -51,7 +51,7 @@ resource "azurerm_virtual_network" "deployment" {
   subnet {
     name           = "AzureBastionSubnet"
     address_prefix = module.subnet_addrs.network_cidr_blocks["bastion"]
-    security_group = azurerm_network_security_group.default.id
+    security_group = azurerm_network_security_group.azurebastion.id
   }
 
   subnet {

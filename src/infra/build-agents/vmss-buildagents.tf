@@ -9,7 +9,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "buildagents" {
   single_placement_group = false
 
   admin_username = "adminuser"
-  admin_password = azurerm_key_vault_secret.vmsecret.value
+  admin_password = random_password.vmsecret.result
 
   disable_password_authentication = false
 
