@@ -136,7 +136,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = {
         name: privateEndpointsSubnetName
         properties: {
           addressPrefix: '10.0.3.0/24'
-          privateLinkServiceNetworkPolicies: 'Disabled'
+          privateEndpointNetworkPolicies: 'Disabled'
           networkSecurityGroup: {
             id: nsg.id
           }
