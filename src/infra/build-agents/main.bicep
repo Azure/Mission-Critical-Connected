@@ -3,7 +3,7 @@ param suffix string = ''
 param location string = 'Northeurope'
 param environment string
 
-param vmssAdminUsername = 'adminuser'
+param vmssAdminUsername string = 'adminuser'
 @secure()
 param vmssAdminPassword string
 

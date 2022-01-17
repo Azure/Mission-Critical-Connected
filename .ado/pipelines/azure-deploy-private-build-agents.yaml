@@ -67,6 +67,7 @@ stages:
           echo "*** Running bicep deployment"
           az deployment group create -g $rgName `
                                      --template-file "$(workingDirectory)/main.bicep" `
+                                      -n "buildinfra-deploy-$(Build.BuildId)" `
                                       -p prefix=$(prefix) `
                                       -p suffix=buildinfra `
                                       -p environment=$(environment) `
