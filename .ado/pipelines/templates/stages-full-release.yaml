@@ -40,7 +40,6 @@ stages:
             parameters:
               storageAccountName: '$(terraformStorageAccount)'
               resourceGroupName: '$(terraformResourceGroup)'
-              usePrivateEndpoints: 'true' # This Terraform state store must only be accessible via private endpoints (by the private build agents)
 
           # Global Resources terraform init
           - template: steps-terraform-init.yaml # Initialize Terraform

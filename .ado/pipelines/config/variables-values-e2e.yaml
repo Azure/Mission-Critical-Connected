@@ -23,11 +23,3 @@ variables:
   value: 'alwayson-terraformstate-rg'       # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
   value: 'ace2etfstatestore'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
-
-# Resource Group name where the Terraform state store of the private build agent deployment will be created
-- name:  'buildAgentTerraformResourceGroup'
-  value: 'alwayson-terraformstate-buildagents-rg'   # <===== CHANGE THIS VALUE IF NEEDED! Could be the same resource group as above ('terraformResourceGroup') (based on your subscription structure)
-
-# Globally unique name of the storage account. Must be a different name than above! ('terraformStorageAccount')
-- name:  'buildAgentTerraformStorageAccount'
-  value: 'ace2etfstatestoreba' # <===== CHANGE THIS VALUE! Needs to be a globally unique name, must NOT be the same as the storage account above.
