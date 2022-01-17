@@ -2,6 +2,8 @@ param prefix string
 param suffix string = ''
 param location string = 'Northeurope'
 param environment string
+
+param vmssAdminUsername = 'adminuser'
 @secure()
 param vmssAdminPassword string
 
@@ -260,7 +262,7 @@ resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' 
       osProfile: {
         computerNamePrefix: 'alwaysonbuildagent'
         customData: loadFileAsBase64('cloudinit.conf')
-        adminUsername: 'adminuser'
+        adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
       }
       networkProfile: {
@@ -326,7 +328,7 @@ resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' = 
       osProfile: {
         computerNamePrefix: 'alwaysonjumpboxes'
         customData: loadFileAsBase64('cloudinit.conf')
-        adminUsername: 'adminuser'
+        adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
       }
       networkProfile: {
