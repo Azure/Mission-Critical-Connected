@@ -68,6 +68,7 @@ stages:
           az deployment group create -g $rgName `
                                      --template-file "$(workingDirectory)/main.bicep" `
                                       -p prefix=$(prefix) `
+                                      -p suffix=buildinfra `
                                       -p environment=$(environment) `
                                       -p location=$location `
                                       -p vmssAdminPassword=$(buildAgentAdminPassword)

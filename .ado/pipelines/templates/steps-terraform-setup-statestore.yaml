@@ -3,9 +3,6 @@ parameters:
     type: string
   - name: 'resourceGroupName'  # Name of the resource group where the state storage accounts gets created. Will be created if not exists
     type: string
-  - name: 'usePrivateEndpoints' # Protect the terraform state store with Private Endpoints? Can only be used with private build agents!
-    type: string
-    default: 'false'
 
 steps:
 
@@ -34,53 +31,45 @@ steps:
       if (!$check) {
         Write-Warning "*** WARN! Storage Account ${{ parameters.storageAccountName }} does not exist. Creating..."
 
-        if('${{ parameters.usePrivateEndpoints }}' -eq [bool]::TrueString)
-        {
-          echo "*** Creating storage account with public-network-access Disabled"
-          # If enabling private endpoints down below, we create the storage account with public access disabled to comply with Azure polices that might be in place
-          az storage account create --name ${{ parameters.storageAccountName }} `
-                                    --resource-group ${{ parameters.resourceGroupName }} `
-                                    --https-only true `
-                                    --sku Standard_GZRS `
-                                    --public-network-access Disabled `
-                                    --default-action Deny
 
-          $storageAccountId = $(az storage account show --name ${{ parameters.storageAccountName }} `
-                                                        --resource-group ${{ parameters.resourceGroupName }} `
-                                                        --query "id" -o tsv)
-          $peName = "${{ parameters.storageAccountName }}-pe"
+        echo "*** Creating storage account with public-network-access Disabled"
+        # If enabling private endpoints down below, we create the storage account with public access disabled to comply with Azure polices that might be in place
+        az storage account create --name ${{ parameters.storageAccountName }} `
+                                  --resource-group ${{ parameters.resourceGroupName }} `
+                                  --https-only true `
+                                  --sku Standard_GZRS `
+                                  --public-network-access Disabled `
+                                  --default-action Deny
 
-          $buildAgentResourceGroupName = "$(prefix)-buildagents-rg"
-          $buildAgentVnetName = "$(prefix)-buildagents-vnet"
+        $storageAccountId = $(az storage account show --name ${{ parameters.storageAccountName }} `
+                                                      --resource-group ${{ parameters.resourceGroupName }} `
+                                                      --query "id" -o tsv)
+        $peName = "${{ parameters.storageAccountName }}-pe"
 
-          echo "*** Creating Private Endpoints for terraform state storage ${{ parameters.storageAccountName }}"
-          # Create the private endpoint itself
-          az network private-endpoint create `
-          --name $peName `
-          --resource-group $buildAgentResourceGroupName `
-          --vnet-name $buildAgentVnetName `
-          --subnet "private-endpoints-snet" `
-          --private-connection-resource-id $storageAccountId `
-          --group-id blob `
-          --connection-name myConnection
+        $buildAgentResourceGroupName = "$(prefix)-buildinfra-rg"
+        $buildAgentVnetName = "$(prefix)buildinfra-vnet"
 
-          # Create a DNS entry in the private blob.core.windows.net DNS zone of the build agent
-          az network private-endpoint dns-zone-group create `
-          --resource-group $buildAgentResourceGroupName `
-          --endpoint-name $peName `
-          --name "tfprivatednsstorageblob" `
-          --private-dns-zone "privatelink.blob.core.windows.net" `
-          --zone-name blob
-          echo "*** Sleeping for 120 seconds to let the private endpoint become effective"
-          start-sleep -s 120
-        }
-        else
-        {
-          az storage account create --name ${{ parameters.storageAccountName }} `
-                                    --resource-group ${{ parameters.resourceGroupName }} `
-                                    --https-only true `
-                                    --sku Standard_GZRS `
-        }
+        echo "*** Creating Private Endpoints for terraform state storage ${{ parameters.storageAccountName }}"
+        # Create the private endpoint itself
+        az network private-endpoint create `
+        --name $peName `
+        --resource-group $buildAgentResourceGroupName `
+        --vnet-name $buildAgentVnetName `
+        --subnet "private-endpoints-snet" `
+        --private-connection-resource-id $storageAccountId `
+        --group-id blob `
+        --connection-name myConnection
+
+        # Create a DNS entry in the private blob.core.windows.net DNS zone of the build agent
+        az network private-endpoint dns-zone-group create `
+        --resource-group $buildAgentResourceGroupName `
+        --endpoint-name $peName `
+        --name "tfprivatednsstorageblob" `
+        --private-dns-zone "privatelink.blob.core.windows.net" `
+        --zone-name blob
+        echo "*** Sleeping for 120 seconds to let the private endpoint become effective"
+        start-sleep -s 120
+
       }
       else
       {
