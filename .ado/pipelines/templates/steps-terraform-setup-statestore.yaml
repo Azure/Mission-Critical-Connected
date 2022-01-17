@@ -43,7 +43,7 @@ steps:
                                     --https-only true `
                                     --sku Standard_GZRS `
                                     --public-network-access Disabled `
-                                    --allow-blob-public-access false
+                                    --default-action Deny
         }
         else
         {
