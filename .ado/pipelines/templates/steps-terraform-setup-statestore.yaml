@@ -44,6 +44,10 @@ steps:
                                   --public-network-access Disabled `
                                   --default-action Deny
 
+        if ($LASTEXITCODE -eq 1) {
+          Write-Error "*** Error - could not create storage account"
+        }
+
         $storageAccountId = $(az storage account show --name ${{ parameters.storageAccountName }} `
                                                       --resource-group ${{ parameters.resourceGroupName }} `
                                                       --query "id" -o tsv)
@@ -63,6 +67,10 @@ steps:
         --group-id blob `
         --connection-name myConnection
 
+        if ($LASTEXITCODE -eq 1) {
+          Write-Error "*** Error - could not create storage private endpoint"
+        }
+
         # Create a DNS entry in the private blob.core.windows.net DNS zone of the build agent
         az network private-endpoint dns-zone-group create `
         --resource-group $buildAgentResourceGroupName `
@@ -72,10 +80,6 @@ steps:
         --zone-name blob
         echo "*** Sleeping for 120 seconds to let the private endpoint become effective"
         start-sleep -s 120
-
-        if ($LASTEXITCODE -eq 1) {
-          Write-Error "*** Error - could not create storage account"
-        }
       }
       else
       {
