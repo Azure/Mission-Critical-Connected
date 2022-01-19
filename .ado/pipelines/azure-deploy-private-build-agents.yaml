@@ -58,6 +58,10 @@ stages:
             Write-Warning "*** WARN! Resource Group $rgName does not exist. Creating..."
 
             az group create --name $rgName --location $location
+
+            if ($LASTEXITCODE -eq 1) {
+              Write-Error "*** Error - could not create resource group"
+            }
           }
           else
           {
@@ -76,3 +80,6 @@ stages:
                                       -p location=$location `
                                       -p vmssAdminPassword=$(buildAgentAdminPassword)
 
+          if ($LASTEXITCODE -eq 1) {
+            Write-Error "*** Error on bicep template deployment"
+          }
