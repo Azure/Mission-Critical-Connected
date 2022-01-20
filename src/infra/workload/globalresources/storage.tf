@@ -9,11 +9,11 @@ resource "azurerm_storage_account" "global" {
   min_tls_version          = "TLS1_2"
   allow_blob_public_access = true
 
-#   network_rules {
-#     default_action = "Deny" # Deny all access - except for the private endpoint connections
-#     bypass         = ["Metrics", "Logging"]
-#     ip_rules       = []
-#   }
+  #   network_rules {
+  #     default_action = "Deny" # Deny all access - except for the private endpoint connections
+  #     bypass         = ["Metrics", "Logging"]
+  #     ip_rules       = []
+  #   }
 
   blob_properties {
     versioning_enabled = true
