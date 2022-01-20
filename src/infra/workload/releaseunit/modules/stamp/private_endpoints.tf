@@ -49,26 +49,26 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmosdb" {
   virtual_network_id    = data.azurerm_virtual_network.stamp.id
 }
 
-# resource "azurerm_private_endpoint" "cosmosdb" {
-#   name                = "${local.prefix}-${local.location_short}-cosmosdb-pe"
-#   location            = azurerm_resource_group.stamp.location
-#   resource_group_name = azurerm_resource_group.stamp.name
-#   subnet_id           = azurerm_subnet.private_endpoints.id
+resource "azurerm_private_endpoint" "cosmosdb" {
+  name                = "${local.prefix}-${local.location_short}-cosmosdb-pe"
+  location            = azurerm_resource_group.stamp.location
+  resource_group_name = azurerm_resource_group.stamp.name
+  subnet_id           = azurerm_subnet.private_endpoints.id
 
-#   private_dns_zone_group {
-#     name                 = "privatednscosmosdb"
-#     private_dns_zone_ids = [azurerm_private_dns_zone.cosmosdb.id]
-#   }
+  private_dns_zone_group {
+    name                 = "privatednscosmosdb"
+    private_dns_zone_ids = [azurerm_private_dns_zone.cosmosdb.id]
+  }
 
-#   private_service_connection {
-#     name                           = "cosmosdb-privateserviceconnection"
-#     private_connection_resource_id = data.azurerm_cosmosdb_account.global.id
-#     is_manual_connection           = false
-#     subresource_names              = ["Sql"]
-#   }
+  private_service_connection {
+    name                           = "cosmosdb-privateserviceconnection"
+    private_connection_resource_id = data.azurerm_cosmosdb_account.global.id
+    is_manual_connection           = false
+    subresource_names              = ["Sql"]
+  }
 
-#   tags = var.default_tags
-# }
+  tags = var.default_tags
+}
 
 #### Private Endpoint related resources for Event Hub Namespace / Servicebus
 resource "azurerm_private_dns_zone" "servicebus" {
