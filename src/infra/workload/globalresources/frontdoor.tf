@@ -132,8 +132,8 @@ resource "azurerm_frontdoor" "main" {
     name = "GlobalStorage"
 
     backend {
-      host_header = "novalidhost.com" # azurerm_storage_account.global.primary_blob_host
-      address     = "novalidhost.com" # azurerm_storage_account.global.primary_blob_host
+      host_header = azurerm_storage_account.global.primary_blob_host
+      address     = azurerm_storage_account.global.primary_blob_host
       http_port   = 80
       https_port  = 443
       enabled     = true
@@ -141,8 +141,8 @@ resource "azurerm_frontdoor" "main" {
     }
 
     backend {
-      host_header = "novalidhost2.com" # azurerm_storage_account.global.secondary_blob_host
-      address     = "novalidhost2.com" # azurerm_storage_account.global.secondary_blob_host
+      host_header = azurerm_storage_account.global.secondary_blob_host
+      address     = azurerm_storage_account.global.secondary_blob_host
       http_port   = 80
       https_port  = 443
       enabled     = true
