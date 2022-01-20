@@ -1,5 +1,10 @@
 data "azurerm_client_config" "current" {}
 
+data "azurerm_virtual_network" "stamp" {
+  name                = local.vnet_name
+  resource_group_name = local.vnet_resource_group_name
+}
+
 data "azurerm_cosmosdb_account" "global" {
   name                = var.cosmosdb_account_name
   resource_group_name = var.global_resource_group_name
@@ -26,10 +31,10 @@ data "azurerm_storage_account" "global" {
 }
 
 data "azurerm_resource_group" "buildagent" {
-  name = "${var.prefix}-buildagents-rg"
+  name = "${var.prefix}-buildinfra-rg"
 }
 
 data "azurerm_virtual_network" "buildagent" {
-  name                = "${var.prefix}-buildagents-vnet"
+  name                = "${var.prefix}buildinfra-vnet"
   resource_group_name = data.azurerm_resource_group.buildagent.name
 }

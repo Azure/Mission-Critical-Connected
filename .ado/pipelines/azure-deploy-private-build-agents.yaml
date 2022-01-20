@@ -27,34 +27,59 @@ variables:
 
 - template: config/configuration.yaml # contains version numbers and global configuration settings
 - template: config/variables-values-${{ parameters.environment }}.yaml # contains environment-specific values (non-secret)
+- group: '${{ variables.environment }}-env-vg' # contains environment-specific values (secrets which cannot be stored in the config file)
 
 stages:
 
 - stage: deployinfrastructure
-  displayName: 'Deploy Infrastructure' # Deploy Azure Infrastructure
+  displayName: 'Deploy Build Agent Infrastructure' # Deploy Azure Infrastructure
   jobs:
-  - job: deployterraform
-    displayName: 'Deploy Terraform'
+  - job: deploybicepbuildagent
+    displayName: 'Deploy Bicep'
     steps:
     - checkout: self # checkout github repository
 
-    # Check if terraform state store for the build agent exists, and create it if not
-    - template: templates/steps-terraform-setup-statestore.yaml
-      parameters:
-        storageAccountName:   '$(buildAgentTerraformStorageAccount)'
-        resourceGroupName:    '$(buildAgentTerraformResourceGroup)'
-        usePrivateEndpoints:  'false' # this storage account must not be locked down to Private Endpoints, since this pipeline needs to run on Microsoft-hosted agents
+    - task: AzureCLI@2
+      displayName: 'Deploy Build Agent Bicep template'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
 
-    - template: templates/steps-terraform-init.yaml # Initialize Terraform
-      parameters:
-        terraformStorageAccountName:        '$(buildAgentTerraformStorageAccount)'
-        terraformStorageResourceGroupName:  '$(buildAgentTerraformResourceGroup)'
-        terraformStateFilename:             'terraform-agents-$(prefix).state'
-        terraformWorkingDirectory:          '$(workingDirectory)'
+          $rgName = "$(prefix)-buildinfra-rg"
 
-    - template: templates/steps-terraform-apply.yaml
-      parameters:
-        jobName:                    'PrivateBuildAgentInfra'
-        terraformWorkingDirectory:  '$(workingDirectory)'
-        customPrefix:               '$(prefix)'
+          $locations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate # get the stamp locations and use the first one to create the resource group there. The region does not really matter.
+          $location = $locations[0]
 
+          echo "*** Check if Resource Group $rgName exists"
+          $checkRg = az group exists --name $rgName | ConvertFrom-Json
+          if (!$checkRg) {
+            Write-Warning "*** WARN! Resource Group $rgName does not exist. Creating..."
+
+            az group create --name $rgName --location $location
+
+            if ($LASTEXITCODE -eq 1) {
+              Write-Error "*** Error - could not create resource group"
+            }
+          }
+          else
+          {
+            echo "*** Ok"
+          }
+
+          $deploymentName = "buildinfra-deploy-$(Build.BuildId)"
+
+          echo "*** Running bicep deployment $deploymentName"
+          az deployment group create -g $rgName `
+                                     --template-file "$(workingDirectory)/main.bicep" `
+                                      -n $deploymentName `
+                                      -p prefix=$(prefix) `
+                                      -p suffix=buildinfra `
+                                      -p environment=$(environment) `
+                                      -p location=$location `
+                                      -p vmssAdminPassword=$(buildAgentAdminPassword)
+
+          if ($LASTEXITCODE -eq 1) {
+            Write-Error "*** Error on bicep template deployment"
+          }

@@ -7,6 +7,7 @@ resource "azurerm_cosmosdb_account" "main" {
   enable_automatic_failover         = true
   enable_multiple_write_locations   = true
   is_virtual_network_filter_enabled = true
+  public_network_access_enabled     = false
 
   consistency_policy {
     consistency_level       = "Session"
@@ -19,7 +20,7 @@ resource "azurerm_cosmosdb_account" "main" {
     content {
       location          = geo_location.value
       failover_priority = geo_location.key
-      zone_redundant    = true
+      zone_redundant    = false
     }
   }
 

@@ -4,28 +4,20 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'approd'          # <===== CHANGE THIS! Needs to be a unique prefix
+  value: 'acprod'          # <===== CHANGE THIS! Needs to be a unique prefix
 
 - name: 'stampLocations'
   value: '["northeurope", "canadacentral"]' # Check which regions are valid. There is a list in /src/infra/README.md
 
 # Other settings
 - name:  'contactEmail'
-  value: 'alwaysonappnet@microsoft.com'
+  value: 'noreply@example.com'  # <===== CHANGE THIS VALUE TO ONE OF YOUR REAL EMAIL ADDRESSES (OR A GROUP)!
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
   value: 'terraformstate-rg'          # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: 'approdterraformstate'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
-
-  # Resource Group name where the Terraform state store of the private build agent deployment will be created
-- name:  'buildAgentTerraformResourceGroup'
-  value: 'terraformstate-rg'   # <===== CHANGE THIS VALUE IF NEEDED! Could be the same resource group as above ('terraformResourceGroup') (based on your subscription structure)
-
-# Globally unique name of the storage account. Must be a different name than above! ('terraformStorageAccount')
-- name:  'buildAgentTerraformStorageAccount'
-  value: 'approdtfstatestoreba' # <===== CHANGE THIS VALUE! Needs to be a globally unique name, must NOT be the same as the storage account above.
+  value: 'apcrodterraformstate'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
 # Custom DNS name settings
 - name: 'envDnsZoneRG'
