@@ -9,11 +9,11 @@ resource "azurerm_storage_account" "global" {
   min_tls_version          = "TLS1_2"
   allow_blob_public_access = false
 
-  network_rules {
-    default_action = "Deny" # Deny all access - except for the private endpoint connections
-    bypass         = ["Metrics", "Logging"]
-    ip_rules       = []
-  }
+#   network_rules {
+#     default_action = "Deny" # Deny all access - except for the private endpoint connections
+#     bypass         = ["Metrics", "Logging"]
+#     ip_rules       = []
+#   }
 
   blob_properties {
     versioning_enabled = true
@@ -22,21 +22,21 @@ resource "azurerm_storage_account" "global" {
   tags = local.default_tags
 }
 
-# # Storage container to store catalog item images
-# resource "azurerm_storage_container" "images" {
-#   name                  = "images"
-#   storage_account_name  = azurerm_storage_account.global.name
-#   container_access_type = "blob"
-# }
+# Storage container to store catalog item images
+resource "azurerm_storage_container" "images" {
+  name                  = "images"
+  storage_account_name  = azurerm_storage_account.global.name
+  container_access_type = "blob"
+}
 
-# # Empty Storage Blob for Azure Front Door health checks
-# resource "azurerm_storage_blob" "healthcheck" {
-#   name                   = "health.check"
-#   storage_account_name   = azurerm_storage_account.global.name
-#   storage_container_name = azurerm_storage_container.images.name
-#   type                   = "Block"
-#   source_content         = "" # empty file
-# }
+# Empty Storage Blob for Azure Front Door health checks
+resource "azurerm_storage_blob" "healthcheck" {
+  name                   = "health.check"
+  storage_account_name   = azurerm_storage_account.global.name
+  storage_container_name = azurerm_storage_container.images.name
+  type                   = "Block"
+  source_content         = "" # empty file
+}
 
 ####################################### PUBLIC STORAGE DIAGNOSTIC SETTINGS #######################################
 
