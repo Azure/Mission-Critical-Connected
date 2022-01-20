@@ -1,13 +1,13 @@
 # Dynamically calculate subnet addresses from the overall address space. Assumes (at least) a /20 address space
 # Uses the Hashicopr module "CIDR subnets" https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
 locals {
-  netmask = tonumber(split("/", data.azurerm_virtual_network.stamp.address_space)[1]) # Take the last part from the address space 10.0.0.0/16 => 16
+  netmask = tonumber(split("/", data.azurerm_virtual_network.stamp.address_space[0])[1]) # Take the last part from the address space 10.0.0.0/16 => 16
 }
 
 module "subnet_addrs" {
   source = "hashicorp/subnets/cidr"
 
-  base_cidr_block = data.azurerm_virtual_network.stamp.address_space
+  base_cidr_block = data.azurerm_virtual_network.stamp.address_space[0]
   networks = [
     {
       name     = "kubernetes"
