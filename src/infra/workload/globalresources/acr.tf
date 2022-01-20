@@ -7,6 +7,12 @@ resource "azurerm_container_registry" "main" {
 
   public_network_access_enabled = false # Access is limited to private endpoints only
 
+  network_rule_set = [{
+    default_action  = "Deny"
+    ip_rule         = []
+    virtual_network = []
+  }]
+
   zone_redundancy_enabled = false # Disabled for now as it is still in preview and not supported in all regions. Can be enabled if you know that all the stamp's regions support it already.
 
   dynamic "georeplications" {
