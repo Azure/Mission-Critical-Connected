@@ -43,7 +43,7 @@ output "frontdoor_fqdn" {
 }
 
 output "global_storage_account_name" {
-  value = "changeme11111111.blob.core.windows.net" # azurerm_storage_account.global.name
+  value = azurerm_storage_account.global.name
 }
 
 output "azure_monitor_action_group_resource_id" {
