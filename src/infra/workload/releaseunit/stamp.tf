@@ -1,20 +1,3 @@
-# locals {
-#   netmask = tonumber(split("/", var.vnet_address_space)[1]) # Take the last part from the address space 10.0.0.0/16 => 16
-# }
-
-# # Dynamically calculate addresse ranges from the overall address space. Each stamp gets a /20 sized range
-# # So the input range must be large enough to provide enough /20 subnets per desired stamp
-# # Uses the Hashicopr module "CIDR subnets" https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
-# module "stamp_addresses" {
-#   source = "hashicorp/subnets/cidr"
-
-#   base_cidr_block = var.vnet_address_space
-#   networks = [for stamp in var.stamps : {
-#     name     = stamp
-#     new_bits = 20 - local.netmask # Each stamp needs at least a /20 sized subnet. So we calculate based on the provided input address space
-#   }]
-# }
-
 module "stamp" {
   for_each = toset(var.stamps) # for each needs a set, cannot work with a list
   source   = "./modules/stamp"
@@ -22,8 +5,6 @@ module "stamp" {
   location = each.value
 
   vnet_resource_id = var.vnet_resource_ids[each.value]
-
-  #vnet_address_space = module.stamp_addresses.network_cidr_blocks[each.value]
 
   kubernetes_version = var.kubernetes_version # kubernetes version
 

@@ -52,11 +52,6 @@ variable "alerts_enabled" {
 
 ########### Release Unit specific variables ###########
 
-# variable "vnet_address_space" {
-#   description = "Address space used for the VNets. Must be large enough to provide at least of size /20 per stamp!"
-#   type        = string
-# }
-
 variable "vnet_resource_ids" {
   description = "Map of VNet resource IDs for each stamp (key: stamp, value: vnet resource ID)"
   type        = map(string)
