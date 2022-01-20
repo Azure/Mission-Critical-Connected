@@ -41,6 +41,7 @@ steps:
                                   --resource-group ${{ parameters.resourceGroupName }} `
                                   --https-only true `
                                   --sku Standard_GZRS `
+                                  --min-tls-version TLS1_2 `
                                   --public-network-access Disabled `
                                   --default-action Deny
 
