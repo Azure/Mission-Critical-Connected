@@ -11,7 +11,7 @@ variables:
 
 # Other settings
 - name:  'contactEmail'
-  value: 'alwaysonappnet@microsoft.com'
+  value: 'noreply@example.com'  # <===== CHANGE THIS VALUE TO ONE OF YOUR REAL EMAIL ADDRESSES (OR A GROUP)!
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
