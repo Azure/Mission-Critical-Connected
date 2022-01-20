@@ -17,11 +17,11 @@ output "acr_name" {
 }
 
 output "cosmosdb_account_name" {
-  value = azurerm_cosmosdb_account.main.name
+  value = "changeme.documents.azure.com" # azurerm_cosmosdb_account.main.name
 }
 
 output "cosmosdb_database_name" {
-  value = azurerm_cosmosdb_sql_database.main.name
+  value = "alwayson" # azurerm_cosmosdb_sql_database.main.name
 }
 
 output "frontdoor_resource_id" {

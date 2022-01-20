@@ -28,7 +28,7 @@ resource "azurerm_dashboard" "global_board" {
       front_door_id   = var.frontdoor_resource_id
       front_door_name = var.frontdoor_name
 
-      cosmosdb_id = data.azurerm_cosmosdb_account.global.id
+      cosmosdb_id = "CHANGEME" # data.azurerm_cosmosdb_account.global.id
 
       tenant_id = data.azurerm_client_config.current.tenant_id
   })
