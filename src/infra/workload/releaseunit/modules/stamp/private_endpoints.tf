@@ -104,6 +104,13 @@ resource "azurerm_private_endpoint" "eventhub_namespace" {
   }
 
   tags = var.default_tags
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
+      private_dns_zone_group
+    ]
+  }
 }
 
 #### Private Endpoint related resources for Key Vault
@@ -140,6 +147,13 @@ resource "azurerm_private_endpoint" "keyvault" {
   }
 
   tags = var.default_tags
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
+      private_dns_zone_group
+    ]
+  }
 }
 
 #### Private Endpoint related resources for Storage
@@ -176,6 +190,13 @@ resource "azurerm_private_endpoint" "blob_storage" {
   }
 
   tags = var.default_tags
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
+      private_dns_zone_group
+    ]
+  }
 }
 
 # resource "azurerm_private_dns_zone" "table_storage" {
@@ -211,4 +232,11 @@ resource "azurerm_private_endpoint" "table_storage" {
   }
 
   tags = var.default_tags
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
+      private_dns_zone_group
+    ]
+  }
 }
