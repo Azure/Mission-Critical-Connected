@@ -18,7 +18,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   }
 
   private_cluster_enabled = true # Deploy this cluster in private-only mode. When enabled, e.g. no kubectl connections over the internet are possible
-  private_dns_zone_id     = "System"
+  private_dns_zone_id     = "None"
 
   role_based_access_control {
     enabled = true
