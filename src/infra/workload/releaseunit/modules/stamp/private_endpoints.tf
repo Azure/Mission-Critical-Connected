@@ -71,19 +71,19 @@ resource "azurerm_private_endpoint" "cosmosdb" {
 }
 
 #### Private Endpoint related resources for Event Hub Namespace / Servicebus
-resource "azurerm_private_dns_zone" "servicebus" {
-  name                = "privatelink.servicebus.windows.net"
-  resource_group_name = azurerm_resource_group.stamp.name
+# resource "azurerm_private_dns_zone" "servicebus" {
+#   name                = "privatelink.servicebus.windows.net"
+#   resource_group_name = azurerm_resource_group.stamp.name
 
-  tags = var.default_tags
-}
+#   tags = var.default_tags
+# }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "servicebus" {
-  name                  = "servicebus-private-dns-link"
-  resource_group_name   = azurerm_resource_group.stamp.name
-  private_dns_zone_name = azurerm_private_dns_zone.servicebus.name
-  virtual_network_id    = data.azurerm_virtual_network.stamp.id
-}
+# resource "azurerm_private_dns_zone_virtual_network_link" "servicebus" {
+#   name                  = "servicebus-private-dns-link"
+#   resource_group_name   = azurerm_resource_group.stamp.name
+#   private_dns_zone_name = azurerm_private_dns_zone.servicebus.name
+#   virtual_network_id    = data.azurerm_virtual_network.stamp.id
+# }
 
 resource "azurerm_private_endpoint" "eventhub_namespace" {
   name                = "${local.prefix}-${local.location_short}-evhns-pe"
@@ -91,10 +91,10 @@ resource "azurerm_private_endpoint" "eventhub_namespace" {
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
 
-  private_dns_zone_group {
-    name                 = "privatednsservicebus"
-    private_dns_zone_ids = [azurerm_private_dns_zone.servicebus.id]
-  }
+  # private_dns_zone_group {
+  #   name                 = "privatednsservicebus"
+  #   private_dns_zone_ids = [azurerm_private_dns_zone.servicebus.id]
+  # }
 
   private_service_connection {
     name                           = "evhns-privateserviceconnection"
