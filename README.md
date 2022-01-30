@@ -17,7 +17,7 @@ This repository contains the reference implementation for an AlwaysOn online sce
 
 ## More information about AlwaysOn
 
-- [Introduction - What is AlwaysOn?](https://github.com/Azure/AlwaysOn/blob/repo-go-live-changes/docs/introduction/README.md){target="_blank"} - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
+- [Introduction - What is AlwaysOn?](https://github.com/Azure/AlwaysOn/blob/repo-go-live-changes/docs/introduction/README.md) - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
 - [Design Guidelines](https://github.com/Azure/AlwaysOn/blob/repo-go-live-changes/docs/design-methodology/README.md) - Prescriptive guidance aligned to 8 critical design areas guides users to design and build an AlwaysOn application, outlining a recommended decision process.
 
 ## Helpful Information
