@@ -32,11 +32,6 @@ In addition to the controllers, an [ASP.NET Core HealthCheck](https://docs.micro
 
 Wherever possible, we use Dependency Injection with interfaces for common services (for example for the message and database service). All implementations are placed in the `AlwaysOn.Shared` class library, so no package references for the actual underlying services such as Cosmos DB are required in the CatalogService.
 
-### API Authorization
-
-To demonstrate how authentication and authorization works, we [implemented Azure AD B2C](/docs/reference-implementation/AppDesign-Application-Design.md#Authentication) selectively on individual APIs within the `GameController`. There are two key initialization steps in `Startup.cs`: adding authentication and adding authorization.
-
-
 ### Logging and tracing
 
 We use the `Microsoft.ApplicationInsights.AspNetCore` NuGet package to get out-of-the-box instrumentation from the Web API. Also, [Serilog](https://github.com/serilog/serilog-extensions-logging) is used for all logging inside the application with Azure Application Insights configured as a sink (in addition to the Console sink). Only when needed to track additional metrics, we use the `TelemetryClient` for ApplicationInsights directly.
@@ -93,10 +88,10 @@ public async Task<ActionResult<CatalogItem>> GetCatalogItemByIdAsyncV2(Guid item
 }
 ```
 
-* Providing version string in the URL is mandatory (e.g. `https://localhost:5000/1.0/catalogitem/` or `https://ao6bd5-global-fd.azurefd.net/api/1.0/catalogitem`).
-* If version is `1.0`, the first implementation will get called (`GetCatalogItemByIdAsync`).
-* If version is `2.0`, the second implementation will get called (`GetCatalogItemByIdAsyncV2`).
-* If version `3.0` is specified on the controller, but no actions map to it, first implementation will be called.
+- Providing version string in the URL is mandatory (e.g. `https://localhost:5000/1.0/catalogitem/` or `https://ao6bd5-global-fd.azurefd.net/api/1.0/catalogitem`).
+- If version is `1.0`, the first implementation will get called (`GetCatalogItemByIdAsync`).
+- If version is `2.0`, the second implementation will get called (`GetCatalogItemByIdAsyncV2`).
+- If version `3.0` is specified on the controller, but no actions map to it, first implementation will be called.
 
 ---
 
