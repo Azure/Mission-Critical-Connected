@@ -7,7 +7,7 @@ variables:
   value: 'acint'          # <===== CHANGE THIS! Needs to be a unique prefix
 
 - name: 'stampLocations'
-  value: '["northeurope", "canadacentral"]' # Check which regions are valid. There is a list in /src/infra/README.md
+  value: '["westeurope"]' # Check which regions are valid. There is a list in /src/infra/README.md
 
 # Other settings
 - name:  'contactEmail'
