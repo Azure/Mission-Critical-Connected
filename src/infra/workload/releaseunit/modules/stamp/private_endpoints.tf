@@ -108,7 +108,7 @@ resource "azurerm_private_endpoint" "eventhub_namespace" {
   lifecycle {
     ignore_changes = [
       # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
-      private_dns_zone_group
+      # private_dns_zone_group
     ]
   }
 }
@@ -151,7 +151,7 @@ resource "azurerm_private_endpoint" "keyvault" {
   lifecycle {
     ignore_changes = [
       # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
-      private_dns_zone_group
+      # private_dns_zone_group
     ]
   }
 }
@@ -194,7 +194,7 @@ resource "azurerm_private_endpoint" "blob_storage" {
   lifecycle {
     ignore_changes = [
       # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
-      private_dns_zone_group
+      # private_dns_zone_group
     ]
   }
 }
@@ -236,7 +236,7 @@ resource "azurerm_private_endpoint" "table_storage" {
   lifecycle {
     ignore_changes = [
       # Ignore changes to private_dns_zone_group because this is managed by Azure Policy
-      private_dns_zone_group
+      # private_dns_zone_group
     ]
   }
 }
