@@ -137,6 +137,62 @@ stages:
   displayName: 'Deploy Release Unit Infrastructure' # Deploy Release Unit Azure Infrastructure
   dependsOn: deployglobalinfrastructure
   jobs:
+  - ${{ if eq(parameters.environment, 'e2e') }}: # Special case for E2E: we do not have pre-provided VNets here, so we need to create them first
+    - job: createvnetjob
+      displayName: 'Create empty VNets for E2E'
+      steps:
+      - task: AzureCLI@2
+        displayName: 'Create VNets if not exists'
+        inputs:
+          azureSubscription: '$(azureServiceConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+
+            $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+
+            $rgName = "$(prefix)$(customSuffix)-networks-rg"
+
+            # This can be adjusted as needed
+            $addressSpace = "10.1.0.0/18"
+
+            foreach($location in $stampLocations)
+            {
+
+              $vnetName = "$(prefix)$(customSuffix)-$location-vnet"
+
+              # check if the VNet already exists (from a previous run of this job)
+              $vnet = $(az network vnet list --query "[?name=='$vnetName']" -o tsv)
+
+              if($LastExitCode -ne 0)
+              {
+                  throw "*** Error on checking existing VNet $vnetName"
+              }
+
+              if($vnet)
+              {
+                echo "*** VNEt $vnetName already exists"
+              }
+              else
+              {
+
+              echo "*** Check if Resource Group $rgName exists"
+              $checkRg = az group exists --name $rgName | ConvertFrom-Json
+              if (!$checkRg) {
+                Write-Warning "*** Resource Group $rgName does not exist. Creating..."
+                # get the stamp locations and use the first one to create the resource group there.
+                az group create --name $rgName --location $location
+
+                if ($LASTEXITCODE -eq 1) {
+                  Write-Error "*** Error - could not create resource group"
+                }
+              }
+
+                echo "*** Creating new VNet $vnetName for E2E environment..."
+                az network vnet create -n $vnetName -g $rgName -l $location --address-prefixes $addressSpace
+              }
+            }
+
   - job: deployterraform
     displayName: 'Deploy Terraform Release Unit Resources'
     timeoutInMinutes: 120 # extend the default timeout of 60min since getting a certificate when using a custom domain name can take a while
@@ -464,3 +520,16 @@ stages:
                                               -var=contact_email="$(contactEmail)"
                                               -var=''stamps=$(stampLocations)''
                                               $(terraformAdditionalParametersCustomDomains)'
+
+              - task: AzureCLI@2
+                displayName: 'Delete E2E VNets'
+                inputs:
+                  azureSubscription: '$(azureServiceConnection)'
+                  scriptType: pscore
+                  scriptLocation: inlineScript
+                  inlineScript: |
+
+                    $rgName = "$(prefix)$(customSuffix)-networks-rg"
+
+                    echo "*** Deleting resource group $rgName which contains the VNet(s) for this environment"
+                    az group delete -g $rgName
