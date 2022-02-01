@@ -170,7 +170,7 @@ stages:
           $vnets = @{}
           $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
 
-          $vnetFile = "config/vnets-$(environment).json"
+          $vnetFile = "$(Pipeline.Workspace)/.ado/pipelines/config/vnets-$(environment).json"
 
           if(Test-Path $vnetFile)
           {
@@ -220,7 +220,7 @@ stages:
           }
           else
           {
-            echo "*** No pre-provided VNets defined. Using temporary VNets..."
+            echo "*** No pre-provided VNets defined (file not found: $vnetFile). Using temporary VNets..."
             # This is usually the case for E2E: we do not have pre-provided VNets here, so we need to create them first
 
             $rgName = "$(prefix)$(customSuffix)-networks-rg"
