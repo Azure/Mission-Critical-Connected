@@ -210,8 +210,8 @@ stages:
                 }
 
                 echo "*** Creating new VNet $vnetName for E2E environment..."
-                $vnet = az network vnet create -n $vnetName -g $rgName -l $location --address-prefixes $addressSpace | ConvertFrom-JSON
-                $vnets[$location] = $vnet.id
+                $vnet = $(az network vnet create -n $vnetName -g $rgName -l $location --address-prefixes $addressSpace) | ConvertFrom-JSON
+                $vnets[$location] = $vnet.newVnet.id
               }
             }
 
