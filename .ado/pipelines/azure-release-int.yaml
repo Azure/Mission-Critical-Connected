@@ -23,7 +23,7 @@ parameters:
 
 variables:
 - name:  'environment' # set the environment name as variable
-  value: 'eslz'
+  value: 'int'
 
 - template: config/configuration.yaml # contains version numbers and global configuration settings
 - name:  'workingDirectory'    # Terraform root working directory
