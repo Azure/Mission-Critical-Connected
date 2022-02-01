@@ -191,7 +191,7 @@ stages:
               foreach($vnetId in $vnetsInLocation)
               {
                 echo "*** Checking if VNet is in use $vnetId"
-                $vnet = az network vnet show --ids $vnetId |ConvertFrom-Json
+                $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
                 if(-not $vnet)
                 {
                   throw "*** ERROR $vnetId not found"
@@ -220,7 +220,7 @@ stages:
           }
           else
           {
-            echo "*** No pre-provided VNets defined. Creating temporary VNets..."
+            echo "*** No pre-provided VNets defined. Using temporary VNets..."
             # This is usually the case for E2E: we do not have pre-provided VNets here, so we need to create them first
 
             $rgName = "$(prefix)$(customSuffix)-networks-rg"
