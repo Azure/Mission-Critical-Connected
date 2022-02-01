@@ -170,7 +170,7 @@ stages:
           $vnets = @{}
           $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
 
-          $vnetFile = "$(Pipeline.Workspace)/.ado/pipelines/config/vnets-$(environment).json"
+          $vnetFile = "$(System.DefaultWorkingDirectory)/.ado/pipelines/config/vnets-$(environment).json"
 
           if(Test-Path $vnetFile)
           {
