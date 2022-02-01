@@ -158,24 +158,75 @@ stages:
         terraformStateFilename:             '$(terraformStateFileReleaseUnit)'
         terraformWorkingDirectory:          '$(workingDirectory)/releaseunit'
 
-    - ${{ if eq(parameters.environment, 'e2e') }}: # Special case for E2E: we do not have pre-provided VNets here, so we need to create them first
-      - task: AzureCLI@2
-        displayName: 'Create VNets if not exists'
-        inputs:
-          azureSubscription: '$(azureServiceConnection)'
-          scriptType: pscore
-          scriptLocation: inlineScript
-          inlineScript: |
+    - task: AzureCLI@2
+      displayName: 'Select or create VNets if not exists'
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
 
-            $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+          # Hashtable of VNet IDs per stamp location
+          $vnets = @{}
+          $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+
+          $vnetFile = "config/vnets-$(environment).json"
+
+          if(Test-Path $vnetFile)
+          {
+            echo "*** Using provided VNets from file $vnetFile"
+
+            # Load available pre-provided VNets
+            $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
+
+            foreach($location in $stampLocations)
+            {
+              # Pick list of regional VNets
+              $vnetsInLocation = $availableVnets.$location
+              if(-not $vnetsInLocation)
+              {
+                throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
+              }
+
+              foreach($vnetId in $vnetsInLocation)
+              {
+                echo "*** Checking if VNet is in use $vnetId"
+                $vnet = az network vnet show --ids $vnetId |ConvertFrom-Json
+                if(-not $vnet)
+                {
+                  throw "*** ERROR $vnetId not found"
+                }
+
+                $tagName = "alwayson-vnet-used-by"
+
+                # Use this VNet if it was already tagged for this release or if it has no subnets yet
+                if(($vnet.tags.$tagName -eq "$(prefix)$(customSuffix)") -or ($vnet.subnets.Count -eq 0))
+                {
+                  echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
+                  $vnets[$location] = $vnetId
+
+                  # Add a tag to mark this VNet being used by this deployment
+                  az tag update --operation merge --resource-id $vnetId --tags "$tagname=$(prefix)$(customSuffix)"
+
+                  break
+                }
+              }
+
+              if(-not $vnets[$location])
+              {
+                throw "*** ERROR no available VNet found for location $location"
+              }
+            }
+          }
+          else
+          {
+            echo "*** No pre-provided VNets defined. Creating temporary VNets..."
+            # This is usually the case for E2E: we do not have pre-provided VNets here, so we need to create them first
 
             $rgName = "$(prefix)$(customSuffix)-networks-rg"
 
             # This can be adjusted as needed
             $addressSpace = "10.1.0.0/18"
-
-            # Hashtable of VNet IDs per stamp location
-            $vnets = @{}
 
             foreach($location in $stampLocations)
             {
@@ -214,12 +265,13 @@ stages:
                 $vnets[$location] = $vnet.newVnet.id
               }
             }
+          }
 
-            $vnetsJson = $vnets | ConvertTo-Json -Compress
+          $vnetsJson = $vnets | ConvertTo-Json -Compress
 
-            echo "*** List of VNets per location: $vnetsJson"
+          echo "*** List of VNets per location: $vnetsJson"
 
-            echo "##vso[task.setvariable variable=tfParameterVnetResourceIds]$vnetsJson"
+          echo "##vso[task.setvariable variable=tfParameterVnetResourceIds]$vnetsJson"
 
     # Release Unit Resources deployment
     - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
