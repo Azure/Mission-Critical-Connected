@@ -55,7 +55,7 @@ steps:
 
               break
             }
-            else if(($vnet.subnets.Count) -eq 0 -and (-not $vnet.tags.$earmarkTagName))
+            elseif(($vnet.subnets.Count) -eq 0 -and (-not $vnet.tags.$earmarkTagName))
             {
               # Use this VNet as it has no subnets yet and was not earmarked yet by any other release
               echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
