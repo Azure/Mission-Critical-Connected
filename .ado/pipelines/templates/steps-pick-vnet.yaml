@@ -4,7 +4,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
-  displayName: 'Select or create VNets if not exists'
+  displayName: 'Select VNets for stamps'
   inputs:
     azureSubscription: '$(azureServiceConnection)'
     scriptType: pscore
