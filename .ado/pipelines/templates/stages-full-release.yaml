@@ -412,8 +412,7 @@ stages:
             # Pick a VNet from the list of pre-provided VNets or create news one if needed
             - template: steps-pick-vnet.yaml
               parameters:
-                prefix: $(oldReleasePrefix)
-                suffix: $(oldReleaseSuffix)
+                prefix: $(oldReleasePrefixSuffix)
 
             # Initialize Terraform for destroy
             - template: steps-terraform-destroy.yaml
