@@ -440,6 +440,69 @@ stages:
                                           -var=global_storage_account_name="$(global_storage_account_name)"
                                           -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
 
+            - task: AzureCLI@2
+              displayName: 'Clean up VNets'
+              inputs:
+                azureSubscription: '$(azureServiceConnection)'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+
+                  $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+
+                  $vnetFile = "$(System.DefaultWorkingDirectory)/.ado/pipelines/config/vnets-$(environment).json"
+
+                  if(Test-Path $vnetFile)
+                  {
+                    echo "*** Using provided VNets from file $vnetFile"
+
+                    # Load available pre-provided VNets
+                    $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
+
+                    $earmarkTagName = "alwayson-vnet-used-by"
+
+                    $vnetsInLocation = $availableVnets.$location
+                    if(-not $vnetsInLocation)
+                    {
+                      throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
+                    }
+
+                    foreach($location in $stampLocations)
+                    {
+                      echo "*** Checking if VNet is in use $vnetId"
+                      $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
+                      if(-not $vnet)
+                      {
+                        Write-Warning "*** WARNING - $vnetId not found"
+                      }
+
+                      $expectedTagValue = $(oldReleasePrefix)$(oldReleaseSuffix)-$location
+
+                      if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
+                      {
+                        echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
+                        az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
+                        break
+                      }
+                    }
+                  }
+                  else
+                  {
+                    echo "*** No pre-provided VNets for environment $(environment). Assuming temporarily created VNets which will now be deleted..."
+                    $rgName = "$(oldReleasePrefix)$(oldReleaseSuffix)-networks-rg"
+
+                    echo "*** Check if Resource Group $rgName exists"
+                    $checkRg = az group exists --name $rgName | ConvertFrom-Json
+                    if (!$checkRg) {
+                      echo "*** Resource Group $rgName does not exist (anymore). Skipping task"
+                    }
+                    else
+                    {
+                      echo "*** Deleting resource group $rgName which contains the VNet(s) for this environment"
+                      az group delete -g $rgName
+                    }
+                  }
+
             # Remove disabled backends from Front Door and reset weight on current ones to 50. (Not required for E2E since we destroy E2E Front Door anyway below)
             - ${{ if ne(parameters.environment, 'e2e') }}:
               - template: steps-frontdoor-traffic-switch.yaml
@@ -477,16 +540,3 @@ stages:
                                               -var=contact_email="$(contactEmail)"
                                               -var=''stamps=$(stampLocations)''
                                               $(terraformAdditionalParametersCustomDomains)'
-
-              - task: AzureCLI@2
-                displayName: 'Delete E2E VNets'
-                inputs:
-                  azureSubscription: '$(azureServiceConnection)'
-                  scriptType: pscore
-                  scriptLocation: inlineScript
-                  inlineScript: |
-
-                    $rgName = "$(prefix)$(customSuffix)-networks-rg"
-
-                    echo "*** Deleting resource group $rgName which contains the VNet(s) for this environment"
-                    az group delete -g $rgName
