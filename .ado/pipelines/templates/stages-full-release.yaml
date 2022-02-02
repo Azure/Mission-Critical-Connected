@@ -500,7 +500,7 @@ stages:
                     else
                     {
                       echo "*** Deleting resource group $rgName which contains the VNet(s) for this environment"
-                      az group delete -g $rgName
+                      az group delete -g $rgName --yes
                     }
                   }
 
