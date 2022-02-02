@@ -61,8 +61,12 @@ steps:
               echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
               $vnets[$location] = $vnetId
 
+              $tagKeyVaule = "$earmarkTagName=$prefix$suffix-$location"
+
+              echo "*** Adding earmark tag to VNet: $tagKeyVaule"
+
               # Add a tag to mark this VNet being used by this deployment
-              az tag update --operation merge --resource-id $vnetId --tags "$earmarkTagName=$prefix$suffix"
+              az tag update --operation merge --resource-id $vnetId --tags $tagKeyVaule
 
               break
             }
