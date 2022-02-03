@@ -446,6 +446,9 @@ stages:
                                           -var=global_storage_account_name="$(global_storage_account_name)"
                                           -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
 
+            # We need to clean up the VNets that were either pre-provided or temporarily created
+            # In case of pre-provided VNets: We need to remove the earmark tag so that it appears available again for future releases
+            # In case of temporarily created VNets: We delete the entire resource group which holds all the - now empty - VNets which have been created just for this release
             - task: AzureCLI@2
               displayName: 'Clean up VNets'
               inputs:
@@ -469,6 +472,8 @@ stages:
 
                     foreach($location in $stampLocations)
                     {
+                      echo "*** Finding VNet for region $location"
+
                       $vnetsInLocation = $availableVnets.$location
                       if(-not $vnetsInLocation)
                       {
@@ -484,7 +489,7 @@ stages:
                           Write-Warning "*** WARNING - $vnetId not found"
                         }
 
-                        $expectedTagValue = $(oldReleasePrefix)$(oldReleaseSuffix)-$location
+                        $expectedTagValue = "$(oldReleasePrefix)$(oldReleaseSuffix)-$location"
 
                         if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
                         {
