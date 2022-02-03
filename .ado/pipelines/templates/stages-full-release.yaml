@@ -158,6 +158,12 @@ stages:
         terraformStateFilename:             '$(terraformStateFileReleaseUnit)'
         terraformWorkingDirectory:          '$(workingDirectory)/releaseunit'
 
+    # Pick a VNet from the list of pre-provided VNets or create news one if needed
+    - template: steps-pick-vnet.yaml
+      parameters:
+        prefix: $(prefix)
+        suffix: $(customSuffix)
+
     # Release Unit Resources deployment
     - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
       parameters:
@@ -169,6 +175,7 @@ stages:
                                     -var=queued_by="$(Build.QueuedBy)"
                                     -var=contact_email="$(contactEmail)"
                                     -var=''stamps=$(stampLocations)''
+                                    -var=''vnet_resource_ids=$(tfParameterVnetResourceIds)''
                                     -var=kubernetes_version="$(kubernetesVersion)"
                                     -var=global_resource_group_name="$(global_resource_group_name)"
                                     -var=monitoring_resource_group_name="$(monitoring_resource_group_name)"
@@ -336,35 +343,40 @@ stages:
                         throw "*** Error on fetching existing backends from Front Door $fdName for pool 'BackendApis'"
                     }
 
-                    $extractedPrefix = ""
+                    $extractedPrefixSuffix = ""
                     # Only valid if we found any disabled backend (=an old release unit)
                     if($disabledBackendAddress)
                     {
                       echo "*** Found disabled backend $disabledBackendAddress"
-                      # Extract prefix from address. Expected format like "aoint5445-cluster.northeurope.cloudapp.azure.com" (prefix-cluster....)
+                      # Extract prefix-suffix from address. Expected format like "aoint5445-cluster.northeurope.cloudapp.azure.com" (prefixsuffix-cluster....)
                       $disabledBackendAddress -match "^(?<prefix>.+)-cluster"
-                      $extractedPrefix = $Matches.prefix
-                      echo "*** Extracted prefix $extractedPrefix"
+                      $extractedPrefixSuffix = $Matches.prefix
+                      echo "*** Extracted prefix-suffix $extractedPrefixSuffix"
 
-                      # TODO extract suffix!
-                      echo "##vso[task.setvariable variable=oldReleasePrefixSuffix]$extractedPrefix" # set pipeline variable
+                      $prefix = "$(prefix)"
+                      $suffix = $extractedPrefixSuffix -creplace "$(prefix)","" # get suffix by removing the prefix from the extractedPrefixSuffix
+
+                      echo "*** Extracted suffix $suffix"
+
+                      # set pipeline variables
+                      echo "##vso[task.setvariable variable=oldReleasePrefix]$prefix"
+                      echo "##vso[task.setvariable variable=oldReleaseSuffix]$suffix"
                     }
 
-                    if((-not $disabledBackendAddress) -or ($extractedPrefix -eq ""))
+                    if((-not $disabledBackendAddress) -or ($extractedPrefixSuffix -eq ""))
                     {
                       # This should not happen - if it does, we need to stop the pipeline and investigate. Otherwise the terraform destry task will fail because of the empty prefix variable
-                      throw "*** No disabled backends found or extractedPrefix empty. Nothing to destroy."
+                      throw "*** No disabled backends found or extractedPrefixSuffix empty. Nothing to destroy."
                     }
 
             - ${{ if eq(parameters.environment, 'e2e') }}: # Special case for E2E only
               - task: PowerShell@2
-                displayName: '(E2E-only) Set oldReleasePrefixSuffix to prefix-customSuffix'
+                displayName: '(E2E-only) Set oldRelease Prefix and Suffix to prefix-customSuffix'
                 inputs:
                   targetType: inline
                   script: |
                     # Setting oldReleasePrefix=prefix-customSuffix means that we target the same release unit that was deployed earlier by this very pipeline
-                    echo "*** Setting pipeline variable oldReleasePrefixSuffix = $(prefix)$(customSuffix)"
-                    echo "##vso[task.setvariable variable=oldReleasePrefixSuffix]$(prefix)$(customSuffix)"
+                    echo "*** Setting pipeline variables oldReleasePrefix/Suffix = $(prefix) $(customSuffix)"
 
                     echo "##vso[task.setvariable variable=oldReleasePrefix]$(prefix)"
                     echo "##vso[task.setvariable variable=oldReleaseSuffix]$(customSuffix)"
@@ -385,9 +397,9 @@ stages:
                 inlineScript: |
 
                   # Find AKS clusters with the prefix $(oldReleasePrefix)
-                  $aksClusters = az resource list --tag prefix="$(oldReleasePrefixSuffix)" --query "[?type == 'Microsoft.ContainerService/managedClusters']" | ConvertFrom-Json
+                  $aksClusters = az resource list --tag prefix="$(oldReleasePrefix)$(oldReleaseSuffix)" --query "[?type == 'Microsoft.ContainerService/managedClusters']" | ConvertFrom-Json
 
-                  echo "*** Found $($aksClusters.Count) AKS cluster(s) for prefix-suffix $(oldReleasePrefixSuffix)"
+                  echo "*** Found $($aksClusters.Count) AKS cluster(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
 
                   # loop through all clusters
                   foreach($cluster in $aksClusters) {
@@ -402,12 +414,18 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
+            # Pick a VNet from the list of pre-provided VNets or create news one if needed
+            - template: steps-pick-vnet.yaml
+              parameters:
+                prefix: $(oldReleasePrefix)
+                suffix: $(oldReleaseSuffix)
+
             # Initialize Terraform for destroy
             - template: steps-terraform-destroy.yaml
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
                 terraformStorageResourceGroupName: '$(terraformResourceGroup)'
-                terraformStateFilename:            'terraform-$(oldReleasePrefixSuffix).state'
+                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix).state'
                 terraformWorkingDirectory:         '$(workingDirectory)/releaseunit'
                 customAttributes:        '-var=prefix="$(oldReleasePrefix)"
                                           -var=suffix="$(oldReleaseSuffix)"
@@ -415,6 +433,7 @@ stages:
                                           -var=queued_by="$(Build.QueuedBy)"
                                           -var=contact_email="$(contactEmail)"
                                           -var=''stamps=$(stampLocations)''
+                                          -var=''vnet_resource_ids=$(tfParameterVnetResourceIds)''
                                           -var=kubernetes_version="$(kubernetesVersion)"
                                           -var=global_resource_group_name="$(global_resource_group_name)"
                                           -var=monitoring_resource_group_name="$(monitoring_resource_group_name)"
@@ -426,6 +445,77 @@ stages:
                                           -var=frontdoor_id_header="$(frontdoor_id_header)"
                                           -var=global_storage_account_name="$(global_storage_account_name)"
                                           -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
+
+            # We need to clean up the VNets that were either pre-provided or temporarily created
+            # In case of pre-provided VNets: We need to remove the earmark tag so that it appears available again for future releases
+            # In case of temporarily created VNets: We delete the entire resource group which holds all the - now empty - VNets which have been created just for this release
+            - task: AzureCLI@2
+              displayName: 'Clean up VNets'
+              inputs:
+                azureSubscription: '$(azureServiceConnection)'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+
+                  $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+
+                  $vnetFile = "$(System.DefaultWorkingDirectory)/.ado/pipelines/config/vnets-$(environment).json"
+
+                  if(Test-Path $vnetFile)
+                  {
+                    echo "*** Using provided VNets from file $vnetFile"
+
+                    # Load available pre-provided VNets
+                    $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
+
+                    $earmarkTagName = "alwayson-vnet-used-by"
+
+                    foreach($location in $stampLocations)
+                    {
+                      echo "*** Finding VNet for region $location"
+
+                      $vnetsInLocation = $availableVnets.$location
+                      if(-not $vnetsInLocation)
+                      {
+                        throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
+                      }
+
+                      foreach($vnetId in $vnetsInLocation)
+                      {
+                        echo "*** Checking if VNet is in use $vnetId"
+                        $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
+                        if(-not $vnet)
+                        {
+                          Write-Warning "*** WARNING - $vnetId not found"
+                        }
+
+                        $expectedTagValue = "$(oldReleasePrefix)$(oldReleaseSuffix)-$location"
+
+                        if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
+                        {
+                          echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
+                          az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
+                          break
+                        }
+                      }
+                    }
+                  }
+                  else
+                  {
+                    echo "*** No pre-provided VNets for environment $(environment). Assuming temporarily created VNets which will now be deleted..."
+                    $rgName = "$(oldReleasePrefix)$(oldReleaseSuffix)-networks-rg"
+
+                    echo "*** Check if Resource Group $rgName exists"
+                    $checkRg = az group exists --name $rgName | ConvertFrom-Json
+                    if (!$checkRg) {
+                      echo "*** Resource Group $rgName does not exist (anymore). Skipping task"
+                    }
+                    else
+                    {
+                      echo "*** Deleting resource group $rgName which contains the VNet(s) for this environment"
+                      az group delete -g $rgName --yes
+                    }
+                  }
 
             # Remove disabled backends from Front Door and reset weight on current ones to 50. (Not required for E2E since we destroy E2E Front Door anyway below)
             - ${{ if ne(parameters.environment, 'e2e') }}:
