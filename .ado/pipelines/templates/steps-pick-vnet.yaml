@@ -45,7 +45,7 @@ steps:
               throw "*** ERROR $vnetId not found"
             }
 
-            $earmarkTagName = "alwayson-vnet-used-by"
+            $earmarkTagName = "AlwaysOnVnetUsedBy"
             $earmarkTagValue = "$prefix$suffix-$location"
 
             if($vnet.tags.$earmarkTagName -eq $earmarkTagValue)

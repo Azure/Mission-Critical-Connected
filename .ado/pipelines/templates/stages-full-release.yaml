@@ -465,38 +465,25 @@ stages:
                   {
                     echo "*** Using provided VNets from file $vnetFile"
 
-                    # Load available pre-provided VNets
-                    $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
-
-                    $earmarkTagName = "alwayson-vnet-used-by"
+                    $earmarkTagName = "AlwaysOnVnetUsedBy"
 
                     foreach($location in $stampLocations)
                     {
                       echo "*** Finding VNet for region $location"
 
-                      $vnetsInLocation = $availableVnets.$location
-                      if(-not $vnetsInLocation)
+                      $expectedTagValue = "$(oldReleasePrefix)$(oldReleaseSuffix)-$location"
+
+                      # Fetch the VNet which was earmaked for this release-location
+                      $vnet = az network vnet list --query "[?tags.$earmarkTagName == '$expectedTagValue']" | ConvertFrom-Json
+
+                      if($vnet)
                       {
-                        throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
+                        echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
+                        az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
                       }
-
-                      foreach($vnetId in $vnetsInLocation)
+                      else
                       {
-                        echo "*** Checking if VNet is in use $vnetId"
-                        $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
-                        if(-not $vnet)
-                        {
-                          Write-Warning "*** WARNING - $vnetId not found"
-                        }
-
-                        $expectedTagValue = "$(oldReleasePrefix)$(oldReleaseSuffix)-$location"
-
-                        if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
-                        {
-                          echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
-                          az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
-                          break
-                        }
+                        echo "*** WARNING - no VNet found with tag $earmarkTagName = $expectedTagValue"
                       }
                     }
                   }
