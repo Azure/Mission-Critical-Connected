@@ -36,44 +36,46 @@ steps:
             throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
           }
 
-          foreach($vnetId in $vnetsInLocation)
+          $earmarkTagName = "AlwaysOnVnetUsedBy"
+          $earmarkTagValue = "$prefix$suffix-$location"
+
+          # check if any VNet was already earmarked earlier. Then we can skip the other search
+          $vnet = az network vnet list --query "[?tags.$earmarkTagName == '$earmarkTagValue']" | ConvertFrom-Json
+          if($vnet)
           {
-            echo "*** Checking if VNet is in use $vnetId"
-            $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
-            if(-not $vnet)
+            echo "*** VNet $($vnet.name) was already used before be this same deployment. Will use this VNet again"
+            $vnets[$location] = $vnet.id
+          }
+          else
+          {
+            foreach($vnetId in $vnetsInLocation)
             {
-              throw "*** ERROR $vnetId not found"
-            }
+              echo "*** Checking if VNet is in use $vnetId"
+              $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
+              if(-not $vnet)
+              {
+                throw "*** ERROR $vnetId not found"
+              }
 
-            $earmarkTagName = "AlwaysOnVnetUsedBy"
-            $earmarkTagValue = "$prefix$suffix-$location"
+              if(($vnet.subnets.Count) -eq 0 -and (-not $vnet.tags.$earmarkTagName))
+              {
+                # Use this VNet as it has no subnets yet and was not earmarked yet by any other release
+                echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
+                $vnets[$location] = $vnetId
 
-            if($vnet.tags.$earmarkTagName -eq $earmarkTagValue)
-            {
-              # Use this VNet as it was already tagged for this release
-              echo "*** VNet $($vnet.name) was already used before be this same deployment. Will use this VNet again"
-              $vnets[$location] = $vnetId
+                $tagKeyVaule = "$earmarkTagName=$earmarkTagValue"
 
-              break
-            }
-            elseif(($vnet.subnets.Count) -eq 0 -and (-not $vnet.tags.$earmarkTagName))
-            {
-              # Use this VNet as it has no subnets yet and was not earmarked yet by any other release
-              echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
-              $vnets[$location] = $vnetId
+                echo "*** Adding earmark tag to VNet: $tagKeyVaule"
 
-              $tagKeyVaule = "$earmarkTagName=$earmarkTagValue"
+                # Add a tag to mark this VNet being used by this deployment
+                az tag update --operation merge --resource-id $vnetId --tags $tagKeyVaule
 
-              echo "*** Adding earmark tag to VNet: $tagKeyVaule"
-
-              # Add a tag to mark this VNet being used by this deployment
-              az tag update --operation merge --resource-id $vnetId --tags $tagKeyVaule
-
-              break
-            }
-            else
-            {
-              echo "*** VNet $($vnet.name) not available. Has existing subnets ($($vnet.subnets.Count)) and/or is earmarked by release $($vnet.tags.$earmarkTagName)"
+                break
+              }
+              else
+              {
+                echo "*** VNet $($vnet.name) not available. Has existing subnets ($($vnet.subnets.Count)) and/or is earmarked by release $($vnet.tags.$earmarkTagName)"
+              }
             }
           }
 
