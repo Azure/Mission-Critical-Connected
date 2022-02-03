@@ -467,28 +467,31 @@ stages:
 
                     $earmarkTagName = "alwayson-vnet-used-by"
 
-                    $vnetsInLocation = $availableVnets.$location
-                    if(-not $vnetsInLocation)
-                    {
-                      throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
-                    }
-
                     foreach($location in $stampLocations)
                     {
-                      echo "*** Checking if VNet is in use $vnetId"
-                      $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
-                      if(-not $vnet)
+                      $vnetsInLocation = $availableVnets.$location
+                      if(-not $vnetsInLocation)
                       {
-                        Write-Warning "*** WARNING - $vnetId not found"
+                        throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
                       }
 
-                      $expectedTagValue = $(oldReleasePrefix)$(oldReleaseSuffix)-$location
-
-                      if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
+                      foreach($vnetId in $vnetsInLocation)
                       {
-                        echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
-                        az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
-                        break
+                        echo "*** Checking if VNet is in use $vnetId"
+                        $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
+                        if(-not $vnet)
+                        {
+                          Write-Warning "*** WARNING - $vnetId not found"
+                        }
+
+                        $expectedTagValue = $(oldReleasePrefix)$(oldReleaseSuffix)-$location
+
+                        if($vnet.tags.$earmarkTagName -eq $expectedTagValue)
+                        {
+                          echo "*** VNet $($vnet.name) was used by this release. Clearing tag $earmarkTagName"
+                          az tag update --operation delete --resource-id $vnet.id --tags $earmarkTagName
+                          break
+                        }
                       }
                     }
                   }
