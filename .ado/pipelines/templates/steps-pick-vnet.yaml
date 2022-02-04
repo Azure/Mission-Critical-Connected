@@ -39,30 +39,28 @@ steps:
           $earmarkTagName = "AlwaysOnVnetUsedBy"
           $earmarkTagValue = "$prefix$suffix-$location"
 
+          echo "*** Attempting to find a VNet for deployment $earmarkTagValue"
+
           # check if any VNet was already earmarked earlier. Then we can skip the other search
           $vnet = az network vnet list --query "[?tags.$earmarkTagName == '$earmarkTagValue']" | ConvertFrom-Json
           if($vnet)
           {
-            echo "*** VNet $($vnet.name) was already used before be this same deployment. Will use this VNet again"
+            echo "*** VNet $($vnet.name) was already used before be this same deployment ($earmarkTagValue). Will use this VNet again"
             $vnets[$location] = $vnet.id
           }
           else
           {
             foreach($vnetId in $vnetsInLocation)
             {
-              echo "*** Checking if VNet is in use $vnetId"
+              echo "*** Checking if VNet is in use: $vnetId"
               $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
               if(-not $vnet)
               {
                 throw "*** ERROR $vnetId not found"
               }
 
-              #if(($vnet.subnets.Count) -eq 0 -and (-not $vnet.tags.$earmarkTagName))
               if(-not $vnet.tags.$earmarkTagName)
               {
-                # # Use this VNet as it has no subnets yet and was not earmarked yet by any other release
-                # echo "*** VNet $($vnet.name) has no subnets. Will use this VNet"
-
                 # Use this VNet as it was not earmarked yet by any other release
                 echo "*** VNet $($vnet.name) not earmarked. Will use this VNet"
 
@@ -79,7 +77,6 @@ steps:
               }
               else
               {
-                # echo "*** VNet $($vnet.name) not available. Has existing subnets ($($vnet.subnets.Count)) and/or is earmarked by release $($vnet.tags.$earmarkTagName)"
                 echo "*** VNet $($vnet.name) not available as it is earmarked by release $($vnet.tags.$earmarkTagName)"
               }
             }
