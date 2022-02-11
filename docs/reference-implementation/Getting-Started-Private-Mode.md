@@ -4,7 +4,7 @@ This guide walks you through the required steps to deploy AlwaysOn in a private 
 
 This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy AlwaysOn in private mode.**
 
-![AlwaysOn Private Mode Architecture](/docs/media/Architecture-Foundational-Private.png)
+![AlwaysOn Private Mode Architecture](/docs/media/Architecture-Foundational-Connected.png)
 
 ## Overview
 

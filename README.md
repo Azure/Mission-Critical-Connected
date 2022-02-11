@@ -15,16 +15,18 @@ This repository contains everything required to understand and implement an Alwa
 
 ## AlwaysOn Repository - Table of Contents
 
-* [Introduction - What is AlwaysOn?](./docs/introduction/README.md) - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
-* [Design Guidelines](./docs/design-guidelines/README.md) - Prescriptive guidance aligned to 8 critical design areas guides users to design and build an AlwaysOn application, outlining a recommended decision process.
-* [Reference Implementation Solution Guide](./docs/reference-implementation/README.md) - Everything required to understand and build a copy of the reference implementation
-* [Reference Implementation Build Artifacts](./src/infra/README.md) - Contains the Infrastructure-as-Code artifacts, CI/CD pipelines, and application code required to deploy the preconfigured reference solution
+- [Introduction - What is AlwaysOn?](./docs/introduction/README.md) - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
+- [Design Guidelines](./docs/design-guidelines/README.md) - Prescriptive guidance aligned to 8 critical design areas guides users to design and build an AlwaysOn application, outlining a recommended decision process.
+- [Reference Implementation Solution Guide](./docs/reference-implementation/README.md) - Everything required to understand and build a copy of the reference implementation
+- [Reference Implementation Build Artifacts](./src/infra/README.md) - Contains the Infrastructure-as-Code artifacts, CI/CD pipelines, and application code required to deploy the preconfigured reference solution
+
+![Architecture overview](/docs/media/Architecture-Foundational-Connected.png)
 
 ## Helpful Information
 
-* [Getting Started](./docs/reference-implementation/Getting-Started.md) outlines the process and required steps to deploy AlwaysOn in your environment, including preparing the Azure DevOps pipelines. It should be read in tandem with the [Reference Implementation Guide](./docs/reference-implementation/README.md).
-* [Frequently Asked Questions](./docs/reference-implementation/FAQ.md) captures responses to common issues and challenges associated with leveraging AlwaysOn.
-* [Full List of Documentation](./docs/README.md) contains a complete breakdown of the AlwaysOn repository to help navigate the contained guidance.
+- [Getting Started](./docs/reference-implementation/Getting-Started.md) outlines the process and required steps to deploy AlwaysOn in your environment, including preparing the Azure DevOps pipelines. It should be read in tandem with the [Reference Implementation Guide](./docs/reference-implementation/README.md).
+- [Frequently Asked Questions](./docs/reference-implementation/FAQ.md) captures responses to common issues and challenges associated with leveraging AlwaysOn.
+- [Full List of Documentation](./docs/README.md) contains a complete breakdown of the AlwaysOn repository to help navigate the contained guidance.
 
 ## Contributing
 
