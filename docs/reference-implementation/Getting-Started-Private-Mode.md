@@ -1,16 +1,16 @@
-# Getting started with AlwaysOn Private
+# Getting started with AlwaysOn Connected
 
-This guide walks you through the required steps to deploy AlwaysOn in a private version. The private version locks down all traffic to the deployed Azure services to come in through Private Endpoints only. Only the actual user traffic is still flowing in through the public ingress point of [Azure Front Door](https://azure.microsoft.com/services/frontdoor/#overview).
+This guide walks you through the required steps to deploy AlwaysOn in a connected version. The connected version assumes connectivity to other company resources, typically achieved through VNet peering in a hub-and-spoke model (and optionally to on-prem resources using Express Route or VPN). Also, it locks down all traffic to the deployed Azure services to come in through Private Endpoints only. Only the actual user traffic is still flowing in through the public ingress point of [Azure Front Door](https://azure.microsoft.com/services/frontdoor/#overview).
 
 This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy AlwaysOn in private mode.**
 
-![AlwaysOn Private Mode Architecture](/docs/media/Architecture-Foundational-Connected.png)
+![AlwaysOn Connected Architecture](/docs/media/Architecture-Foundational-Connected.png)
 
 ## Overview
 
 On a high level, the following steps will be executed:
 
-1. Import Azure DevOps pipeline which deploys self-hosted Build Agents
+1. Import Azure DevOps pipeline which deploys the infrastructure for the self-hosted Build Agents
 1. Run the new pipeline to deploy the Virtual Machine Scale Sets for the Build Agents as well as Jump Servers and other supporting resources
 1. Configure the self-hosted Build Agents in Azure DevOps
 1. Set required variables in the variables files to reference the self-hosted Build Agent resources to later be able to create Private Endpoints
@@ -33,34 +33,32 @@ To deploy the infrastructure for the self-hosted Agents and all supporting servi
                         --skip-first-run true --yaml-path "/.ado/pipelines/azure-deploy-private-build-agents.yaml"
     ```
 
-    > You'll find more information, including screenshots on how to import and manage YAML-based pipelines in the overall [Getting Started Guide](./Miscellaneous-Getting-Started.md).
-
-1. Now locate the Terraform variables files for the Build Agent deployment at `/src/infra/build-agents/variables.tf`. Adjust the values as required for your use case. For instance, you might want to change the deployment location. If you (later) want to change the SKU size of the VMs for Build Agents and/or Jump Servers, those settings are maintained in the respective `vmss-*.tf` template files in the same directory.
+    > You'll find more information, including screenshots on how to import and manage YAML-based pipelines in the overall [Getting Started Guide](./Getting-Started.md).
 
 1. If you already know that you have special requirements regarding the software that needs to be present on the Build Agents to build your application code, go modify the `cloudinit.conf` in the same directory.
 
-    > Please note that our self-hosted agents do not include the same [pre-installed software](https://docs.microsoft.com/azure/devops/pipelines/agents/hosted) as the Microsoft-hosted agents. Also, our Build Agents are only deployed as Linux VMs. You can technically change to Windows agents, but this is out of scope for this guide.
+    > Please note that our self-hosted agents **do not** include the same [pre-installed software](https://docs.microsoft.com/azure/devops/pipelines/agents/hosted) as the Microsoft-hosted agents. Also, our Build Agents are only deployed as Linux VMs. You can technically change to Windows agents, but this is out of scope for this guide.
 
-1. Commit your changes in Git and make sure to push them to your repository. It can be on the `main` branch but this is not required. You can later select which branch to deploy from.
 
-## Set pipeline variables
+## Create Azure DevOps Variable group
 
-Before we can deploy the private build agent and the private version of AlwaysOn, we need to update our pipeline variables so that the pipeline, and Terraform, knows to now include Private Endpoints for the self-hosted Build Agents and lock down all other traffic. This also applies to the Terraform state storage account.
+Before we can deploy the private build agent infrastructure, we need to create a variable group in Azure DevOps which will contain one entry for the Build Agent and Jump Server login password.
 
-The templates are fully prepared for this, we only need to set three additional variables.
+## Variable Groups
 
-1. Locate the variables file(s) for the respective environments in the `/.ado./pipelines/config` directory. E.g `/.ado/pipelines/config/variables-values-e2e.yaml`. (Adjust this, based on which environment your are configuring right now).
-1. Fill out these variables:
+In addition to the configuration files, there are *variable groups* per environment in Azure DevOps.
 
-```yaml
-- name:  'buildAgentTerraformResourceGroup'
-  value: 'terraformstate-rg'   # <=== Change this if needed!
-- name:  'buildAgentTerraformStorageAccount'
-  value: 'ao2e2etfstatestoreba' # <=== Change this! This needs to be a globally unique name and is only used to store the Terraform state of the private build agents themselves.
-```
+The variable groups in Azure DevOps only contain sensitive (secret) values, which must not be stored in code in the repo. They are named `[env]-env-vg` (e.g. prod-env-vg).
 
-3. Make sure to update all the values shown above to reflect your environment! You have noted down the values earlier when you checked the provisioned resources.
-3. Commit the changes to git and push them.
+In your Azure DevOps project, navigate to **Pipelines** --> **Library** --> **Variable Groups**
+
+Create a new variable group, called `[env]-env-vg` (e.g. e2e-env-vg). Add the variable, as described in the table below.
+
+| Key | Description | Sample value |
+| --- | --- | --- |
+| buildAgentAdminPassword | Password for the build agents and jump servers. The username is set in the Bicep template. | ******** (mark as secret) |
+
+![variable group](/docs/media/ado_variablegroup.png)
 
 ## Deploy self-hosted Build Agent infrastructure
 
@@ -101,11 +99,11 @@ Next step is to configure our newly created Virtual Machine Scale Set (VMSS) as 
 
     > Setting the minimum to `0` saves money by starting build agents on demand, but can slow down the deployment process.
 
-## Deploy AlwaysOn in private mode
+## Deploy AlwaysOn Connected
 
-Now everything is in place to deploy the private version of AlwaysOn. Just run your deployment pipeline, for example for the E2E environment. You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
+Now everything is in place to deploy the connected version of AlwaysOn. Just run your deployment pipeline, for example for the E2E environment. You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
 
-Otherwise you should see no immediate difference in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
+Otherwise you should see no immediate difference compared to the [AlwaysOn Foundational Connected](https://github.com/Azure/AlwaysOn-Foundational-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
 
 ## Use Jump Servers to access the deployment
 
