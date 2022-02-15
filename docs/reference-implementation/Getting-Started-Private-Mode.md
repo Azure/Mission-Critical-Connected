@@ -72,9 +72,7 @@ This also creates a second Terraform state storage account which is only being u
 
 1. Wait until the pipeline is finished before you continue.
 
-1. Go through the Azure Portal to your newly created Resource Group (something like `aoe2ebuildagents-rg`) to see all the resources that were provisioned for you.
-1. Take a note of the name of the Resource Group. You will need it in the next step.
-1. Also, note down the name of the VNet that was provisioned within this Resource Group, something like `aoe2ebuildagents-vnet`.
+1. Go through the Azure Portal to your newly created Resource Group (something like `ace2e-buildinfra-rg`) to see all the resources that were provisioned for you.
 
     ![self-hosted agent resources in azure](/docs/media/self-hosted-agents-resources-in-azure.png)
 
@@ -90,7 +88,7 @@ Next step is to configure our newly created Virtual Machine Scale Set (VMSS) as 
 
     > **Important!** Make sure to select the scale set which ends on `-buildagents-vmss`, not the one for the Jump Servers!
 
-1. Set the name of the pool to `e2e-private-agents` (adjust this when you create pools for other environments like `int`)
+1. Set the name of the pool to **`e2e-private-agents`** (adjust this when you create pools for other environments like `int`)
 1. Check the option `Automatically tear down virtual machines after every use`. This ensures that every build run executes on a fresh VM without any leftovers from previous runs
 1. Set the minimum and maximum number of agents based on your requirements. We recommend to start with a minimum of `0` and a maximum of `6`. This means that ADO will scale the VMSS down to 0 if no jobs are running to minimize costs.
 1. Click Create
@@ -101,22 +99,17 @@ Next step is to configure our newly created Virtual Machine Scale Set (VMSS) as 
 
 ## Deploy AlwaysOn Connected
 
-Now everything is in place to deploy the connected version of AlwaysOn. Just run your deployment pipeline, for example for the E2E environment. You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
+Now everything is in place to deploy the connected version of AlwaysOn.
 
-Otherwise you should see no immediate difference compared to the [AlwaysOn Foundational Connected](https://github.com/Azure/AlwaysOn-Foundational-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
+Go back to the [Getting Started guide](./Getting-Started.md) and follow the remaining steps to deploy the connected version of AlwaysOn.
 
 ## Use Jump Servers to access the deployment
 
 In order to access the now locked-down services like AKS or Key Vault, you can use the Jump Servers which were provisioned as part of the self-hosted Build Agent deployment.
 
-1. First we need to fetch the password to log on to the Jump Servers. The password is stored in the Key Vault inside the Build Agent resource group
-1. Open the Key Vault in the Azure Portal and navigate to the Access Policies blade. Add an access policy for yourself (and maybe other users as well).
-
-    ![Access Policy](/docs/media/private_build_agent_keyvault.png)
-1. Then go to the Secrets blade, and retrieve the value of the secret `vmadmin-secret`
 1. Next, navigate to the Jump Server VMSS in the same resource group. E.g. `aoe2ebuildagents-jumpservers-vmss`, open the Instances blade and select one of the instances (there is probably only one)
     ![Jump Server instances](/docs/media/private_build_agent_jumpservers_instances.png)
-1. Select the Bastion blade, enter `adminuser` as username and the password that you copied from Key Vault. Click Connect.
+1. Select the Bastion blade, enter `adminuser` as username and the password that you set earlier in the variable group. Click Connect.
 1. You now have established an SSH connection via Bastion to the Jump Server which has a direct line of sight to your private resources.
     ![SSH jump server](/docs/media/private_build_agent_jumpserver_ssh.png)
 1. Use for example `az login` and `kubectl` to connect to and debug your resources.

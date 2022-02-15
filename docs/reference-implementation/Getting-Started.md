@@ -268,6 +268,11 @@ In order to deploy the resources in the next step, you must first set up the pri
 ### 9) Execute the first deployment
 
 After completing all previous steps in this guide, you can start executing the pipelines to spin up the infrastructure.
+
+You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
+
+Otherwise you should see no immediate difference compared to the [AlwaysOn Foundational Connected](https://github.com/Azure/AlwaysOn-Foundational-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
+
 Go the the **Pipelines** section of the Azure DevOps Portal and click on the E2E release pipeline.
 
 Then click **Run pipeline**:
