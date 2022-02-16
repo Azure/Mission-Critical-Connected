@@ -29,10 +29,9 @@ The process to deploy AlwaysOn is comprised of the following steps:
 1) Import [deployment pipelines](#3-import-pipelines)
 1) Create [Service Principals](#4-create-azure-service-principal) for each individual Azure subscription
 1) Create [Service Connections](#5-create-azure-service-connections) in Azure DevOps
-1) Access to an Azure Subscription (it is recommended to use multiple subscriptions to separate environments types i.e. dev, test and prod) with RP and preview features enabled for each of the subscriptions
-1) Adjust configuration
-1) Set up [private build agents](#8-set-up-private-build-agents)
-1) Execute the first deployment
+1) [Adjust configuration](#6-adjust-configuration)
+1) Set up [private build agents](#7-set-up-private-build-agents)
+1) [Execute the first deployment](#8-execute-the-first-deployment)
 
 ### 1) Create a new Azure DevOps organization
 
@@ -97,18 +96,21 @@ So repeat the steps below for each of these.
 1) Go to "Pipelines"
 1) Click "Create pipeline" or "New pipeline"
 1) Select "GitHub (YAML)"
-1) Search for your repository in "Select a repository" (your fork)
-1) Select "Existing Azure Pipelines YAML file"
-1) Select "Run" to save and run the pipeline now, or "Save" to save and run later (see below)
-1) Rename the pipeline and (optionally) move it into a folder (see below)
+1) Search for your repository in "Select a repository" (name of your template)
 
-_Save Pipeline_
+   > **Note!** If requested, grant the Azure Pipelines app permissions to access your GitHub repository.
 
-![Run or save Pipeline](/docs/media/AlwaysOnGettingStarted2RunOrSavePipeline.png 'Run or save Pipeline')
+1) Select "Existing Azure Pipelines YAML file" in the "Configure your pipeline" dialog
 
-_Rename/move pipeline_
+   > **Note!** In the "Select an existing YAML file" dialog, select the YAML file you want to import. For the e2e pipeline this is `/.ado/pipelines/azure-release-e2e.yaml`.
 
-![Rename/move pipeline](/docs/media/AlwaysOnGettingStarted2PipelineRename.png 'Rename/move pipeline')
+1) Select "Save" (from the dropdown menu under the "Run" button) to save the pipeline
+
+   ![Run or save Pipeline](/docs/media/AlwaysOnGettingStarted2RunOrSavePipeline.png 'Run or save Pipeline')
+
+1) Rename the pipeline by clicking on the three dots and (optionally) move it into a folder (see below)
+
+   ![Rename/move pipeline](/docs/media/AlwaysOnGettingStarted2PipelineRename.png 'Rename/move pipeline')
 
 #### Import via Azure DevOps CLI
 
