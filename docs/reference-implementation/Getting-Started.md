@@ -259,7 +259,7 @@ See [this guide](/src/infra/README.md#networking) for more information about the
 
 **After modifying the file, make sure to commit and push the changes to your Git repository.**
 
-#### Create environments in ADO
+### Create environments in ADO
 
 Deployment pipelines taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
 
