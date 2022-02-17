@@ -154,10 +154,11 @@ A _stamp_ is a regional deployment and can also be considered as a scale-unit. F
 
 The current networking setup consists of a single Azure Virtual Network per _stamp_ that consists of one subnet dedicated for Azure Kubernetes Service (AKS) and an additional subnet for the Private Endpoints of different services.
 
-For connected scenarios (access required to other company resources in other spokes or on-prem), it is expected that the VNets are pre-provisioned, for instance by a platform team and made available to the application team.
+For connected scenarios (access required to other company resources in other spokes or on-prem), it is expected that the VNets are pre-provisioned, for instance by a platform team and made available to the application team. For E2E (dev) environments this might be optional, therefore the reference implementation is prepared to create the VNets if needed.
 
-- Each stamp infrastructure includes a pre-provisioned static _Public IP address_ resource with a DNS name (_[prefix]-cluster.[region].cloudapp.azure.com_). This _Public IP address_ is used for the Kubernetes Ingress controller Load Balancer and as a backend address for Azure Front Door.
-- Diagnostic settings are configured to store all log and metric data in Log Analytics.
+For INT and PROD (or any other environments which do require connectivity), a multiple pre-provisioned VNets are expected to be available: Due to the blue-green deployment approach, at least two VNets per environment and region are required. The deployment pipeline looks for a file `.ado/pipelines/config/vnets-[environment].json`. If this file is not present, disconnected VNets will be deployed on demand, e.g. for E2E environments.
+
+The file needs to hold the resource IDs of the VNets per region. See [`.ado/pipelines/config/vnets-int.json`](.ado/pipelines/config/vnets-int.json) for an example. The deployment pipeline will check which VNets are currently not in use by any other deployment and then tag the VNets to mark them as in use. Once an environment gets destroyed again, this "earmark" tag is being removed again.
 
 #### Azure Key Vault
 
