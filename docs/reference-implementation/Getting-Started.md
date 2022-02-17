@@ -255,6 +255,8 @@ If you are deploying an environment, which needs connectivity to other company r
 
 For every region that you want to deploy stamps into, you need at least two pre-provisioned VNets. Those will often be created by a central platform team which peering set up to a hub network. These VNets need to be created in the same subscription as the environment. Collect the resource IDs of the VNets and create/update the corresponding file in `.ado/pipelines/config/vnets-[environment].json`. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example.
 
+See [this guide](/src/infra/README.md#networking) for more information about the VNet usage and setup.
+
 **After modifying the file, make sure to commit and push the changes to your Git repository.**
 
 #### Create environments in ADO

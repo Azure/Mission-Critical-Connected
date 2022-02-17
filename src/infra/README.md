@@ -158,7 +158,7 @@ For connected scenarios (access required to other company resources in other spo
 
 For INT and PROD (or any other environments which do require connectivity), a multiple pre-provisioned VNets are expected to be available: Due to the blue-green deployment approach, at least two VNets per environment and region are required. The deployment pipeline looks for a file `.ado/pipelines/config/vnets-[environment].json`. If this file is not present, disconnected VNets will be deployed on demand, e.g. for E2E environments.
 
-The file needs to hold the resource IDs of the VNets per region. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example. The deployment pipeline will check which VNets are currently not in use by any other deployment and then tag the VNets to mark them as in use. Once an environment gets destroyed again, this "earmark" tag is being removed again.
+The file needs to hold the resource IDs of the VNets per region. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example. The deployment pipeline will check which VNets are currently not in use by any other deployment and then tag the VNets to mark them as in use. Once an environment gets destroyed again, this "earmark" tag is being removed again. See [`/.ado/pipelines/templates/steps-get-or-create-vnet.yaml`](/.ado/pipelines/templates/steps-get-or-create-vnet.yaml) for the pipeline script which implements the logic.
 
 #### Azure Key Vault
 
