@@ -32,8 +32,10 @@ The process to deploy AlwaysOn is comprised of the following steps:
 1) Create [Service Principals](#4-create-azure-service-principal) for each individual Azure subscription
 1) Create [Service Connections](#5-create-azure-service-connections) in Azure DevOps
 1) [Adjust configuration](#6-adjust-configuration)
-1) [Execute the first deployment](#7-execute-the-first-deployment)
-1) [Check deployed resources](#8-check-deployed-resources)
+1) [Configure pre-provided VNets](#7-configure-pre-provided-vnets-optional)
+1) [Set up private build agents](#8-set-up-private-build-agents)
+1) [Execute the first deployment](#9-execute-the-first-deployment)
+1) [Check deployed resources](#10-check-deployed-resources)
 
 ### 1) Create a new Azure DevOps organization and project
 
@@ -246,6 +248,14 @@ Modify the respective file for the environment which you want to deploy. At leas
 **After modifying the file, make sure to commit and push the changes to your Git repository.**
 
 For more details on the variables, you can consult [this guide](/.ado/pipelines/README.md#configuration-files).
+
+### 7) Configure pre-provided VNets (optional)
+
+If you are deploying an environment, which needs connectivity to other company resources such as through a hub-and-spoke model, you need to pre-provision a number of VNets for this environment. If you do not plan to use this feature for the environment which you are working on right now (e.g. E2E), you can skip this step. In this case, the deployment will create temporary, unconnected VNets for each deployment.
+
+For every region that you want to deploy stamps into, you need at least two pre-provisioned VNets. Those will often be created by a central platform team which peering set up to a hub network. These VNets need to be created in the same subscription as the environment. Collect the resource IDs of the VNets and create/update the corresponding file in `.ado/pipelines/config/vnets-[environment].json`. See [`.ado/pipelines/config/vnets-int.json`](.ado/pipelines/config/vnets-int.json) for an example.
+
+**After modifying the file, make sure to commit and push the changes to your Git repository.**
 
 #### Create environments in ADO
 
