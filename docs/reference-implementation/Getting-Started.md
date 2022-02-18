@@ -274,7 +274,7 @@ Click on "Create"
 
 ### 8) Set up private Build Agents
 
-In order to deploy the resources in the next step, you must first set up the private Build Agent infrastructure. For detailed instructions on this, please follow [this guide](./Getting-Started-Connected-Mode.md).
+In order to deploy the resources in the next step, you must first set up the private Build Agent infrastructure. For detailed instructions on this, please follow [this guide](./Private-Agents-Setup.md).
 
 ### 9) Execute the first deployment
 

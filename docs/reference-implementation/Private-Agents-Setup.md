@@ -1,4 +1,4 @@
-# Getting started with AlwaysOn Connected
+# Getting started with Private Build Agents
 
 This guide walks you through the required steps to deploy AlwaysOn in a connected version. The connected version assumes connectivity to other company resources, typically achieved through VNet peering in a hub-and-spoke model (and optionally to on-prem resources using Express Route or VPN). Also, it locks down all traffic to the deployed Azure services to come in through Private Endpoints only. Only the actual user traffic is still flowing in through the public ingress point of [Azure Front Door](https://azure.microsoft.com/services/frontdoor/#overview).
 
@@ -17,7 +17,7 @@ On a high level, the following steps will be executed:
 
 ## Import pipeline to deploys self-hosted Build Agents
 
-To deploy the infrastructure for the self-hosted Agents and all supporting services such as Jump Servers and private DNS zones, a ready-to-use Terraform template plus the corresponding ADO Pipeline is included in this repository.
+To deploy the infrastructure for the self-hosted Agents and all supporting services such as Jump Servers and private DNS zones, a ready-to-use Bicep template plus the corresponding ADO Pipeline is included in this repository. Bicep is being used for this part of the infrastructure instead of Terraform, since it could create a chicken-and-egg problem with the state storage account which requires public access. All further resources are then created using Terraform.
 
 > The following steps assume that you have already followed the general [Getting Started guide](/docs/reference-implementation/Getting-Started.md). If you have not done so yet, please go there first.
 
@@ -63,8 +63,6 @@ Create a new variable group, called `[env]-env-vg` (e.g. e2e-env-vg). Add the va
 ## Deploy self-hosted Build Agent infrastructure
 
 Now that the pipeline for the self-hosted Agent infrastructure is imported and the settings adjusted, we are ready to deploy it. Note that this is done using the Microsoft-hosted agents. We have no requirement here yet for a self-hosted agent (plus, it would create a chicken-and-egg problem anyway).
-
-This also creates a second Terraform state storage account which is only being used for this private build agent infrastructure. Since it needs to be deployed by Microsoft-hosted agents, this storage account cannot be created with Private Endpoints. The state storage accounts which are being used for the actual deployments, however, are then protected by Private Endpoints so that only the private build agents can access them.
 
 1. Run the previously imported pipeline. Make sure to select the right branch. Select `e2e` as the environment. You can repeat the same steps later for `int` and `prod` when you are ready to use them.
 
