@@ -12,7 +12,7 @@
 
 - [Overview](./reference-implementation/README.md)
 - [Getting Started](./reference-implementation/Getting-Started.md)
-  - [Set up private build agents](./reference-implementation/Getting-Started-Connected-Mode.md)
+  - [Set up private build agents](./reference-implementation/Private-Agents-Setup.md)
 - [Frequently Asked Questions (FAQs)](./reference-implementation/FAQ.md)
 - [Critical Design Areas](./reference-implementation/README.md#Critical-Design-Areas)
   - Application Design
