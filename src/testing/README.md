@@ -29,7 +29,7 @@ The AlwaysOn reference implementation uses existing testing capabilities and fra
 
 ### Locust
 
-Locust is an open source Load Testing framework. See [locust](./loadtest-locust/README.md) for more details about the implementation and configuration.
+Locust is an open source Load Testing framework. See [locust](https://github.com/Azure/AlwaysOn-Foundational-Online/tree/main/src/testing/loadtest-locust/README.md) on the AlwaysOn Foundational Online repository for more details about the implementation and configuration.
 
 ### Playwright
 

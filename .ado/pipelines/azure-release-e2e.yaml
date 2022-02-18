@@ -22,11 +22,6 @@ parameters:
   type: boolean
   default: true
 
-- name: runLoadTesting
-  displayName: "Run embedded load testing"
-  type: boolean
-  default: false
-
 variables:
 - name:  'environment' # set the environment name as variable
   value: 'e2e'
@@ -48,7 +43,6 @@ stages:
 - template: templates/stages-full-release.yaml
   parameters:
     environment: '${{ variables.environment }}'
-    runLoadTesting: ${{ parameters.runLoadTesting }}
     destroyOldEnvironment: ${{ parameters.destroyEnvironment }}
     trafficSwitchSteps:
     - 100

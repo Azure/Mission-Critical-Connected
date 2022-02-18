@@ -232,9 +232,6 @@ Azure Policy is used to monitor and enforce certain baselines. All policies are 
 This repository also contains a couple of supporting services for the AlwaysOn project:
 
 - [Self-hosted Agents](./build-agents/README.md)
-- [Locust Load Testing](../testing/loadtest-locust/README.md)
-
-These supporting services are required / optional based on how you chose to use AlwaysOn.
 
 ## Naming conventions
 

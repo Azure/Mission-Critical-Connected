@@ -1,9 +1,6 @@
 parameters:
   - name: environment
     type: string
-  - name: runLoadTesting # embedded load testing
-    type: boolean
-    default: false
   - name: destroyOldEnvironment
     type: boolean
     default: true
@@ -266,19 +263,6 @@ stages:
     parameters:
       testStampEndpoints: false
       testGlobalEndpoint: true
-
-# headless load testing for e2e (optional) with locust. Runs if Load test was selected by the user
-- ${{ if and(eq(parameters.environment, 'e2e'), eq(parameters.runLoadTesting, 'true')) }}: # only in e2e and when runLoadTesting is true
-  - template: stages-locust.yaml # headless load testing
-    parameters:
-      terraformWorkingDirectory: 'src/testing/loadtest-locust/infra'
-      customPrefix: '$(prefix)$(customSuffix)'
-      numberOfWorkerNodes: 10 # number of locust worker nodes
-      testDurationSeconds: 300 # locust test duration
-      locustUser: 500 # locust number of simulated users
-      locustSpawnRate: 10 # locust spawn rate users / per second
-      locustHeadless: true # run locust in headless mode
-
 
 - ${{ if eq(parameters.destroyOldEnvironment, 'true') }}: # Only for E2E the user could have manually chosen not to destroy the environment
   - stage: destroyOldInfrastructure                # In E2E this will destroy the infrastructure that was deployed from the same branch. For int/prod, this will fetch the previous release infra and destroy that
