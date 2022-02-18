@@ -7,7 +7,7 @@ parameters:
 
 steps:
 - task: PowerShell@2
-  displayName: "Analyze Results from the load and chaos tests"
+  displayName: "Analyze Results from the load tests"
   continueOnError: true 
   inputs:
     targetType: inline

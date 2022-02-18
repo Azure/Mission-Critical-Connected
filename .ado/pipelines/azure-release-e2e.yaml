@@ -27,12 +27,6 @@ parameters:
   type: boolean
   default: false
 
-- name: runChaosTesting
-  displayName: "Run Chaos testing"
-  type: boolean
-  default: false
-
-
 variables:
 - name:  'environment' # set the environment name as variable
   value: 'e2e'
@@ -55,7 +49,6 @@ stages:
   parameters:
     environment: '${{ variables.environment }}'
     runLoadTesting: ${{ parameters.runLoadTesting }}
-    runChaosTesting: ${{ parameters.runChaosTesting }}
     destroyOldEnvironment: ${{ parameters.destroyEnvironment }}
     trafficSwitchSteps:
     - 100
