@@ -1,5 +1,3 @@
-parameters:
-
 jobs:
 - job: deployconfiguration
   displayName: 'Deploy K8s Configuration'
