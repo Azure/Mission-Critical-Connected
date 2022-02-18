@@ -7,7 +7,7 @@ variables:
 - name: 'terraformVersion'    # Terraform Version
   value: '1.1.4'
 - name: 'kubernetesVersion'   # kubernetes version used for aks clusters
-  value: '1.21.7'
+  value: '1.21.9'
 - name: 'helmVersion'         # helm package manager version
   value: 'v3.8.0'
 - name: 'ingressNginxVersion' # nginx ingress controller helm chart version
@@ -47,3 +47,5 @@ variables:
   value: '20'
 - name: 'smokeTestRetryWaitSeconds' # How long to wait between each retry of the smoke tests
   value: '60'
+- name: 'skipComponentGovernanceDetection' # This is a Microsoft-specific setting. Having this in place ensures we don't create work items with CELA every time we use an open-source component
+  value: 'true'
