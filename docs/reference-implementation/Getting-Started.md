@@ -81,7 +81,7 @@ Go to the root of the AlwaysOn repository on GitHub and click on "Use this templ
 
 This will let you create a repository in your own account or organization. This is needed to allow you to make modification to our code within your own repository.
 
-### 3) Import Pipelines
+### 3) Import deployment pipelines
 
 Now that we have our own repo, let us start to import the pre-created pipelines into Azure Pipelines. You can do this either manually in the Azure DevOps Portal, or via the Azure DevOps Command Line Interface (CLI). Below you find instructions for both paths.
 
