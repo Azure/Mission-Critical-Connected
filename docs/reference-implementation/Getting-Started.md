@@ -26,7 +26,7 @@ The following tools and applications must be installed on the client machine use
 
 The process to deploy AlwaysOn is comprised of the following steps:
 
-1) Create an [Azure DevOps organization + project](#create-a-new-azure-devops-project)
+1) Create an [Azure DevOps organization and project](#create-a-new-azure-devops-project)
 1) Generate your own repository based on the [AlwaysOn GitHub template](https://github.com/Azure/AlwaysOn-Foundational-Online/generate) repository
 1) Import [deployment pipelines](#3-import-pipelines)
 1) Create [Service Principals](#4-create-azure-service-principal) for each individual Azure subscription
