@@ -83,7 +83,7 @@ This will let you create a repository in your own account or organization. This 
 
 ### 3) Import deployment pipelines
 
-Now that we have our own repo, let us start to import the pre-created pipelines into Azure Pipelines. You can do this either manually in the Azure DevOps Portal, or via the Azure DevOps Command Line Interface (CLI). Below you find instructions for both paths.
+Now that you have your own repo, let's start to import the pre-created pipelines into Azure Pipelines. You can do this either manually in the Azure DevOps Portal, or via the Azure DevOps Command Line Interface (CLI). Below you find instructions for both paths.
 
 > **Whether using Portal or CLI Pipeline import, you will need to import each Pipeline YAML file individually.**
 
