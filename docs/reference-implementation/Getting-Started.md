@@ -4,7 +4,7 @@ This step-by-step guide describes the process to deploy AlwaysOn in your own env
 
 ## How to deploy?
 
-The AlwaysOn project is using a GitHub-based repository for version control of code artifacts and manifest files. The project leverages Azure DevOps Pipelines for build and deployment (CI/CD) pipelines.
+The AlwaysOn project is using a GitHub repository for version control of code artifacts and manifest files. The project leverages Azure DevOps Pipelines for build and deployment (CI/CD) pipelines.
 
 > Instead of GitHub also other Git-based repositories can be used, such as *Azure DevOps Repos*.
 
