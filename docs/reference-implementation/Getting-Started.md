@@ -272,7 +272,7 @@ Deployment pipelines taking a dependency on ADO environments. Each pipeline requ
 
 Click on "Create"
 
-### 8) Set up private Build Agents
+### 8) Set up private build agents
 
 In order to deploy the resources in the next step, you must first set up the private Build Agent infrastructure. For detailed instructions on this, please follow [this guide](./Private-Agents-Setup.md).
 
