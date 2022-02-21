@@ -49,8 +49,8 @@ To deploy AlwaysOn, you need to create a new Azure DevOps organization, or re-us
 
 When using Azure DevOps CLI, make sure that the [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops) is configured to use the Azure DevOps organization that was created in the previous task.
 
-```bash
-export AZURE_DEVOPS_EXT_PAT="<azure-devops-personal-access-token>"
+```powershell
+$env:AZURE_DEVOPS_EXT_PAT="<azure-devops-personal-access-token>"
 
 # set the org context
 az devops configure --defaults organization=https://dev.azure.com/<your-org>
@@ -67,7 +67,7 @@ This will result in a new project, `<your-project>` in your Azure DevOps organiz
 
 For all the subsequent tasks done via `az devops` or `az pipelines` the context can be set via:
 
-```bash
+```powershell
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 ```
 
@@ -117,7 +117,7 @@ When you are later ready to also deploy further environments such as INT (integr
 
    > **Note!** If requested, grant the Azure Pipelines app permissions to access your GitHub repository.
 
-1) Select "Existing Azure Pipelines YAML file" in the "Configure your pipeline" dialog
+1) Select "Existing Azure Pipelines YAML file" in the "Configure your pipeline" dialog and click "Continue"
 
    > **Note!** In the "Select an existing YAML file" dialog, select the YAML file you want to import. For the e2e pipeline this is `/.ado/pipelines/azure-release-e2e.yaml`.
 
@@ -127,7 +127,7 @@ When you are later ready to also deploy further environments such as INT (integr
 
    ![Run or save Pipeline](/docs/media/AlwaysOnGettingStarted2RunOrSavePipeline.png 'Run or save Pipeline')
 
-1) Rename the pipeline by clicking on the three dots and (optionally) move it into a folder (see below)
+1) Rename the pipeline by clicking on the three dots and (optionally) move it into a folder (see below). The UI usually doesn't immediately reflect the change immediatly, so just refresh the page.
 
    ![Rename/move pipeline](/docs/media/AlwaysOnGettingStarted2PipelineRename.png 'Rename/move pipeline')
 
@@ -141,19 +141,19 @@ First, you need to create a PAT (personal access token) on GitHub to use with AD
 
 Save the token securely. Then, set it as an environment variable in your shell:
 
-```bash
-export AZURE_DEVOPS_EXT_GITHUB_PAT=<your PAT>
+```powershell
+$env:AZURE_DEVOPS_EXT_GITHUB_PAT=<your PAT>
 ```
 
 Now your session is authenticated and the ADO CLI will be able to import the pipelines from GitHub.
 
-```bash
+```powershell
 # set the org/project context
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 
 # import a YAML pipeline
-az pipelines create --name "Azure.AlwaysOn E2E Release" --description "Azure.AlwaysOn E2E Release" \
-                    --branch main --repository https://github.com/<your-template>/ --repository-type github \
+az pipelines create --name "Azure.AlwaysOn E2E Release" --description "Azure.AlwaysOn E2E Release" `
+                    --branch main --repository https://github.com/<your-template>/ --repository-type github `
                     --skip-first-run true --yaml-path "/.ado/pipelines/azure-release-e2e.yaml"
 ```
 
@@ -165,12 +165,15 @@ We need to create an AAD Service Principal with **Subscription-level Owner permi
 
 You need to repeat these steps for each of the environments that you want to create. But you can also only start with one for now. If so, we recommend to start with `e2e`.
 
-```bash
+```powershell
 # Get the subscription ID
 az account show --query id -o tsv
 
 # Output:
 xxx-xxxxxxx-xxxxxxx-xxxx
+
+# Verify that this is indeed the subscrption you want to target. Otherwise you can switch the scope using:
+# az account set --subscription <name>
 
 # Make sure to change the name to a unique one within your tenant
 az ad sp create-for-rbac --scopes "/subscriptions/xxx-xxxxxxx-xxxxxxx-xxxx" --role "Owner" --name <CHANGE-MY-NAME-alwayson-deployment-sp>
@@ -213,22 +216,22 @@ These service connections can be created in the Azure DevOps Portal or via the `
 
 #### Use Azure DevOps CLI
 
-```bash
+```powershell
 # set the org/project context
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 
-export AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY="<service-principal-password>"
+$env:AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY="<service-principal-password>"
 
 # create a new service connection
-az devops service-endpoint azurerm create \
-    --name alwayson-e2e-serviceconnection \
-    --azure-rm-tenant-id <tenant-id> \
-    --azure-rm-service-principal-id <app-id> \
-    --azure-rm-subscription-id <subscription-id> \
+az devops service-endpoint azurerm create `
+    --name alwayson-e2e-serviceconnection `
+    --azure-rm-tenant-id <tenant-id> `
+    --azure-rm-service-principal-id <app-id> `
+    --azure-rm-subscription-id <subscription-id> `
     --azure-rm-subscription-name <subscription-name>
 ```
 
-> `AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY` is used for automation purposes. If not set, `az devops` will prompt you for the service principal client secret. See [az devops service-endpoint azurerm](https://docs.microsoft.com/cli/azure/devops/service-endpoint/azurerm?view=azure-cli-latest) for more information about parameters and options.
+> `AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY` is used for automation purposes. If not set, `az devops` will prompt you for the service principal password. See [az devops service-endpoint azurerm](https://docs.microsoft.com/cli/azure/devops/service-endpoint/azurerm?view=azure-cli-latest) for more information about parameters and options.
 
 ### 6) Adjust configuration
 
