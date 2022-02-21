@@ -87,7 +87,7 @@ Now that you have your own repo, let's start to import the pre-created pipelines
 
 > **Whether using Portal or CLI Pipeline import, you will need to import each Pipeline YAML file individually.**
 
-The files to import are the YAML files stored in the `/.ado/pipelines/` directory. **Do not** import files from subdirectories, such as `/.ado/pipelines/config/` or `/.ado/pipelines/templates/`, or from other directories in the repo.
+The files to import are the YAML files stored in the root of the `/.ado/pipelines/` directory. **Do not** import files from subdirectories, such as `/.ado/pipelines/config/` or `/.ado/pipelines/templates/`, or from other directories in the repo.
 
 You can find more details about any of the pipelines within the [pipelines documentation](/.ado/pipelines/README.md).
 
