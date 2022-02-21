@@ -8,7 +8,7 @@ The AlwaysOn project is using a GitHub repository for version control of code ar
 
 > Instead of GitHub also other Git-based repositories can be used, such as *Azure DevOps Repos*.
 
-All relevant code artifacts and manifest files are stored in the GitHub repository and can easily be forked into your own account or organization.
+All relevant code artifacts and manifest files are stored in this GitHub repository and can easily be forked into your own account or organization.
 
 This guide describes the end-to-end process for setting up all pre-requisites and dependencies before deploying AlwaysOn into an Azure subscription of your choice.
 
