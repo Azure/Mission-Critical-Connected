@@ -75,7 +75,7 @@ az devops configure --defaults organization=https://dev.azure.com/<your-org> pro
 
 Azure DevOps Repos would allow us to import the AlwaysOn GitHub repository into Azure DevOps as well. For this guide we have decided to generate our own repository based on the template on GitHub and use it from there.
 
-Go to the root of the AlwaysOn repository on GitHub and click on "Use this template" in the top right corner:
+Go to the root of [this AlwaysOn repository](https://github.com/Azure/AlwaysOn-Foundational-Connected) on GitHub and click on "Use this template" in the top right corner:
 
 ![Use GitHub Repo template](/docs/media/AlwaysOnGettingStarted2Fork.png)
 
