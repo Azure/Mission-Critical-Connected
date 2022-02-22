@@ -28,7 +28,7 @@ The process to deploy AlwaysOn is comprised of the following steps:
 
 1) Create an [Azure DevOps organization and project](#create-a-new-azure-devops-project)
 1) Generate your own repository based on the [AlwaysOn GitHub template](https://github.com/Azure/AlwaysOn-Foundational-Online/generate) repository
-1) Import [deployment pipelines](#3-import-pipelines)
+1) Import [deployment pipelines](#3-import-deployment-pipelines)
 1) Create [Service Principals](#4-create-azure-service-principal) for each individual Azure subscription
 1) Create [Service Connections](#5-create-azure-service-connections) in Azure DevOps
 1) [Adjust configuration](#6-adjust-configuration)
@@ -91,7 +91,7 @@ The files to import are the YAML files stored in the root of the `/.ado/pipeline
 
 You can find more details about any of the pipelines within the [pipelines documentation](/.ado/pipelines/README.md).
 
-To start, we will import **only** the following pipeline from the `/.ado/pipelines/` directory:
+To start, you will import **only** the following pipeline from the `/.ado/pipelines/` directory:
 
 - `/.ado/pipelines/azure-release-e2e.yaml`
 
@@ -241,7 +241,7 @@ Modify the respective file for the environment which you want to deploy. At leas
 
 | Required to modify | Key | Description | Sample value |
 | --- | --- | --- | --- |
-| **YES** | prefix | Custom prefix used for Azure resources.  | myaoe2e |
+| **YES** | prefix | Custom prefix used for Azure resources. **Must not be longer than 6 characters!** | myaoe2e |
 | **YES** | contactEmail | E-mail alias used for alerting. **Be careful which address you put in here as it will potentially receive a lot of notification emails** | alwaysonappnet@example.com |
 | NO | terraformResourceGroup | Resource Group where the Terraform state Storage account will be deployed | terraformstate-rg |
 | NO | stampLocations | List of locations (Azure Regions) where this environment will be deployed into. You can keep the default to start with.  | ["northeurope", "eastus2"] |
