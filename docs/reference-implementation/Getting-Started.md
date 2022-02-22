@@ -264,7 +264,7 @@ See [this guide](/src/infra/README.md#networking) for more information about the
 
 ### Create environments in ADO
 
-Deployment pipelines taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
+Deployment pipelines are taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
 
 > **Note:** Based on your ADO organizational settings, the environments will have already been created for you when you imported the pipelines.
 
