@@ -160,6 +160,8 @@ For INT and PROD (or any other environments which do require connectivity), a mu
 
 The file needs to hold the resource IDs of the VNets per region. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example. The deployment pipeline will check which VNets are currently not in use by any other deployment and then tag the VNets to mark them as in use. Once an environment gets destroyed again, this "earmark" tag is being removed again. See [`/.ado/pipelines/templates/steps-get-or-create-vnet.yaml`](/.ado/pipelines/templates/steps-get-or-create-vnet.yaml) for the pipeline script which implements the logic.
 
+> **The reference implementation is currently configured to require at least a VNet with a /23 address space for each stamp.** This is to allow for a /24 subnet for AKS nodes and their pods. Change this based on your scaling requirements (number of nodes and number of pods). To change the subnet sizes (and thereby the required input size of /23), modify [`/src/infra/workload/releaseunit/modules/stamp/network.tf`](/src/infra/workload/releaseunit/modules/stamp/network.tf)
+
 #### Azure Key Vault
 
 - Key Vault is used as the sole configuration store by the application for both secret as well as non-sensitive values.
