@@ -239,7 +239,6 @@ There are three variables files in the `/.ado/pipelines/config` folder, one for 
 
 Modify the respective file for the environment which you want to deploy. At least the variables which are marked as `required` in the table below need to be changed.
 
-Deployment pipelines taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
 | Required to modify | Key | Description | Sample value |
 | --- | --- | --- | --- |
 | **YES** | prefix | Custom prefix used for Azure resources. **Must not be longer than 6 characters!** | mye2e |
@@ -266,8 +265,6 @@ See [this guide](/src/infra/README.md#networking) for more information about the
 ### Create environments in ADO
 
 Deployment pipelines are taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
-
-> **Note:** Based on your ADO organizational settings, the environments will have already been created for you when you imported the pipelines.
 
 > **Note:** Based on your ADO organizational settings, the environments will have already been created for you when you imported the pipelines.
 
