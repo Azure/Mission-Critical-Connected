@@ -17,7 +17,7 @@ On a high level, the following steps will be executed:
 
 ## Import pipeline to deploys self-hosted Build Agents
 
-To deploy the infrastructure for the self-hosted Agents and all supporting services such as Jump Servers and private DNS zones, a ready-to-use Bicep template plus the corresponding ADO Pipeline is included in this repository. Bicep is being used for this part of the infrastructure instead of Terraform, since it could create a chicken-and-egg problem with the state storage account which requires public access. All further resources are then created using Terraform.
+To deploy the infrastructure for the self-hosted Agents and all supporting services such as Jump Servers and private DNS zones, a ready-to-use Bicep template plus the corresponding ADO Pipeline is included in this repository. Bicep is being used for this part of the infrastructure instead of Terraform, because using Terraform could create a "chicken-and-egg" problem with the state storage account which requires public access. All further resources are then created using Terraform.
 
 > The following steps assume that you have already followed the general [Getting Started guide](/docs/reference-implementation/Getting-Started.md). If you have not done so yet, please go there first.
 
