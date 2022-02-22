@@ -1,18 +1,20 @@
 # Getting started
 
-This guide describes the process and the steps to deploy AlwaysOn in your own environment/subscription from the beginning. In the end you will have an Azure DevOps organization and project set up to deploy a copy of AlwaysOn into an Azure Subscription.
+This step-by-step guide describes the process to deploy AlwaysOn in your own environment from the beginning. At the end of this guide you will have an Azure DevOps organization and project set up to deploy a copy of AlwaysOn into an Azure Subscription.
 
 ## How to deploy?
 
-AlwaysOn project is using a GitHub-based repository for version control of code artifacts and manifest files. The project leverages Azure DevOps Pipelines for build and deployment (CI/CD) pipelines.
+The AlwaysOn project is using a GitHub repository for version control of code artifacts and manifest files. The project leverages Azure DevOps Pipelines for build and deployment (CI/CD) pipelines.
 
-All relevant code artifacts and manifest files are stored in the GitHub repository and can easily be forked into your own account or organization.
+> Instead of GitHub also other Git-based repositories can be used, such as *Azure DevOps Repos*.
 
-The document describes end-to-end process for setting up pre-requisites and other dependencies before deploying AlwaysOn in a subscription of your choice.
+All relevant code artifacts and manifest files are stored in this GitHub repository and can easily be forked into your own account or organization.
+
+This guide describes the end-to-end process for setting up all pre-requisites and dependencies before deploying AlwaysOn into an Azure subscription of your choice.
 
 ## Pre-requisites
 
-Following tools and applications must be installed on the client machine which you are using to deploy AlwaysOn reference implementation:
+The following tools and applications must be installed on the client machine used to deploy AlwaysOn reference implementation:
 
 - Install [Azure CLI](https://docs.microsoft.com/cli/azure/service-page/azure%20cli?view=azure-cli-latest)
 
@@ -24,70 +26,79 @@ Following tools and applications must be installed on the client machine which y
 
 The process to deploy AlwaysOn is comprised of the following steps:
 
-1) Create an [Azure DevOps organization + project](#create-a-new-azure-devops-project)
-1) Create a fork of the [AlwaysOn GitHub](https://github.com/azure/alwayson) repository
-1) Import [deployment pipelines](#3-import-pipelines)
+1) Create an [Azure DevOps organization and project](#create-a-new-azure-devops-project)
+1) Generate your own repository based on the [AlwaysOn GitHub template](https://github.com/Azure/AlwaysOn-Foundational-Online/generate) repository
+1) Import [deployment pipelines](#3-import-deployment-pipelines)
 1) Create [Service Principals](#4-create-azure-service-principal) for each individual Azure subscription
 1) Create [Service Connections](#5-create-azure-service-connections) in Azure DevOps
-1) Access to an Azure Subscription (it is recommended to use multiple subscriptions to separate environments types i.e. dev, test and prod) with RP and preview features enabled for each of the subscriptions
-1) Adjust configuration
-1) Set up [private build agents](#8-set-up-private-build-agents)
-1) Execute the first deployment
+1) [Adjust configuration](#6-adjust-configuration)
+1) [Configure pre-provided VNets](#7-configure-pre-provided-vnets-optional)
+1) [Set up private build agents](#8-set-up-private-build-agents)
+1) [Execute the first deployment](#9-execute-the-first-deployment)
+1) [Check deployed resources](#10-check-deployed-resources)
 
-### 1) Create a new Azure DevOps organization
+### 1) Create a new Azure DevOps organization and project
 
-To deploy AlwaysOn, you need to create a new Azure DevOps organization, or re-use an existing one. In this organization we will then create a new project used to host all pipelines for AlwaysOn.
+To deploy AlwaysOn, you need to create a new Azure DevOps organization, or re-use an existing one. In this organization you will then create a new project used to host all pipelines for AlwaysOn.
 
 - [Create an organization or project collection](https://docs.microsoft.com/azure/devops/organizations/accounts/create-organization?view=azure-devops)
 
-> **Important!** The [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops) is used for the subsequent steps. Please make sure that it is installed.
+> **Important!** The [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops) is used for the subsequent steps. Please make sure that it is installed. The authentication is done via a Personal Access Token (PAT). This can be done via `az devops login` or by storing the PAT token in the `AZURE_DEVOPS_EXT_PAT` environment variable. The token is expected to have at least the following scopes: `Agent Pools`: Read & manage, `Build`: Read & execute, `Project and Team`: Read, write, & manage, `Service Connections`: Read, query, & manage.
 
 #### Create a new Azure DevOps project
 
-Before we start, make sure that the [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops) is configured to use the Azure DevOps organization that was created in the previous step:
+When using Azure DevOps CLI, make sure that the [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops) is configured to use the Azure DevOps organization that was created in the previous task.
 
-```bash
+```powershell
+$env:AZURE_DEVOPS_EXT_PAT="<azure-devops-personal-access-token>"
+
+# set the org context
 az devops configure --defaults organization=https://dev.azure.com/<your-org>
+
+# create a new project
 az devops project create --name <your-project>
 ```
 
-This will result in a new project, _<your-project>_ in your Azure DevOps organization:
+> `AZURE_DEVOPS_EXT_PAT` is used for automation purposes. If not set, `az devops login` will prompt you for the Personal Access Token (PAT).
+
+This will result in a new project, `<your-project>` in your Azure DevOps organization:
 
 ![New ADO Project](/docs/media/AlwaysOnGettingStarted1.png)
 
 For all the subsequent tasks done via `az devops` or `az pipelines` the context can be set via:
 
-```bash
+```powershell
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 ```
 
-### 2) Fork the AlwaysOn GitHub repository
+### 2) Generate your own repository based on the AlwaysOn GitHub template
 
-Azure DevOps Repos would allow us to import the AlwaysOn GitHub repository into Azure DevOps as well. For this guide we have decided to fork the repository on GitHub and use it from there.
+Azure DevOps Repos would allow us to import the AlwaysOn GitHub repository into Azure DevOps as well. For this guide we have decided to generate our own repository based on the template on GitHub and use it from there.
 
-Go to the AlwaysOn repository on GitHub and click on "Fork" in the top right corner:
+Go to the root of [this AlwaysOn repository](https://github.com/Azure/AlwaysOn-Foundational-Connected) on GitHub and click on "Use this template" in the top right corner:
 
-![Fork GitHub Repo](/docs/media/AlwaysOnGettingStarted2Fork.png)
+![Use GitHub Repo template](/docs/media/AlwaysOnGettingStarted2Fork.png)
 
-This will let you create a fork in your own account or organization. This is needed to allow you to make modification to our code within your own repository.
+This will let you create a repository in your own account or organization. This is needed to allow you to make modification to our code within your own repository.
 
-### 3) Import Pipelines
+### 3) Import deployment pipelines
 
-Now that we have our own fork, let us start to import the pre-created pipelines into Azure Pipelines. You can do this either manually in the Azure DevOps Portal, or via the Azure DevOps Command Line Interface (CLI). Below you find instructions for both paths.
+Now that you have your own repo, let's start to import the pre-created pipelines into Azure Pipelines. You can do this either manually in the Azure DevOps Portal, or via the Azure DevOps Command Line Interface (CLI). Below you find instructions for both paths.
 
 > **Whether using Portal or CLI Pipeline import, you will need to import each Pipeline YAML file individually.**
 
-The files to import are the YAML files stored in the `/.ado/pipelines/` directory. **Do not** import files from subdirectories, such as `/.ado/pipelines/config/` or `/.ado/pipelines/templates/`, or from other directories in the repo.
+The files to import are the YAML files stored in the root of the `/.ado/pipelines/` directory. **Do not** import files from subdirectories, such as `/.ado/pipelines/config/` or `/.ado/pipelines/templates/`, or from other directories in the repo.
 
 You can find more details about any of the pipelines within the [pipelines documentation](/.ado/pipelines/README.md).
 
-To start, we will import only the following three pipelines from the `/.ado/pipelines/` directory:
+To start, you will import **only** the following pipeline from the `/.ado/pipelines/` directory:
 
 - `/.ado/pipelines/azure-release-e2e.yaml`
+
+When you are later ready to also deploy further environments such as INT (integration) and PROD (production), repeat the same steps (and consecutive actions below) for the respective  pipelines:
+
 - `/.ado/pipelines/azure-release-int.yaml`
 - `/.ado/pipelines/azure-release-prod.yaml`
-
-So repeat the steps below for each of these.
 
 #### Import in Azure DevOps Portal
 
@@ -97,18 +108,28 @@ So repeat the steps below for each of these.
 1) Go to "Pipelines"
 1) Click "Create pipeline" or "New pipeline"
 1) Select "GitHub (YAML)"
-1) Search for your repository in "Select a repository" (your fork)
-1) Select "Existing Azure Pipelines YAML file"
-1) Select "Run" to save and run the pipeline now, or "Save" to save and run later (see below)
-1) Rename the pipeline and (optionally) move it into a folder (see below)
 
-_Save Pipeline_
+   > **Note!** If requested, grant the Azure Pipelines app permissions to access your GitHub repository.
 
-![Run or save Pipeline](/docs/media/AlwaysOnGettingStarted2RunOrSavePipeline.png 'Run or save Pipeline')
+   ![github authorization](/docs/media/github-ado-auth-1.png)
 
-_Rename/move pipeline_
+1) Search for your repository in "Select a repository" (name of your template)
 
-![Rename/move pipeline](/docs/media/AlwaysOnGettingStarted2PipelineRename.png 'Rename/move pipeline')
+   > **Note!** If requested, grant the Azure Pipelines app permissions to access your GitHub repository.
+
+1) Select "Existing Azure Pipelines YAML file" in the "Configure your pipeline" dialog and click "Continue"
+
+   > **Note!** In the "Select an existing YAML file" dialog, select the YAML file you want to import. For the e2e pipeline this is `/.ado/pipelines/azure-release-e2e.yaml`.
+
+   ![select yaml pipline](/docs/media/AlwaysOnGettingStarted2Pipeline_select_yaml_pipeline.png)
+
+1) Select "Save" (from the dropdown menu under the "Run" button) to save the pipeline
+
+   ![Run or save Pipeline](/docs/media/AlwaysOnGettingStarted2RunOrSavePipeline.png 'Run or save Pipeline')
+
+1) Rename the pipeline by clicking on the three dots and (optionally) move it into a folder (see below). The UI usually doesn't immediately reflect the change immediatly, so just refresh the page.
+
+   ![Rename/move pipeline](/docs/media/AlwaysOnGettingStarted2PipelineRename.png 'Rename/move pipeline')
 
 #### Import via Azure DevOps CLI
 
@@ -116,18 +137,25 @@ Using the `az devops` / `az pipelines` CLI:
 
 > Note: If you are using Azure DevOps Repos instead of GitHub, change `--repository-type github` to `--repository-type tfsgit` in the command below. Also, if your branch is not called `main` but, for example, `master` change this accordingly.
 
-```bash
+First, you need to create a PAT (personal access token) on GitHub to use with ADO. This is required to be able to import the pipelines. For this, create a new token [here](https://github.com/settings/tokens). Select `repo` as the scope.
+
+Save the token securely. Then, set it as an environment variable in your shell:
+
+```powershell
+$env:AZURE_DEVOPS_EXT_GITHUB_PAT=<your PAT>
+```
+
+Now your session is authenticated and the ADO CLI will be able to import the pipelines from GitHub.
+
+```powershell
 # set the org/project context
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 
 # import a YAML pipeline
-az pipelines create --name "Azure.AlwaysOn PROD Release" --description "Azure.AlwaysOn PROD Release" \
-                    --branch main --repository https://github.com/<your-fork>/ --repository-type github \
-                    --skip-first-run true --yaml-path "/.ado/pipelines/azure-release-prod.yaml"
+az pipelines create --name "Azure.AlwaysOn E2E Release" --description "Azure.AlwaysOn E2E Release" `
+                    --branch main --repository https://github.com/<your-template>/ --repository-type github `
+                    --skip-first-run true --yaml-path "/.ado/pipelines/azure-release-e2e.yaml"
 ```
-
-You need to run the "import a YAML pipeline" CLI command above for each YAML file to import. You can browse the repo you forked to see the YAML files in the `/.ado/pipelines/` folder.
-
 
 ### 4) Create Azure Service Principal
 
@@ -137,21 +165,23 @@ We need to create an AAD Service Principal with **Subscription-level Owner permi
 
 You need to repeat these steps for each of the environments that you want to create. But you can also only start with one for now. If so, we recommend to start with `e2e`.
 
-```bash
+```powershell
 # Get the subscription ID
 az account show --query id -o tsv
 
 # Output:
 xxx-xxxxxxx-xxxxxxx-xxxx
 
+# Verify that this is indeed the subscrption you want to target. Otherwise you can switch the scope using:
+# az account set --subscription <name>
+
 # Make sure to change the name to a unique one within your tenant
-az ad sp create-for-rbac --scopes "/subscriptions/xxx-xxxxxxx-xxxxxxx-xxxx" --role "Owner" --name my-alwayson-deployment-sp
+az ad sp create-for-rbac --scopes "/subscriptions/xxx-xxxxxxx-xxxxxxx-xxxx" --role "Owner" --name <CHANGE-MY-NAME-alwayson-deployment-sp>
 
 # Output:
 {
   "appId": "d37d23d3-d3d3-460b-a4ab-aa7a11504e76",
   "displayName": "my-alwayson-deployment-sp",
-  "name": "d37d23d3-d3d3-460b-a4ab-aa7a11504e76",
   "password": "notARealP@assword-h3re",
   "tenant": "64f988bf-86f1-42af-91ab-2d7gh011db47"
 }
@@ -181,57 +211,62 @@ These service connections can be created in the Azure DevOps Portal or via the `
 1) Select "Azure Resource Manager"
 1) Select "Service principal (manual)"
 1) Set the subscription details and credentials
+1) Set the service connection name to one of the three above
+1) Click on "Verify and save"
 
 #### Use Azure DevOps CLI
 
-```bash
+```powershell
 # set the org/project context
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 
-export AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY="<service-principal-password>"
+$env:AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY="<service-principal-password>"
 
 # create a new service connection
-az devops service-endpoint azurerm create \
-    --name alwayson-e2e-serviceconnection \
-    --azure-rm-tenant-id <tenant-id> \
-    --azure-rm-service-principal-id <app-id> \
-    --azure-rm-subscription-id <subscription-id> \
+az devops service-endpoint azurerm create `
+    --name alwayson-e2e-serviceconnection `
+    --azure-rm-tenant-id <tenant-id> `
+    --azure-rm-service-principal-id <app-id> `
+    --azure-rm-subscription-id <subscription-id> `
     --azure-rm-subscription-name <subscription-name>
 ```
 
-> `AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY` is used for automation purposes. If not set, `az devops` will prompt you for the service principal client secret. See [az devops service-endpoint azurerm](https://docs.microsoft.com/cli/azure/devops/service-endpoint/azurerm?view=azure-cli-latest) for more information about parameters and options.
+> `AZURE_DEVOPS_EXT_AZURE_RM_SERVICE_PRINCIPAL_KEY` is used for automation purposes. If not set, `az devops` will prompt you for the service principal password. See [az devops service-endpoint azurerm](https://docs.microsoft.com/cli/azure/devops/service-endpoint/azurerm?view=azure-cli-latest) for more information about parameters and options.
 
-### 6) Access to an Azure Subscriptions with RP and preview features enabled
+### 6) Adjust configuration
 
-#### (Optional) Register Azure Resource Providers
+There are three variables files in the `/.ado/pipelines/config` folder, one for each environment. You need to edit these files to reflect your own workspace before you execute the first deployments. They are named `variables-values-[env].yaml`.
 
-> This step is also done automatically by Terraform. However, if the Service Principal that you created before does not have the required permissions to register Resource Providers, you need to do this manually with a user that has sufficient permissions.
+Modify the respective file for the environment which you want to deploy. At least the variables which are marked as `required` in the table below need to be changed.
 
-When a new Azure Subscription is used for the first time, the required [Azure Resource Providers](/src/infra/workload/README.md#azure-resource-providers) need to be registered within the Azure Subscription.
+| Required to modify | Key | Description | Sample value |
+| --- | --- | --- | --- |
+| **YES** | prefix | Custom prefix used for Azure resources. **Must not be longer than 6 characters!** | mye2e |
+| **YES** | contactEmail | E-mail alias used for alerting. **Be careful which address you put in here as it will potentially receive a lot of notification emails** | alwaysonappnet@example.com |
+| NO | terraformResourceGroup | Resource Group where the Terraform state Storage account will be deployed | terraformstate-rg |
+| NO | stampLocations | List of locations (Azure Regions) where this environment will be deployed into. You can keep the default to start with.  | ["northeurope", "eastus2"] |
+| NO | envDnsZoneRG | OPTIONAL: Name of the Azure Resource group which holds the Azure DNS Zone for your custom domain. Not required if you do not plan to use a custom DNS name | mydns-rg |
+| NO | envDomainName | OPTIONAL: Name of the Azure DNS Zone. Not required if you do not plan to use a custom DNS name | example.com |
 
-This can be done at any time. For convenience, our infrastructure deployment pipelines do this automatically, so we are noting the need for Resource Providers here for reference only.
+**After modifying the file, make sure to commit and push the changes to your Git repository.**
 
-See [Azure Resource Providers](/src/infra/workload/README.md#azure-resource-providers) for a full list of resource providers used for AlwaysOn.
+For more details on the variables, you can consult [this guide](/.ado/pipelines/README.md#configuration-files).
 
-#### Register Azure preview feature
+### 7) Configure pre-provided VNets (optional)
 
-The reference implementation deployment takes a dependency on Azure Kubernetes Service AutoUpgrade and PlannedMaintenance feature which is in public preview (October 2021). Configuring an `automatic_upgrade_channel` requires registering the Azure subscription for the AutoUpgradePreview. The following command can be used to register:
+If you are deploying an environment, which needs connectivity to other company resources such as through a hub-and-spoke model, you need to pre-provision a number of VNets for this environment. If you do not plan to use this feature for the environment which you are working on right now (e.g. E2E), you can skip this step. In this case, the deployment will create temporary, unconnected VNets for each deployment.
 
-``` bash
-az feature register --namespace Microsoft.ContainerService -n AutoUpgradePreview
-```
+For every region that you want to deploy stamps into, you need at least two pre-provisioned VNets. Those will often be created by a central platform team with peering set up to a hub network. These VNets need to be created in the same subscription as the environment. Collect the resource IDs of the VNets and create/update the corresponding file in `.ado/pipelines/config/vnets-[environment].json`. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example.
 
-See [Azure Preview feature ](/src/infra/workload/README.md#preview-feature-registration-on-subscription) for additional information.
+See [this guide](/src/infra/README.md#networking) for more information about the VNet usage and setup.
 
-### 7) Adjust configuration
+**After modifying the file, make sure to commit and push the changes to your Git repository.**
 
-There are three variables files in the `/.ado/pipelines/config` folder, one for each environment. You need to edit those file to reflect your own workspace before you execute the first deployments.
+### Create environments in ADO
 
-**Please follow [this guide](/.ado/pipelines/README.md#configuration-files) to adjust the values for the different configuration files.**
+Deployment pipelines are taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
 
-#### Create environments
-
-Deployment pipelines taking a dependency on ADO environments. Each pipeline requires an environment created on the ADO project.
+> **Note:** Based on your ADO organizational settings, the environments will have already been created for you when you imported the pipelines.
 
 1. Click on Pipelines->Environment on the ADO project
 1. Create a "New environment"
@@ -240,20 +275,25 @@ Deployment pipelines taking a dependency on ADO environments. Each pipeline requ
 
 Click on "Create"
 
-### 8) Set up private Build Agents
+### 8) Set up private build agents
 
-In order to deploy the resources in the next step, you must first set up the private Build Agent infrastructure. For detailed instructions on this, please follow [this guide](./Getting-Started-Private-Mode.md).
+In order to deploy the resources in the next step, you must first set up the private Build Agent infrastructure. For detailed instructions on this, please follow [this guide](./Private-Agents-Setup.md).
 
 ### 9) Execute the first deployment
 
 After completing all previous steps in this guide, you can start executing the pipelines to spin up the infrastructure.
+
+You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
+
+Otherwise you should see no immediate difference compared to the [AlwaysOn Foundational Connected](https://github.com/Azure/AlwaysOn-Foundational-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
+
 Go the the **Pipelines** section of the Azure DevOps Portal and click on the E2E release pipeline.
 
 Then click **Run pipeline**:
 
 ![Run pipeline](/docs/media/devops_e2e_pipeline_header.png 'Run pipeline')
 
-In the popup window, uncheck the box "Destroy Environment at the end" and then click **Run**.
+In the popup window, **uncheck** the box **Destroy Environment at the end** and then click **Run**.
 
 ![Start pipeline](/docs/media/devops_run_e2e_pipeline.png 'Start E2E pipeline run')
 
@@ -261,11 +301,21 @@ This will now kick off your first full pipeline run. You can follow the progress
 
 ![Pipeline run overview](/docs/media/devops_e2e_pipeline_run_screen.png)
 
-The full run, which deploys all resources from scratch, might take around 30-40 minutes. Once all jobs are finished, take a note of the resource prefix which is now shown in the header of your pipeline screen:
+Upon the first execution of a pipeline, Azure DevOps might ask you to grant permissions on the required service connection to Azure, as well as the environment.
+
+![Pipeline permission](/docs/media/AlwaysOnGettingStarted2PipelinePermission.png)
+
+Click on **View** and then on **Permit** for each required permission.
+
+![Pipeline permission](/docs/media/AlwaysOnGettingStarted2PipelinePermissionGrant.png)
+
+After this, the pipeline execution will kick off.
+
+The full run, which deploys all resources from scratch, might take around 30-40 minutes. Once all jobs are finished, **take a note of the resource prefix** which is now shown in the header of your pipeline screen:
 
 ![Resource tag](/docs/media/e2e_pipeline_prefix_tag.png)
 
-### Check deployed resources
+### 10) Check deployed resources
 
 You can now go to the Azure Portal and check the provisioned resources. In the Resource Groups blade, locate the groups which start with the aforementioned prefix. You will see two resources groups (or more, depending if you changed the number of desired stamps):
 
@@ -278,13 +328,27 @@ You can now go to the Azure Portal and check the provisioned resources. In the R
 ![Azure Stamp Resources](/docs/media/e2e_azure_resources_stamp.png)
 
 
+#### Browse to the demo app website
+
+We can now browse to the demo app website. Fetch the URL from the Front Door resource:
+
+1) Find the "Global Resource" group, e.g. `<myprefix>123-global-fd`
+1) Click on the Front Door resource (e.g. `<myprefix>123-global-fd`)
+1) Click on the "Frontend host" link
+![Frontend host](/docs/media/frontdoor-resource-hostlink.png)
+1) This opens the landing page of the demo app. Feel free to browse around!
+
+![landingpage](/docs/media/website_landingpage.png)
+
+![catalogpage](/docs/media/website_catalogpage.png)
+
 ## Additional information to learn more
 
 With the completion of at least one deployment pipeline it is now a good time to read more about the pipeline workflows and other available documentation:
 
-Guidance on [Azure DevOps Workflows](/.ado/pipelines/README.md)
+- Guidance on [Azure DevOps Workflows](/.ado/pipelines/README.md)
 
-Detailed information about the infrastructure layer - [Terraform documentation](/src/infra/workload/README.md#get-started).
+- Detailed information about the infrastructure layer - [Terraform documentation](/src/infra/workload/README.md#get-started).
 
 ---
 [AlwaysOn - Full List of Documentation](/docs/README.md)

@@ -1,13 +1,15 @@
 name: '$(BuildDefinitionName).$(DayOfYear)$(Rev:.r)'
 
+trigger: none
+
 # Run automatic validation on dependabot branches
-trigger:
-  batch: true
-  branches:
-    include:
-    - component-updates
-    exclude:
-    - dependabot/*
+# trigger:
+#   batch: true
+#   branches:
+#     include:
+#     - component-updates
+#     exclude:
+#     - dependabot/*
 
 pr: none
 

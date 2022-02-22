@@ -1,6 +1,6 @@
 param prefix string
 param suffix string = ''
-param location string = 'Northeurope'
+param location string
 param environment string
 
 param vmssAdminUsername string = 'adminuser'
@@ -17,7 +17,6 @@ var default_tags = {
   Owner: 'AlwaysOn V-Team'
   Project: 'AlwaysOn Solution Engineering'
   Toolkit: 'Bicep'
-  Contact: 'alwaysonappnet@microsoft.com'
   Environment: environment
   Prefix: prefixsuffix
 }
@@ -260,7 +259,7 @@ resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' 
         }
       }
       osProfile: {
-        computerNamePrefix: 'alwaysonbuildagent'
+        computerNamePrefix: '${prefixsuffix}buildagent'
         customData: loadFileAsBase64('cloudinit.conf')
         adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
@@ -326,7 +325,7 @@ resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' = 
         }
       }
       osProfile: {
-        computerNamePrefix: 'alwaysonjumpboxes'
+        computerNamePrefix: '${prefixsuffix}jumpbox'
         customData: loadFileAsBase64('cloudinit.conf')
         adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
