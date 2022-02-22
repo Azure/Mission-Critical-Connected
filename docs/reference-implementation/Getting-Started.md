@@ -256,7 +256,7 @@ For more details on the variables, you can consult [this guide](/.ado/pipelines/
 
 If you are deploying an environment, which needs connectivity to other company resources such as through a hub-and-spoke model, you need to pre-provision a number of VNets for this environment. If you do not plan to use this feature for the environment which you are working on right now (e.g. E2E), you can skip this step. In this case, the deployment will create temporary, unconnected VNets for each deployment.
 
-For every region that you want to deploy stamps into, you need at least two pre-provisioned VNets. Those will often be created by a central platform team which peering set up to a hub network. These VNets need to be created in the same subscription as the environment. Collect the resource IDs of the VNets and create/update the corresponding file in `.ado/pipelines/config/vnets-[environment].json`. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example.
+For every region that you want to deploy stamps into, you need at least two pre-provisioned VNets. Those will often be created by a central platform team with peering set up to a hub network. These VNets need to be created in the same subscription as the environment. Collect the resource IDs of the VNets and create/update the corresponding file in `.ado/pipelines/config/vnets-[environment].json`. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example.
 
 See [this guide](/src/infra/README.md#networking) for more information about the VNet usage and setup.
 
