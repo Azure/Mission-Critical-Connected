@@ -105,7 +105,7 @@ Go back to the [Getting Started guide](./Getting-Started.md) and follow the rema
 
 In order to access the now locked-down services like AKS or Key Vault, you can use the Jump Servers which were provisioned as part of the self-hosted Build Agent deployment.
 
-1. Next, navigate to the Jump Server VMSS in the same resource group. E.g. `aoe2ebuildagents-jumpservers-vmss`, open the Instances blade and select one of the instances (there is probably only one)
+1. Navigate to the Jump Server VMSS in the same resource group. E.g. `aoe2ebuildagents-jumpservers-vmss`, open the Instances blade and select one of the instances (there is probably only one)
     ![Jump Server instances](/docs/media/private_build_agent_jumpservers_instances.png)
 1. Select the Bastion blade, enter `adminuser` as username and the password that you set earlier in the variable group. Click Connect.
 1. You now have established an SSH connection via Bastion to the Jump Server which has a direct line of sight to your private resources.
