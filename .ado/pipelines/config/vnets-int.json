@@ -1,0 +1,10 @@
+{
+    "westeurope": [
+        "/subscriptions/afffa704-8cbd-46f2-a146-b473f632ecb5/resourceGroups/ao-network/providers/Microsoft.Network/virtualNetworks/vnet-we",
+        "/subscriptions/afffa704-8cbd-46f2-a146-b473f632ecb5/resourceGroups/ao-network/providers/Microsoft.Network/virtualNetworks/vnet-we-2"
+    ],
+    "northeurope":[
+        "/subscriptions/afffa704-8cbd-46f2-a146-b473f632ecb5/resourceGroups/ao-network/providers/Microsoft.Network/virtualNetworks/vnet-ne-1",
+        "/subscriptions/afffa704-8cbd-46f2-a146-b473f632ecb5/resourceGroups/ao-network/providers/Microsoft.Network/virtualNetworks/vnet-ne-2"
+    ]
+}

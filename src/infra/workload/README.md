@@ -7,19 +7,6 @@ The Terraform-based reference implementation contains two deployment template de
 
 The number and the selected regions for these "stamp" deployments can easily be changed by modifying the configuration file for a specific environment [/.ado/piplines/config/variables-values-_[env]_.yaml](/.ado/pipelines/config).
 
-## Public and Private versions
-
-The reference implementation can be used to deploy to different flavors of the AlwaysOn infrastructure:
-
-- A "public" version which does not fully lock down all services, but in turn it can be deployed using Azure DevOps-hosted Build Agents. Plus, developers and administrators can more easily connect to the resources and debug them.
-- A fully "private" version which locks all traffic to the services down to Private Endpoints. This provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users most connect through Azure Bastion and Jump Servers.
-
-The default version, which is what in configured in the `main` branch of this repository, is the "public" version. If you want to use the "private" version of AlwaysOn, a couple of steps have to be executed once.
-
-> Note: It is not recommended (or supported) to deploy public and private environments in parallel from the same repository.
-
-Follow [this guide](/docs/reference-implementation/Getting-Started-Private-Mode.md) for detailed instructions how to enable the private version.
-
 ## Get started
 
 To deploy through Terraform, you need to create a Resource Group for the Terraform state Storage Account. You can pre-create the Resource Group, Storage Account and container, but if don't, the pipeline will do it automatically for you. If you wish, you could also change the Terraform backend to Terraform Cloud etc.
@@ -65,22 +52,6 @@ Optionally, you can also check registration status of individual `Provider` by r
 
 ```bash
 az provider show --namespace <provider name> --query registrationState
-```
-
-## Preview feature registration on Subscription
-
-The reference implementation deployment takes a dependency on Azure Kubernetes Service AutoUpgrade and PlannedMaintenance feature which is in public preview (October 2021). Configuring an `automatic_upgrade_channel` requires registering the Azure subscription for the AutoUpgradePreview. The following command can be used to register:
-
-``` bash
-az feature register --namespace Microsoft.ContainerService -n AutoUpgradePreview
-```
-
-> Note: In some cases, it can take a few minutes to register a feature. Please ensure that status of a feature is reported as **Registered** before you proceed with the deployment.
-
-Optionally, you can run the following command to check the registration status of `AutoUpgradePreview` feature.
-
-```bash
-az feature show --namespace Microsoft.ContainerService -n AutoupgradePreview --query properties.state
 ```
 
 ## Terraform Provider configuration

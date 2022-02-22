@@ -8,19 +8,21 @@ An end-to-end reference implementation intended to provide a solution orientated
 - Design and implementation guidance to help readers understand and use the AlwaysOn design methodology in the context of a particular industry scenario.
 - Production-ready technical artifacts including Infrastructure-as-Code (IaC) resources and Continuous-Integration/Continuous-Deployment (CI/CD) pipelines (GitHub and Azure DevOps) to deploy an AlwaysOn application with mature end-to-end operational wrappers.
 
-This repository contains the reference implementation for an AlwaysOn online scenario. The pipeline deploys the application in a pre-created landing zone environment (Enterprise-scale landing zones) and benefits from existing security and compliance guardrails and network connectivity to on-premises. The connected reference implementation is access over a public endpoint and requires connectivity to on-premises.
+This repository contains the reference implementation for an AlwaysOn **enterprise connected scenario**. The pipeline deploys the application Azure Subscription security and compliance guardrails and takes a dependency on pre-provided Virtual Networks for connectivity to other company resources (usually achieved through a hub-and-spoke model via peering).
 
 ## Reference implementation - Table of Contents
 
 - [Reference Implementation Solution Guide](./docs/reference-implementation/README.md) - Everything required to understand and build a copy of the reference implementation
 - [Reference Implementation Build Artifacts](./src/infra/README.md) - Contains the Infrastructure-as-Code artifacts, CI/CD pipelines, and application code required to deploy the pre-configured reference solution
 
+![Architecture overview](/docs/media/Architecture-Foundational-Connected.png)
+
 ## AlwaysOn overview and design guidelines
 
 The following articles provides more information about AlwaysOn design guidelines and design areas located in the [AlwaysOn GitHub](https://github.com/Azure/AlwaysOn) repo:
 
-- [Introduction - What is AlwaysOn?](https://github.com/Azure/AlwaysOn/blob/main/docs/introduction/README.md) - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
-- [Design Guidelines](https://github.com/Azure/AlwaysOn/blob/main/docs/design-methodology/README.md) - Prescriptive guidance aligned to 8 critical design areas guides users to design and build an AlwaysOn application, outlining a recommended decision process.
+- [Introduction - What is AlwaysOn?](https://github.com/Azure/AlwaysOn/blob/main/docs/introduction/README.md) (➡️ `Azure/AlwaysOn`) - Detailed introduction into AlwaysOn, the problem it is intended to solve and the value it can provide.
+- [Design Guidelines](https://github.com/Azure/AlwaysOn/blob/main/docs/design-methodology/README.md) (➡️ `Azure/AlwaysOn`) - Prescriptive guidance aligned to 8 critical design areas guides users to design and build an AlwaysOn application, outlining a recommended decision process.
 
 ## Helpful Information
 
