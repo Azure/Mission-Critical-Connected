@@ -1,5 +1,10 @@
-# Dynamically calculate subnet addresses from the overall address space. Assumes (at least) a /20 address space
-# Uses the Hashicopr module "CIDR subnets" https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
+# Dynamically calculate subnet addresses from the overall address space.
+# Based on the subnet sizes of /24 for kubernetes, (at least) a /23 address space is needed
+#
+# To change the subnet sizes, change the values in the subnet_addrs.networks array below (the new_bits setting)
+#
+
+# Uses the Hashicorp module "CIDR subnets" https://registry.terraform.io/modules/hashicorp/subnets/cidr/latest
 locals {
   netmask = tonumber(split("/", data.azurerm_virtual_network.stamp.address_space[0])[1]) # Take the last part from the address space 10.0.0.0/16 => 16
 }
@@ -11,11 +16,11 @@ module "subnet_addrs" {
   networks = [
     {
       name     = "kubernetes"
-      new_bits = 22 - local.netmask # For AKS we want a /22 sized subnet. So we calculate based on the provided input address space # Size: /22
+      new_bits = 24 - local.netmask # For AKS we want a /24 sized subnet. So we calculate based on the provided input address space
     },
     {
       name     = "private-endpoints"
-      new_bits = 27 - local.netmask # For the private endpoints we want a /27 sized subnet. So we calculate based on the provided input address space # Size: /27
+      new_bits = 27 - local.netmask # For the private endpoints we want a /27 sized subnet. So we calculate based on the provided input address space
     }
   ]
 }

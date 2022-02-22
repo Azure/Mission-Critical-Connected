@@ -20,9 +20,10 @@ steps:
 
       $vnetFile = "$(System.DefaultWorkingDirectory)/.ado/pipelines/config/vnets-$(environment).json"
 
+      # Check if any pre-provisioned VNets have been specified for this enviroment by checking the existence of the file
       if(Test-Path $vnetFile)
       {
-        echo "*** Using provided VNets from file $vnetFile"
+        echo "*** Using pre-provided VNets from file $vnetFile"
 
         # Load available pre-provided VNets
         $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
@@ -90,12 +91,13 @@ steps:
       }
       else
       {
-        echo "*** No pre-provided VNets defined (file not found: $vnetFile). Using temporary VNets..."
+        echo "*** No pre-provided VNets defined (file not found: $vnetFile). Creating temporary VNets..."
         # This is usually the case for E2E: we do not have pre-provided VNets here, so we need to create them first
 
         $rgName = "$prefix$suffix-networks-rg"
 
-        # This can be adjusted as needed
+        # Since the VNets are not connected, we can use the same address space for all.
+        # This value can be adjusted as needed
         $addressSpace = "10.1.0.0/18"
 
         foreach($location in $stampLocations)
@@ -118,6 +120,7 @@ steps:
           }
           else
           {
+            # We use a dedicated resource group for all the VNets for this deployment
             echo "*** Check if Resource Group $rgName exists"
             $checkRg = az group exists --name $rgName | ConvertFrom-Json
             if (!$checkRg) {

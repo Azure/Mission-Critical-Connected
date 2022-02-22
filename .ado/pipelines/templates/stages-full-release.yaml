@@ -159,7 +159,7 @@ stages:
         terraformWorkingDirectory:          '$(workingDirectory)/releaseunit'
 
     # Pick a VNet from the list of pre-provided VNets or create news one if needed
-    - template: steps-pick-vnet.yaml
+    - template: steps-get-or-create-vnet.yaml
       parameters:
         prefix: $(prefix)
         suffix: $(customSuffix)
@@ -415,7 +415,7 @@ stages:
                   }
 
             # Pick a VNet from the list of pre-provided VNets or create news one if needed
-            - template: steps-pick-vnet.yaml
+            - template: steps-get-or-create-vnet.yaml
               parameters:
                 prefix: $(oldReleasePrefix)
                 suffix: $(oldReleaseSuffix)

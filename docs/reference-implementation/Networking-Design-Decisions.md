@@ -2,9 +2,10 @@
 
 ## Virtual network layout
 
-- Each stamp uses its own Virtual Network (VNet) and as there is no cross-stamp traffic, no VNet peerings or VPN connections to other stamps are required.
+- Each stamp uses its own Virtual Network (VNet). Optionally, through peering in a hub-and-spoke model, it can access other company resources in other spokes or also on-prem via ExpressRoute etc.
+- The VNets are expected to pre-provisioned. However, for example for dev environments, the reference implementation is also capable of creating VNets on-demand. In this case, they won't be able to access other company resources due to the missing peering.
 - The per-stamp VNet is split into two subnets for Kubernetes (containing all nodes and pods) and private endpoints.
-- Private endpoints (Private Link) are only partially used as ingress traffic comes from the public internet and egress traffic control (to mitigate the risk of data exfiltration) is not within scope of AlwaysOn.
+- Private endpoints (Private Link) are used for any of the platform services such as Cosmos DB, Event Hub or Key Vault.
 
 ## Global load balancer
 
@@ -41,16 +42,9 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 - A risk of publicly accessible cluster ingress points is that attackers could attempt [DDoS](https://en.wikipedia.org/wiki/Denial-of-service_attack) attacks against the endpoints. However, [Azure DDoS protection Basic](https://docs.microsoft.com/azure/ddos-protection/ddos-protection-overview) is in place to lower this risk. If required, DDoS Protection Standard could optionally be enabled to get even more tailored protection.
 - If attackers successfully acquire the Front Door ID which is used as the filter on the ingress level, they could directly reach the workload's APIs. However, the attacker would only succeed in circumventing the Web Application Firewall of Front Door. This was judged a small enough risk that the benefit of higher reliability through reduced complexity outweighed the minimal added protection of additional components.
 
-### Use of Private Endpoints for PaaS
-
-- The Reference Implementation uses Private Endpoints to access all PaaS instead of relying on Service Endpoints only. This has two reasons:
-  - Due to some limitations in the way the infrastructure gets deployed through Terraform, Service Endpoints could not be used for all services, so Private Endpoints would have been required at least partially in any case.
-  - The [Private Mode of AlwaysOn](Getting-Started-Private-Mode.md) requires the use of Private Endpoints for all used services. So using them also for the default, public mode, brings consistency and simplification in the deployment.
-- One of the [main benefits](https://docs.microsoft.com/azure/private-link/private-link-overview#key-benefits) of using Private Endpoints is the protection against data leakage. However, this was not determined to be a priority requirement for public internet-facing applications like AlwaysOn. Similarly, we do not foresee the requirement to connect to AlwaysOn resources from on-prem networks (or otherwise connected via VPN etc).
-
 ### Requirements to utilize a fully private cluster
 
-As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://docs.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of October 2021).
+As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://docs.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of February 2022).
 
 ---
 [AlwaysOn - Full List of Documentation](/docs/README.md)
