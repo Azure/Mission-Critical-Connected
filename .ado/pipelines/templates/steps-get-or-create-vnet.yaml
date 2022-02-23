@@ -1,0 +1,148 @@
+parameters:
+  prefix:                    ''
+  suffix:                    ''
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Select VNets for stamps'
+  inputs:
+    azureSubscription: '$(azureServiceConnection)'
+    scriptType: pscore
+    scriptLocation: inlineScript
+    inlineScript: |
+
+      $prefix = "${{ parameters.prefix }}"
+      $suffix = "${{ parameters.suffix }}"
+
+      # Hashtable of VNet IDs per stamp location
+      $vnets = @{}
+      $stampLocations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate
+
+      $vnetFile = "$(System.DefaultWorkingDirectory)/.ado/pipelines/config/vnets-$(environment).json"
+
+      # Check if any pre-provisioned VNets have been specified for this enviroment by checking the existence of the file
+      if(Test-Path $vnetFile)
+      {
+        echo "*** Using pre-provided VNets from file $vnetFile"
+
+        # Load available pre-provided VNets
+        $availableVnets = Get-Content $vnetFile | ConvertFrom-JSON
+
+        foreach($location in $stampLocations)
+        {
+          # Pick list of regional VNets
+          $vnetsInLocation = $availableVnets.$location
+          if(-not $vnetsInLocation)
+          {
+            throw "*** ERROR: List of VNets in $vnetFile does not contain desired stamp region $location"
+          }
+
+          $earmarkTagName = "AlwaysOnVnetUsedBy"
+          $earmarkTagValue = "$prefix$suffix-$location"
+
+          echo "*** Attempting to find a VNet for deployment $earmarkTagValue"
+
+          # check if any VNet was already earmarked earlier. Then we can skip the other search
+          $vnet = az network vnet list --query "[?tags.$earmarkTagName == '$earmarkTagValue']" | ConvertFrom-Json
+          if($vnet)
+          {
+            echo "*** VNet $($vnet.name) was already used before be this same deployment ($earmarkTagValue). Will use this VNet again"
+            $vnets[$location] = $vnet.id
+          }
+          else
+          {
+            foreach($vnetId in $vnetsInLocation)
+            {
+              echo "*** Checking if VNet is in use: $vnetId"
+              $vnet = az network vnet show --ids $vnetId | ConvertFrom-Json
+              if(-not $vnet)
+              {
+                throw "*** ERROR $vnetId not found"
+              }
+
+              if(-not $vnet.tags.$earmarkTagName)
+              {
+                # Use this VNet as it was not earmarked yet by any other release
+                echo "*** VNet $($vnet.name) not earmarked. Will use this VNet"
+
+                $vnets[$location] = $vnetId
+
+                $tagKeyVaule = "$earmarkTagName=$earmarkTagValue"
+
+                echo "*** Adding earmark tag to VNet: $tagKeyVaule"
+
+                # Add a tag to mark this VNet being used by this deployment
+                az tag update --operation merge --resource-id $vnetId --tags $tagKeyVaule
+
+                break
+              }
+              else
+              {
+                echo "*** VNet $($vnet.name) not available as it is earmarked by release $($vnet.tags.$earmarkTagName)"
+              }
+            }
+          }
+
+          if(-not $vnets[$location])
+          {
+            throw "*** ERROR no available VNet found for location $location"
+          }
+        }
+      }
+      else
+      {
+        echo "*** No pre-provided VNets defined (file not found: $vnetFile). Creating temporary VNets..."
+        # This is usually the case for E2E: we do not have pre-provided VNets here, so we need to create them first
+
+        $rgName = "$prefix$suffix-networks-rg"
+
+        # Since the VNets are not connected, we can use the same address space for all.
+        # This value can be adjusted as needed
+        $addressSpace = "10.1.0.0/18"
+
+        foreach($location in $stampLocations)
+        {
+
+          $vnetName = "$prefix$suffix-$location-vnet"
+
+          # check if the VNet already exists (from a previous run of this job)
+          $vnet = az network vnet list --query "[?name=='$vnetName']" | ConvertFrom-JSON
+
+          if($LastExitCode -ne 0)
+          {
+              throw "*** Error on checking existing VNet $vnetName"
+          }
+
+          if($vnet)
+          {
+            echo "*** VNEt $vnetName already exists"
+            $vnets[$location] = $vnet.id
+          }
+          else
+          {
+            # We use a dedicated resource group for all the VNets for this deployment
+            echo "*** Check if Resource Group $rgName exists"
+            $checkRg = az group exists --name $rgName | ConvertFrom-Json
+            if (!$checkRg) {
+              Write-Warning "*** Resource Group $rgName does not exist. Creating..."
+              # get the stamp locations and use the first one to create the resource group there.
+              az group create --name $rgName --location $location
+
+              if ($LASTEXITCODE -eq 1) {
+                Write-Error "*** Error - could not create resource group"
+              }
+            }
+
+            echo "*** Creating new VNet $vnetName for E2E environment..."
+            $vnet = $(az network vnet create -n $vnetName -g $rgName -l $location --address-prefixes $addressSpace) | ConvertFrom-JSON
+            $vnets[$location] = $vnet.newVnet.id
+          }
+        }
+      }
+
+      $vnetsJson = $vnets | ConvertTo-Json -Compress
+
+      echo "*** List of VNets per location: $vnetsJson"
+
+      # Write map of VNet Resource IDs per stamp location which when then be used for Terraform input
+      echo "##vso[task.setvariable variable=tfParameterVnetResourceIds]$vnetsJson"

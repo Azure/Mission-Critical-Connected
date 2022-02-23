@@ -28,8 +28,6 @@ The AlwaysOn reference implementation is composed of three distinct layers:
 
 Infrastructure layer contains all infrastructure components and underlying foundational services required for AlwaysOn reference implementation. It is deployed using [Terraform](./workload/README.md).
 
-> Note: Bicep (ARM DSL) was considered during the early stages as part of a proof-of-concept. Please refer to the following [(archived stub)](/docs/reference-implementation/ZZZ-Archived-Bicep.md) for more details.
-
 [Configuration layer](/src/config/README.md) applies the initial configuration and additional services on top of the infrastructure components deployed as part of infrastructure layer.
 
 [Application layer](/src/app/README.md) contains all components and dependencies related to the application workload itself.
@@ -58,17 +56,6 @@ As much as possible, no state should be stored on the compute clusters with all 
 
 In addition to [stamp independence](#stamp-independence) and [stateless compute clusters](#stateless-compute-clusters), each "stamp" is considered to be a Scale Unit (SU) following the [Deployment stamps pattern](https://docs.microsoft.com/azure/architecture/patterns/deployment-stamp). All components and services within a given stamp are configured and tested to serve requests in a given range. This includes auto-scaling capabilities for each service as well as proper minimum and maximum values and regular evaluation.
 
-An example SU design in AlwaysOn consists of scalability requirements i.e. minimum values / the expected capacity:
-
-**Scalability requirements**
-| Metric | max |
-| --- | --- |
-| Users | 25k |
-| New games/sec. | 200 |
-| Get games/sec. | 5000 |
-
-This definition is used to evaluate the capabilities of a SU on a regular basis, which later then needs to be translated into a Capacity Model. This in turn will inform the configuration of a SU which is able to serve the expected demand:
-
 **Configuration**
 | Component | min | max |
 | --- | --- | --- |
@@ -89,15 +76,17 @@ Each SU is deployed into an Azure region and is therefore primarily handling tra
 
 The reference implementation of AlwaysOn deploys a set of Azure services. These services are not available across all Azure regions. In addition, only regions which offer **[Availability Zones](https://docs.microsoft.com/azure/availability-zones/az-region)** (AZs) are considered for a stamp. AZs are gradually being rolled-out and are not yet available across all regions. Due to these constraints, the reference implementation cannot be deployed to all Azure regions.
 
-As of November 2021, following regions have been successfully tested with the reference implementation of AlwaysOn:
+As of February 2022, following regions have been successfully tested with the reference implementation of AlwaysOn:
 
-**Europe**
+**Europe/Africa**
 
 - northeurope
 - westeurope
 - germanywestcentral
 - francecentral
 - uksouth
+- norwayeast
+- southafricanorth
 
 **Americas**
 
@@ -115,6 +104,9 @@ As of November 2021, following regions have been successfully tested with the re
 - southeastasia
 - eastasia
 - japaneast
+- koreacentral
+
+>Note: Depending on which regions you select, you might need to first request quota with Azure Support for some of the services (mostly for AKS VMs and Cosmos DB).
 
 It's worth calling out that where an Azure service is not available, an equivalent service may be deployed in its place. Availability Zones are the main limiting factor as far as the reference implementation of AZ is concerned.
 
@@ -144,7 +136,7 @@ As regional availability of services used in reference implementation and AZs ra
 
 - `sku` is set to *Premium* to allow geo-replication.
 - `georeplication_locations` is automatically set to reflect all regions that a regional stamp was deployed to.
-- `zone_redundancy_enabled` provides resiliency and high availability within a specific region. It is [not supported in all regions](https://docs.microsoft.com/azure/container-registry/zone-redundancy#preview-limitations), yet, and is therefore not enabled.
+- `zone_redundancy_enabled` provides resiliency and high availability within a specific region.
 - `admin_enabled` is set to *false*. The admin user access will not be used. Access to images stored in ACR, for example for AKS, is only possible using AzureAD role assignments.
 - Diagnostic settings are configured to store all log and metric data in Log Analytics.
 
@@ -162,8 +154,13 @@ A _stamp_ is a regional deployment and can also be considered as a scale-unit. F
 
 The current networking setup consists of a single Azure Virtual Network per _stamp_ that consists of one subnet dedicated for Azure Kubernetes Service (AKS) and an additional subnet for the Private Endpoints of different services.
 
-- Each stamp infrastructure includes a pre-provisioned static _Public IP address_ resource with a DNS name (_[prefix]-cluster.[region].cloudapp.azure.com_). This _Public IP address_ is used for the Kubernetes Ingress controller Load Balancer and as a backend address for Azure Front Door.
-- Diagnostic settings are configured to store all log and metric data in Log Analytics.
+For connected scenarios (access required to other company resources in other spokes or on-prem), it is expected that the VNets are pre-provisioned, for instance by a platform team and made available to the application team. For E2E (dev) environments this might be optional, therefore the reference implementation is prepared to create the VNets if needed.
+
+For INT and PROD (or any other environments which do require connectivity), a multiple pre-provisioned VNets are expected to be available: Due to the blue-green deployment approach, at least two VNets per environment and region are required. The deployment pipeline looks for a file `.ado/pipelines/config/vnets-[environment].json`. If this file is not present, disconnected VNets will be deployed on demand, e.g. for E2E environments.
+
+The file needs to hold the resource IDs of the VNets per region. See [`/.ado/pipelines/config/vnets-int.json`](/.ado/pipelines/config/vnets-int.json) for an example. The deployment pipeline will check which VNets are currently not in use by any other deployment and then tag the VNets to mark them as in use. Once an environment gets destroyed again, this "earmark" tag is being removed again. See [`/.ado/pipelines/templates/steps-get-or-create-vnet.yaml`](/.ado/pipelines/templates/steps-get-or-create-vnet.yaml) for the pipeline script which implements the logic.
+
+> **The reference implementation is currently configured to require at least a VNet with a /23 address space for each stamp.** This is to allow for a /24 subnet for AKS nodes and their pods. Change this based on your scaling requirements (number of nodes and number of pods). To change the subnet sizes (and thereby the required input size of /23), modify [`/src/infra/workload/releaseunit/modules/stamp/network.tf`](/src/infra/workload/releaseunit/modules/stamp/network.tf)
 
 #### Azure Key Vault
 
@@ -237,9 +234,6 @@ Azure Policy is used to monitor and enforce certain baselines. All policies are 
 This repository also contains a couple of supporting services for the AlwaysOn project:
 
 - [Self-hosted Agents](./build-agents/README.md)
-- [Locust Load Testing](../testing/loadtest-locust/README.md)
-
-These supporting services are required / optional based on how you chose to use AlwaysOn.
 
 ## Naming conventions
 

@@ -4,22 +4,17 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'ace2e'          # <===== CHANGE THIS! Needs to be a unique prefix
+  value: 'ace2e'          # <===== CHANGE THIS! Must not be longer than 6 characters! Needs to be a unique prefix
 
 - name: 'stampLocations'
   value: '["westeurope"]'    # Check which regions are valid. There is a list in /src/infra/README.md
-##### NOTE #####
-# If you want to run embedded Chaos Studio testing, only the following regions are supported as of 11-Oct-2021:
-# eastus, centralus, uksouth, westeurope, japaneast
-# westcentralus and westus3 are also supported by Chaos studio, but not by other parts of the reference implementation!
-######################
+
+# Terraform state variables
+- name:  'terraformResourceGroup'
+  value: 'alwayson-terraformstate-rg'      # <===== CHANGE THIS VALUE IF NEEDED
+- name:  'terraformStorageAccount'
+  value: '$(prefix)tfstatestore'  # Needs to be a globally unique name
 
 # Other settings
 - name:  'contactEmail'
   value: 'noreply@example.com'  # <===== CHANGE THIS VALUE TO ONE OF YOUR REAL EMAIL ADDRESSES (OR A GROUP)!
-
-# Terraform state variables
-- name:  'terraformResourceGroup'
-  value: 'alwayson-terraformstate-rg'       # <===== CHANGE THIS VALUE IF NEEDED
-- name:  'terraformStorageAccount'
-  value: 'ace2etfstatestore'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name

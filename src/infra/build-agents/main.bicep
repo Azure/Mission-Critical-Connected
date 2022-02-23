@@ -1,6 +1,6 @@
 param prefix string
 param suffix string = ''
-param location string = 'Northeurope'
+param location string
 param environment string
 
 param vmssAdminUsername string = 'adminuser'
@@ -17,7 +17,6 @@ var default_tags = {
   Owner: 'AlwaysOn V-Team'
   Project: 'AlwaysOn Solution Engineering'
   Toolkit: 'Bicep'
-  Contact: 'alwaysonappnet@microsoft.com'
   Environment: environment
   Prefix: prefixsuffix
 }
