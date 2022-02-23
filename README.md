@@ -15,7 +15,7 @@ This repository contains the reference implementation for an AlwaysOn **enterpri
 - [Reference Implementation Solution Guide](./docs/reference-implementation/README.md) - Everything required to understand and build a copy of the reference implementation
 - [Reference Implementation Build Artifacts](./src/infra/README.md) - Contains the Infrastructure-as-Code artifacts, CI/CD pipelines, and application code required to deploy the pre-configured reference solution
 
-![Architecture overview](/docs/media/Architecture-Foundational-Connected.png)
+![Architecture overview](/docs/media/AlwaysOn-architecture-foundational-connected.svg)
 
 ## AlwaysOn overview and design guidelines
 
