@@ -16,17 +16,9 @@ variables:
   value: 'v1.6.2'
 - name: 'dotnetSdkVersion'    # dotnet sdk version
   value: '6.0.200'
-- name: 'chaosMeshVersion'    #  chaos-mesh chart version
-  value: '2.1.3'
 
 - name: 'workloadNamespace'   # K8s namespace for workload deployment
   value: 'workload'
-- name: 'chaosTestingNamespace'   # K8s namespace for chaos testing deployment
-  value: 'chaos-testing'
-- name: 'chaosStudioLocation'
-  value: 'uksouth'
-- name: 'chaosStudioApiVersion'
-  value: '2021-08-11-preview'
 
 # Docker image names and paths to the Dockerfiles for the different components
 - name: 'catalogserviceDockerfile'

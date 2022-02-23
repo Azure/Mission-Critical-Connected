@@ -8,7 +8,7 @@ The AlwaysOn reference implementation contains various kinds of tests used at di
 - **UI tests**. These validate that the user interface was deployed and works as expected. Currently AlwaysOn only [captures screenshots](/src/testing/ui-test-playwright/README.md) of several pages after deployment without any actual testing.
 - **Failure Injection tests**. These are done in two ways: First, AlwaysOn integrates Azure Chaos Studio for automated testing as part of the deployment pipelines. Secondly, manual failure injection test can be conducted. See below for details.
 
-Additionally, AlwaysOn contains a [user load generator](/src/testing/userload-generator/README.md) to create synthetic load patterns which can be used to simulate real life traffic. This can also be used completely independently of the reference implementation.
+Additionally, AlwaysOn Foundational Online repository contains a [user load generator](https://github.com/Azure/AlwaysOn-Foundational-Online/tree/main/src/testing/userload-generator/README.md) to create synthetic load patterns which can be used to simulate real life traffic. This can also be used completely independently of the reference implementation.
 
 ## Failure Injection testing and Chaos Engineering
 
@@ -26,23 +26,14 @@ The AlwaysOn reference implementation uses existing testing capabilities and fra
 
 - [Locust](#locust) for load testing
 - [Playwright](#playwright) for UI testing
-- [Azure Chaos Studio](#azure-chaos-studio) for failure injection testing
 
 ### Locust
 
-Locust is an open source Load Testing framework. See [locust](./loadtest-locust/README.md) for more details about the implementation and configuration.
+Locust is an open source Load Testing framework. See [locust](https://github.com/Azure/AlwaysOn-Foundational-Online/tree/main/src/testing/loadtest-locust/README.md) on the AlwaysOn Foundational Online repository for more details about the implementation and configuration.
 
 ### Playwright
 
 Playwright is an open source Node.js library to automate Chromium, Firefox and WebKit with a single API. See [ui-test-playwright](./ui-test-playwright/README.md) for more details about how UI testing works.
-
-### Azure Chaos Studio
-
-To inject failures for resiliency validation, AlwaysOn uses Azure Chaos Studio as an optional step in the E2E validation pipeline. See [Chaos Testing](./chaos-testing/README.md) for more details about the implementation and configuration.
-
-## User Load Generator
-
-To simulate real user traffic patterns, AlwaysOn implements a [user load generator](./userload-generator/README.md) to generate synthetic traffic. It uses a Playwright test definition and can be also used completely independently of AlwaysOn.
 
 ---
 

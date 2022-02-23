@@ -8,11 +8,6 @@ variables:
 
 - name: 'stampLocations'
   value: '["westeurope"]'    # Check which regions are valid. There is a list in /src/infra/README.md
-##### NOTE #####
-# If you want to run embedded Chaos Studio testing, only the following regions are supported as of 11-Oct-2021:
-# eastus, centralus, uksouth, westeurope, japaneast
-# westcentralus and westus3 are also supported by Chaos studio, but not by other parts of the reference implementation!
-######################
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
