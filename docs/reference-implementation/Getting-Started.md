@@ -331,6 +331,8 @@ You can now go to the Azure Portal and check the provisioned resources. In the R
 **Stamp Resources**
 ![Azure Stamp Resources](/docs/media/e2e_azure_resources_stamp.png)
 
+To connect to the data plane, e.g. of AKS follow [this guide](/src/infra/build-agents/README.md).
+
 
 #### Browse to the demo app website
 
