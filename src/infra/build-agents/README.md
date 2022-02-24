@@ -42,7 +42,7 @@ Two VM Scale Sets are deployed:
 
 #### Configuration
 
-The VMs in the scale sets are provisioned using a standard Ubuntu 20.04 image. In order to install required software for the build and deployment tasks, as well as for manual operations through the jump servers, [`cloud-init`](https://docs.microsoft.com/azure/virtual-machines/linux/using-cloud-init) is used. The [`cloudinit.conf`](./cloudinit.conf) file specifies which packages to install at startup. This way, any time a VM is freshly provisioned, it is based on the latest base image and has all required software in their latest versions installed.
+The VMs in the scale sets are provisioned using a standard Ubuntu 20.04 image. In order to install required software for the build and deployment tasks, as well as for manual operations through the jump servers, [cloud-init](https://docs.microsoft.com/azure/virtual-machines/linux/using-cloud-init) is used. The [`cloudinit.conf`](./cloudinit.conf) file specifies which packages to install at startup. This way, any time a VM is freshly provisioned, it is based on the latest base image and has all required software in their latest versions installed.
 
 ### Azure Bastion Service
 
