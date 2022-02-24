@@ -4,13 +4,13 @@ trigger: none
 
 pr: none
 
-# schedules:
-# - cron: "0 3 * * *"
-#   displayName: Daily 3AM release
-#   branches:
-#     include:
-#     - main
-#   always: true # Run this every night, even if there were no code changes. We do this to check that the process is still ok and that there were no breaking platform changes, for instance when the specified K8s version ran out of support
+schedules:
+- cron: "0 3 * * *"
+  displayName: Daily 3AM release
+  branches:
+    include:
+    - main
+  always: true # Run this every night, even if there were no code changes. We do this to check that the process is still ok and that there were no breaking platform changes, for instance when the specified K8s version ran out of support
 
 pool:
   name: 'int-private-agents' # self-hosted agentpool
