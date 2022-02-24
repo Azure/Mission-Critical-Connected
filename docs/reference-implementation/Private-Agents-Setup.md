@@ -4,7 +4,7 @@ This guide walks you through the required steps to deploy AlwaysOn in a connecte
 
 This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy AlwaysOn in connected mode.**
 
-![AlwaysOn Connected Architecture](/docs/media/Architecture-Foundational-Connected.png)
+![AlwaysOn Connected Architecture](/docs/media/AlwaysOn-architecture-foundational-connected.svg)
 
 ## Overview
 
