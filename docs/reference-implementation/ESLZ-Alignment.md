@@ -8,6 +8,7 @@ This scope will define the guardrails with Azure Policy and RBAC plus will provi
 Organizations require centralized platform logging and monitoring capabilities that provides a holistic view for Operation (Ops) and Security (SecOps) teams. AlwaysOn leverages the central Management subscription recommended by Enterprise-scale landing zone and sends, enforced by Azure Policy, the required logs to the Log Analytics Workspace.
 
 The three most common deployment scenarios are:
+
 - Public application endpoint **without** corporate network connectivity. (online)
 - Public application endpoint **with** corporate network connectivity (management and backend service connectivity). (corp)
 - Private application endpoint **without** public connectivity. (corp)
