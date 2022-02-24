@@ -1,5 +1,13 @@
 # Self-hosted agent pools with Azure DevOps
 
+- [Overview](#overview)
+- [Infrastructure components](#infrastructure-components)
+- [Connect to Jump Server via Bastion](#connect-to-jump-server-via-bastion)
+
+---
+
+## Overview
+
 This part of the repository contains the required Bicep template to deploy the infrastructure used for self-hosted Azure DevOps build agent pools, based on Virtual Machine Scale Sets (VMSS).
 
 Furthermore, it deploys a VMSS which is used as Jump Servers to connect to the private resources, such as private AKS clusters, for debugging etc. To connect to the Jump Servers, Azure Bastion is used. This way, even the Jump Servers do not require any public IPs.
@@ -8,7 +16,7 @@ To deploy the infrastructure for the self-hosted Agents and all supporting servi
 
 ## Infrastructure components
 
-The Bicep templates deploys the following infrastructure components:
+The Bicep template ([`main.bicep`](./main.bicep)) deploys the following infrastructure components:
 
 ### VNet
 
@@ -48,7 +56,7 @@ Additional private DNS zones can be added as needed by the workload that is to b
 
 The [Bastion service](https://docs.microsoft.com/azure/bastion/bastion-overview) is used to securely connect to the jump servers. This way, the jump servers themselves do not need to expose any public IPs.
 
-#### Use Jump Server via Bastion
+## Connect to Jump Server via Bastion
 
 To log on to the jump servers, navigate to your deployed Build-infra Resource Group in the Azure Portal.
 ![build infra rg](/docs/media/jumpservers_rg.png)
