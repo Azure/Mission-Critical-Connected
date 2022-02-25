@@ -176,7 +176,7 @@ az account show --query id -o tsv
 # Output:
 xxx-xxxxxxx-xxxxxxx-xxxx
 
-# Verify that this is indeed the subscrption you want to target. Otherwise you can switch the scope using:
+# Verify that this is indeed the subscription you want to target. Otherwise you can switch the scope using:
 # az account set --subscription <name>
 
 # Make sure to change the name to a unique one within your tenant
@@ -207,7 +207,7 @@ Our AlwaysOn reference implementation knows three different environments: prod, 
 
 > If you only created one Service Principal above, you only need to create one Service Connection for now.
 
-These service connections can be created in the Azure DevOps Portal or via the `az devops` CLI. Create them using either one of these two methods.
+These service connections can be created in the Azure DevOps Portal or via the `az devops` CLI. Create them using either one of these two methods.  Make sure that you specify the right credentials for the **service principal created earlier**.
 
 #### Use Azure DevOps Portal
 
@@ -334,7 +334,6 @@ You can now go to the Azure Portal and check the provisioned resources. In the R
 
 **Stamp Resources**
 ![Azure Stamp Resources](/docs/media/e2e_azure_resources_stamp.png)
-
 
 #### Browse to the demo app website
 
