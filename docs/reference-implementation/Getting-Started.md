@@ -337,7 +337,6 @@ You can now go to the Azure Portal and check the provisioned resources. In the R
 
 For information on how to connect to the data plane, e.g. of AKS follow [this guide](/src/infra/build-agents/README.md#use-jump-server-via-bastion).
 
-
 #### Browse to the demo app website
 
 We can now browse to the demo app website. Fetch the URL from the Front Door resource:
