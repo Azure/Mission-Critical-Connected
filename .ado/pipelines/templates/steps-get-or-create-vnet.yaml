@@ -128,7 +128,7 @@ steps:
               # get the stamp locations and use the first one to create the resource group there.
               az group create --name $rgName --location $location
 
-              if ($LASTEXITCODE -eq 1) {
+              if ($LastExitCode -eq 1) {
                 Write-Error "*** Error - could not create resource group"
               }
             }
