@@ -16,7 +16,7 @@ To deploy the infrastructure for the self-hosted Agents and all supporting servi
 
 ## Infrastructure components
 
-The Bicep template ([`main.bicep`](./main.bicep)) deploys the following infrastructure components:
+The Bicep template ([`main.bicep`](./main.bicep)) deploys the following infrastructure components. There is also a complete Azure DevOps Pipeline definition which can be used to deploy the infrastructure: [`azure-deploy-private-build-agents.yaml`](/.ado/pipelines/azure-deploy-private-build-agents.yaml)
 
 ### VNet
 
