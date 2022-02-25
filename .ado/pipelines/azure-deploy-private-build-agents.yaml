@@ -59,7 +59,7 @@ stages:
 
             az group create --name $rgName --location $location
 
-            if ($LASTEXITCODE -eq 1) {
+            if ($LastExitCode -eq 1) {
               Write-Error "*** Error - could not create resource group"
             }
           }
@@ -80,6 +80,6 @@ stages:
                                       -p location=$location `
                                       -p vmssAdminPassword=$(buildAgentAdminPassword)
 
-          if ($LASTEXITCODE -eq 1) {
+          if ($LastExitCode -eq 1) {
             Write-Error "*** Error on bicep template deployment"
           }
