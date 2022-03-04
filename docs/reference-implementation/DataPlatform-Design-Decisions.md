@@ -82,7 +82,7 @@ The Azure Mission-Critical reference implementation leverages the native backup 
 
 ## Messaging bus
 
-**[Azure Event Hubs](https://docs.microsoft.com/azure/event-hubs/event-hubs-about)** service is used for the asynchronous messaging between the API service (CatalogService) and the background worker (BackgroundProcessor). It was chosen over alternative services like Azure Service Bus because of its high throughput support and because AlwaysOn does not require features like Service Bus' in-order delivery.
+**[Azure Event Hubs](https://docs.microsoft.com/azure/event-hubs/event-hubs-about)** service is used for the asynchronous messaging between the API service (CatalogService) and the background worker (BackgroundProcessor). It was chosen over alternative services like Azure Service Bus because of its high throughput support and because the Azure Mission-Critical reference implementation does not require features like Service Bus' in-order delivery.
 
 Event Hubs offers Zone Redundancy in its Standard SKU, whereas Service Bus requires Premium tier for this reliability feature.
 

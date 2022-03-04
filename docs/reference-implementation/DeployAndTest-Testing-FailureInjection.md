@@ -28,7 +28,7 @@ As this retry and failover logic in the SDK takes about 2 minutes, the Health Se
 
 ## Firewall blocking
 
-Most Azure services support firewall access restrictions based on VNets and/or IP addresses. In AlwaysOn these are already used to restrict access, for instance, to Cosmos DB or Event Hub. Blocking access by removing existing Allow rules or adding new Block rules is a straightforward test. This can serve to simulate firewall misconfigurations but also actual service outages. Note that similar to above, existing established connections might continue to work for a period before they start to fail.
+Most Azure services support firewall access restrictions based on VNets and/or IP addresses. In Azure Mission-Critical these are already used to restrict access, for instance, to Cosmos DB or Event Hub. Blocking access by removing existing Allow rules or adding new Block rules is a straightforward test. This can serve to simulate firewall misconfigurations but also actual service outages. Note that similar to above, existing established connections might continue to work for a period before they start to fail.
 
 ### Key Vault
 
