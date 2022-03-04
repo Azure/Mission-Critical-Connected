@@ -4,7 +4,7 @@ This section explains how the application was designed and what patterns were im
 
 ## The workload
 
-The foundational AlwaysOn reference implementation considers a simple web shop catalog workflow where end users can browse through a catalog of items, see details of an item, and post ratings and comments for items. Although fairly straight forward, this application enables the Reference Implementation to demonstrate the asynchronous processing of requests and how to achieve high throughput within a solution.
+The Azure Mission-Critical reference implementation considers a simple web shop catalog workflow where end users can browse through a catalog of items, see details of an item, and post ratings and comments for items. Although fairly straight forward, this application enables the Reference Implementation to demonstrate the asynchronous processing of requests and how to achieve high throughput within a solution.
 
 The workload consists of three components:
 
@@ -14,13 +14,13 @@ The workload consists of three components:
 
 ## Queue-based asynchronous processing
 
-In order to achieve high responsiveness for all operations, AlwaysOn implements the [Queue-Based Load leveling pattern](https://docs.microsoft.com/azure/architecture/patterns/queue-based-load-leveling) combined with [Competing Consumers pattern](https://docs.microsoft.com/azure/architecture/patterns/competing-consumers) where multiple producer instances (`CatalogService` in our case) generate messages which are then asynchronously processed by consumers (`BackgroundProcessor`). This allows the API to accept the request and return to the caller quickly whilst the more demanding database write operation is processed separately.
+In order to achieve high responsiveness for all operations, Azure Mission-Critical implements the [Queue-Based Load leveling pattern](https://docs.microsoft.com/azure/architecture/patterns/queue-based-load-leveling) combined with [Competing Consumers pattern](https://docs.microsoft.com/azure/architecture/patterns/competing-consumers) where multiple producer instances (`CatalogService` in our case) generate messages which are then asynchronously processed by consumers (`BackgroundProcessor`). This allows the API to accept the request and return to the caller quickly whilst the more demanding database write operation is processed separately.
 
 ![Competing consumers diagram](/docs/media/competing-consumers-diagram.png)
 
 *Image source: https://docs.microsoft.com/azure/architecture/patterns/competing-consumers*
 
-- The current AlwaysOn reference implementation uses **Azure Event Hub** as the message queue but provides interfaces in code which enable the use of other messaging services if required (Azure Service Bus was successfully tested as an alternative solution).
+- The current Azure Mission-Critical reference implementation uses **Azure Event Hub** as the message queue but provides interfaces in code which enable the use of other messaging services if required (Azure Service Bus was successfully tested as an alternative solution).
 - **ASP.NET Core API** is used to implement the producer REST API.
 - **.NET Core Worker Service** is used to implement the consumer service.
 
@@ -38,7 +38,7 @@ There is no backchannel which communicates to the client if the operation comple
 
 ## Authentication
 
-This foundational reference implementation of AlwaysOn uses a simple authentication scheme based on API keys for some restricted operations, such as creating new catalog items or deleting comments.
+This reference implementation of Azure Mission-Critical uses a simple authentication scheme based on API keys for some restricted operations, such as creating new catalog items or deleting comments.
 More advanced scenarios such as user authentication and user roles are not in scope here.
 
 ## Scalability
@@ -55,7 +55,7 @@ The `BackgroundProcessor` service has very different requirements and is conside
 
 ## 12-Factor App
 
-AlwaysOn aligns to the [12-Factor Application](https://12factor.net/) Methodology as follows.
+Azure Mission-Critical aligns to the [12-Factor Application](https://12factor.net/) Methodology as follows.
 
 | Factor | AlwaysOn Alignment |
 | --- | --- |
@@ -73,4 +73,4 @@ AlwaysOn aligns to the [12-Factor Application](https://12factor.net/) Methodolog
 | [Admin processes](https://12factor.net/admin-processes) | Administrative tasks such as environment (re)configuration would be performed in the same deployment pipelines used to initially configure and deploy the environments. Deployments are idempotent and incremental due to the underlying Azure Resource Manager platform. |
 
 ---
-[AlwaysOn - Full List of Documentation](/docs/README.md)
+[Azure Mission-Critical - Full List of Documentation](/docs/README.md)
