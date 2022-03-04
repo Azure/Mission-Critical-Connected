@@ -65,7 +65,8 @@ This result provides a granular overview about the cluster's health status based
 
 ## Visualization
 
-The Visualization of the Kusto [Queries](#Queries) described above was implemented using Grafana. Grafana is used to show the results of Log Analytics queries and does not contain any logic itself. The Grafana stack is not part of the solution's deployment lifecycle, but released separately. For a detailed description of the Grafana deployment for AlwaysOn, please refer to the [Grafana README](/src/infra/monitoring/grafana/README.md).
+The Visualization of the Kusto [Queries](#Queries) described above was implemented using Grafana. Grafana is used to show the results of Log Analytics queries and does not contain any logic itself. The Grafana stack is not part of the solution's deployment lifecycle, but released separately. For a detailed description of the Grafana deployment for Azure Mission-Critical, please refer to the [Grafana README](/src/infra/monitoring/grafana/README.md).
 
 ---
-[AlwaysOn - Full List of Documentation](/docs/README.md)
+
+[Azure Mission-Critical - Full List of Documentation](/docs/README.md)

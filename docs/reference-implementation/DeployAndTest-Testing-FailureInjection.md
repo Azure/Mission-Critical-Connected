@@ -1,8 +1,8 @@
 # Failure Injection Testing
 
-Based on the [Failure Analysis](./Health-Failure-Analysis.md), the AlwaysOn team performed some manual failure injection testing (also known as "Chaos Testing" or "Chaos Monkey testing"). This article shares some learnings around what was tested and how this informed the development of the solution.
+Based on the [Failure Analysis](./Health-Failure-Analysis.md), the Azure Mission-Critical team performed some manual failure injection testing (also known as "Chaos Testing" or "Chaos Monkey testing"). This article shares some learnings around what was tested and how this informed the development of the solution.
 
-When the AlwaysOn project started, no automated Failure Injection Testing was implemented and a series of manual testing was performed which provided a lot of valuable insights.
+When the Azure Mission-Critical project started, no automated Failure Injection Testing was implemented and a series of manual testing was performed which provided a lot of valuable insights.
 
 All tests were performed in an E2E validation environment so that fully representative tests could be conducted without any risk of interference from other environments. Most of the failures can be observed directly in the Application Insights [Live metrics](https://docs.microsoft.com/azure/azure-monitor/app/live-stream) view - and a few minutes later in the Failures view and corresponding log tables. Other failures need deeper debugging such as the use of `kubectl` to observe the behavior inside of AKS.
 
@@ -63,4 +63,4 @@ From there on there were still several components in place which could have been
 Overall, this particular failure injection showed that even for a skilled operations team it can be quite challenging to detect (and then attempt to fix) the root cause of an issue in a distributed system.
 
 ---
-[AlwaysOn - Full List of Documentation](/docs/README.md)
+[Azure Mission-Critical - Full List of Documentation](/docs/README.md)

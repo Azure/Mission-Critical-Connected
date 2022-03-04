@@ -25,7 +25,7 @@ param
   [string] $GithubPAT,
   # Your individual or organizational GitHub account name, i.e. https://github.com/GITHUB_ACCOUNT_NAME. Just pass the account name, i.e. the real value instead of GITHUB_ACCOUNT_NAME from your GitHub account.
   [string] $GithubAccountName,
-  # The AlwaysOn repo name in your GitHub account; usually your fork from Azure/AlwaysOn or your repo from the AlwaysOn template repo. This must already exist and contain the AlwaysOn Azure DevOps YAML pipeline files.
+  # The AlwaysOn repo name in your GitHub account; usually your fork from Azure/Mission-Critical or your repo from the AlwaysOn template repo. This must already exist and contain the AlwaysOn Azure DevOps YAML pipeline files.
   [string] $GithubRepoName,
   # The branch name in your GitHub repo from which the Azure DevOps pipelines should be imported. Typically "main" but specify for your needs.
   [string] $GithubBranchName

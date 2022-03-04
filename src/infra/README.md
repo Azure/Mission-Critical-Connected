@@ -14,19 +14,19 @@
 
 ---
 
-The AlwaysOn reference implementation follows a layered and modular approach. This approach achieves the following goals:
+The Azure Mission-Critical reference implementation follows a layered and modular approach. This approach achieves the following goals:
 
 - Cleaner and manageable deployment design
 - Ability to switch service(s) with other services providing similar capabilities depending on requirements
-- Separation between layers which enables implementation of RBAC easier in case multiple teams are responsible for different aspects of AlwaysOn application deployment and operations
+- Separation between layers which enables implementation of RBAC easier in case multiple teams are responsible for different aspects of Azure Mission-Critical application deployment and operations
 
-The AlwaysOn reference implementation is composed of three distinct layers:
+The Azure Mission-Critical reference implementations are composed of three distinct layers:
 
 - Infrastructure
 - Configuration
 - Application
 
-Infrastructure layer contains all infrastructure components and underlying foundational services required for AlwaysOn reference implementation. It is deployed using [Terraform](./workload/README.md).
+Infrastructure layer contains all infrastructure components and underlying foundational services required for Azure Mission-Critical reference implementation. It is deployed using [Terraform](./workload/README.md).
 
 [Configuration layer](/src/config/README.md) applies the initial configuration and additional services on top of the infrastructure components deployed as part of infrastructure layer.
 
@@ -76,7 +76,7 @@ Each SU is deployed into an Azure region and is therefore primarily handling tra
 
 The reference implementation of AlwaysOn deploys a set of Azure services. These services are not available across all Azure regions. In addition, only regions which offer **[Availability Zones](https://docs.microsoft.com/azure/availability-zones/az-region)** (AZs) are considered for a stamp. AZs are gradually being rolled-out and are not yet available across all regions. Due to these constraints, the reference implementation cannot be deployed to all Azure regions.
 
-As of February 2022, following regions have been successfully tested with the reference implementation of AlwaysOn:
+As of February 2022, following regions have been successfully tested with the reference implementation of Azure Mission-Critical:
 
 **Europe/Africa**
 

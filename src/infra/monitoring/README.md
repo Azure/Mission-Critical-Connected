@@ -10,7 +10,7 @@
 
 ---
 
-AlwaysOn is using [Azure Log Analytics](https://docs.microsoft.com/azure/azure-monitor/logs/log-analytics-overview) as a central store for logs and metrics for all application and infrastructure components and [Azure Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) for all application monitoring data. Each stamp has its own, dedicated Log Analytics Workspace and App Insights instance. Next to those is one Log Analytics Workspace for the globally shared resources such as Front Door and Cosmos DB.
+The Azure Mission-Critical reference implementation is using [Azure Log Analytics](https://docs.microsoft.com/azure/azure-monitor/logs/log-analytics-overview) as a central store for logs and metrics for all application and infrastructure components and [Azure Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) for all application monitoring data. Each stamp has its own, dedicated Log Analytics Workspace and App Insights instance. Next to those is one Log Analytics Workspace for the globally shared resources such as Front Door and Cosmos DB.
 
 ![Monitoring overview](/docs/media/MonitoringOverview.png)
 
@@ -20,7 +20,7 @@ As all stamps are short-lived and continuously replaced with each new release (s
 
 ### Diagnostic settings
 
-All Azure services used for AlwaysOn are configured to send all their Diagnostic data including logs and metrics to the deployment specific (global or stamp) Log Analytics Workspace. This happens automatically as part of the [Terraform](/src/infra/README.md#infrastructure) deployment. New options will be identified automatically and added as part of `terraform apply`.
+All Azure services used for the Azure Mission-Critical reference implementation are configured to send all their Diagnostic data including logs and metrics to the deployment specific (global or stamp) Log Analytics Workspace. This happens automatically as part of the [Terraform](/src/infra/README.md#infrastructure) deployment. New options will be identified automatically and added as part of `terraform apply`.
 
 ![Diagnostic Settings](/docs/media/Monitoring1DiagnosticSettings.png)
 

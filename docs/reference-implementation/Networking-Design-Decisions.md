@@ -47,4 +47,4 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://docs.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of February 2022).
 
 ---
-[AlwaysOn - Full List of Documentation](/docs/README.md)
+[Azure Mission-Critical - Full List of Documentation](/docs/README.md)
