@@ -2,13 +2,13 @@
 
 The Azure Mission-Critical reference implementation contains various kinds of tests used at different stages. These include:
 
-- **Unit tests**. These validate that the business logic of the application works as expected. AlwaysOn contains a [sample suite of C# unit tests](/src/app/AlwaysOn.Tests/README.md) that are automatically executed before every container build.
+- **Unit tests**. These validate that the business logic of the application works as expected. Azure Mission-Critical contains a [sample suite of C# unit tests](/src/app/AlwaysOn.Tests/README.md) that are automatically executed before every container build.
 - **Load tests**. These can help to evaluate the capacity, scalability and potential bottlenecks of a given workload and stack.
 - **Smoke tests**. These identify if the infrastructure and workload are available and act as expected. Smoke tests are executed as part of every deployment.
-- **UI tests**. These validate that the user interface was deployed and works as expected. Currently AlwaysOn only [captures screenshots](/src/testing/ui-test-playwright/README.md) of several pages after deployment without any actual testing.
+- **UI tests**. These validate that the user interface was deployed and works as expected. Currently Azure Mission-Critical only [captures screenshots](/src/testing/ui-test-playwright/README.md) of several pages after deployment without any actual testing.
 - **Failure Injection tests**. These are done in two ways: First, AlwaysOn integrates Azure Chaos Studio for automated testing as part of the deployment pipelines. Secondly, manual failure injection test can be conducted. See below for details.
 
-Additionally, AlwaysOn Foundational Online repository contains a [user load generator](https://github.com/Azure/Mission-Critical-Online/tree/main/src/testing/userload-generator/README.md) to create synthetic load patterns which can be used to simulate real life traffic. This can also be used completely independently of the reference implementation.
+Additionally, the Azure Mission-Critical Online repository contains a [user load generator](https://github.com/Azure/Mission-Critical-Online/tree/main/src/testing/userload-generator/README.md) to create synthetic load patterns which can be used to simulate real life traffic. This can also be used completely independently of the reference implementation.
 
 ## Failure Injection testing and Chaos Engineering
 

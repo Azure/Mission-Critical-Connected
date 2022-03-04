@@ -9,9 +9,9 @@
 
 ## Global load balancer
 
-**Azure Front Door** (AFD) is used as the global entry point for all incoming client traffic. As AlwaysOn only uses HTTP(S) traffic and uses Web Application Firewall (WAF) capabilities, AFD is the best choice to act as global load balancer. Azure Traffic Manager could be a cost-effective alternative, but it does not have features such as WAF and because it is DNS-based, Azure Traffic Manager usually has longer failover times compared to the TCP Anycast-based Azure Front Door.
+**Azure Front Door** (AFD) is used as the global entry point for all incoming client traffic. As the Azure Mission-Critical reference implementation only uses HTTP(S) traffic and uses Web Application Firewall (WAF) capabilities, AFD is the best choice to act as global load balancer. Azure Traffic Manager could be a cost-effective alternative, but it does not have features such as WAF and because it is DNS-based, Azure Traffic Manager usually has longer failover times compared to the TCP Anycast-based Azure Front Door.
 
-See [Custom Domain Support](./Networking-Custom-Domains.md) for more details about the implementation and usage of custom domain names in AlwaysOn.
+See [Custom Domain Support](./Networking-Custom-Domains.md) for more details about the implementation and usage of custom domain names in Azure Mission-Critical.
 
 ## Stamp ingress point
 
@@ -21,7 +21,7 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
   - Web Application Firewall (WAF) is provided as part of Azure Front Door.
   - TLS termination happens on the ingress controller and thus inside the cluster.
   - Using cert-manager, the procurement and renewal of SSL certificates is free of charge (with Let's Encrypt) and does not require additional processes or components.
-  - AlwaysOn does not have a requirement for the AKS cluster to only run on a private VNet and therefore, having a public Load Balancer in front is acceptable.
+  - Azure Mission-Critical does not have a requirement for the AKS cluster to only run on a private VNet and therefore, having a public Load Balancer in front is acceptable.
   - (Auto-)Scaling of the ingress controller pods inside AKS is usually faster than scaling out Application Gateway to more instances.
   - Configuration settings including path-based routing and HTTP header checks could potentially be easier to set up using Application Gateway. However, Nginx provides all the required features and is configured through Helm charts.
 

@@ -43,7 +43,7 @@ The process to deploy the Azure Mission-Critical reference implementation is com
 
 ### 1) Create a new Azure DevOps organization and project
 
-To deploy AlwaysOn, you need to create a new Azure DevOps organization, or re-use an existing one. In this organization you will then create a new project used to host all pipelines for AlwaysOn.
+To deploy the Azure Mission-Critical reference implementation, you need to create a new Azure DevOps organization, or re-use an existing one. In this organization you will then create a new project used to host all pipelines for Azure Mission-Critical.
 
 - [Create an organization or project collection](https://docs.microsoft.com/azure/devops/organizations/accounts/create-organization?view=azure-devops)
 
@@ -75,11 +75,11 @@ For all the subsequent tasks done via `az devops` or `az pipelines` the context 
 az devops configure --defaults organization=https://dev.azure.com/<your-org> project=<your-project>
 ```
 
-### 2) Generate your own repository based on the AlwaysOn GitHub template
+### 2) Generate your own repository based on the Azure Mission-Critical GitHub template
 
-Azure DevOps Repos would allow us to import the AlwaysOn GitHub repository into Azure DevOps as well. For this guide we have decided to generate our own repository based on the template on GitHub and use it from there.
+Azure DevOps Repos would allow us to import the Azure Mission-Critical GitHub repository into Azure DevOps as well. For this guide we have decided to generate our own repository based on the template on GitHub and use it from there.
 
-Go to the root of [this AlwaysOn repository](https://github.com/Azure/Mission-Critical-Connected) on GitHub and click on "Use this template" in the top right corner:
+Go to the root of [this Azure Mission-Critical repository](https://github.com/Azure/Mission-Critical-Connected) on GitHub and click on "Use this template" in the top right corner:
 
 ![Use GitHub Repo template](/docs/media/AlwaysOnGettingStarted2Fork.png)
 
@@ -291,7 +291,7 @@ After completing all previous steps in this guide, you can start executing the p
 
 You might notice a longer delay until the job actually starts. This is due to the fact the ADO first needs to spin up instances in the scale set before they can pick up any task.
 
-Otherwise you should see no immediate difference compared to the [AlwaysOn Foundational Online](https://github.com/Azure/Mission-Critical-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
+Otherwise you should see no immediate difference compared to the [Azure Mission-Critical Online](https://github.com/Azure/Mission-Critical-Online) reference implementation in the deployment itself. However, when you check the deployed resources, you will notice differences. For example that AKS is now deployed as a private cluster or that you will not be able to see the repositories in the Azure Container Registry through the Azure Portal anymore (due to the network restrictions to only allow Private Endpoint traffic).
 
 Go the the **Pipelines** section of the Azure DevOps Portal and click on the E2E release pipeline.
 

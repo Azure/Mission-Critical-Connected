@@ -1,10 +1,10 @@
 # Failure analysis
 
-*"What does it take for AlwaysOn to go down?"*
+*"What does it take for Azure Mission-Critical to go down?"*
 
-This article walks through a number of possible failure scenarios of the various components of the AlwaysOn reference implementation. It does not claim to be complete since there can always be failure cases which we have not thought of yet. So for any workload, this list should be a living document that gets updated over time.
+This article walks through a number of possible failure scenarios of the various components of the Azure Mission-Critical reference implementation. It does not claim to be complete since there can always be failure cases which we have not thought of yet. So for any workload, this list should be a living document that gets updated over time.
 
-Composing the failure analysis is mostly a theoretical planning exercise. It can - and should - be complemented by actual failure injection testing. Through testing, at least some of the failure cases and their impact can be simulated and thus validate the theoretical analysis. See [the related article](./DeployAndTest-Testing-FailureInjection.md) for failure injection testing that was done as part of AlwaysOn.
+Composing the failure analysis is mostly a theoretical planning exercise. It can - and should - be complemented by actual failure injection testing. Through testing, at least some of the failure cases and their impact can be simulated and thus validate the theoretical analysis. See [the related article](./DeployAndTest-Testing-FailureInjection.md) for failure injection testing that was done as part of Azure Mission-Critical.
 
 ## Outage risks of individual components
 

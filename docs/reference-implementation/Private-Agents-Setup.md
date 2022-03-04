@@ -1,8 +1,8 @@
 # Getting started with Private Build Agents
 
-This guide walks you through the required steps to deploy AlwaysOn in a connected version. The connected version assumes connectivity to other company resources, typically achieved through VNet peering in a hub-and-spoke model (and optionally to on-prem resources using Express Route or VPN). Also, it locks down all traffic to the deployed Azure services to come in through Private Endpoints only. Only the actual user traffic is still flowing in through the public ingress point of [Azure Front Door](https://azure.microsoft.com/services/frontdoor/#overview).
+This guide walks you through the required steps to deploy the Azure Mission-Critical connected reference implementation. The connected version assumes connectivity to other company resources, typically achieved through VNet peering in a hub-and-spoke model (and optionally to on-prem resources using Express Route or VPN). Also, it locks down all traffic to the deployed Azure services to come in through Private Endpoints only. Only the actual user traffic is still flowing in through the public ingress point of [Azure Front Door](https://azure.microsoft.com/services/frontdoor/#overview).
 
-This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy AlwaysOn in connected mode.**
+This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy Azure Mission-Critical in connected mode.**
 
 ![Azure Mission-Critical Connected Architecture](/docs/media/AlwaysOn-architecture-foundational-connected.svg)
 

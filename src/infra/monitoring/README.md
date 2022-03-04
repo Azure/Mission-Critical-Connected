@@ -52,7 +52,7 @@ To monitor the availability of the individual stamps and the overall solution fr
 
 ## Queries
 
-AlwaysOn uses different Kusto Query Language (KQL) queries to implement complex, custom queries as functions to retrieve data from Log Analytics. These queries are stored as individual files in the `/src/infra/monitoring/queries` directory (separated into global and stamp) and are imported and applied automatically via Terraform as part of each infrastructure pipeline run.
+The Azure Mission-Critical reference implementation uses different Kusto Query Language (KQL) queries to implement complex, custom queries as functions to retrieve data from Log Analytics. These queries are stored as individual files in the `/src/infra/monitoring/queries` directory (separated into global and stamp) and are imported and applied automatically via Terraform as part of each infrastructure pipeline run.
 
 This approach separates the query logic from the visualization layer. It allows us to call these functions individually and use them either directly to retrieve data from Log Analytics or to visualize the results in Azure Dashboards, Azure Monitor Workbooks or 3rd-Party dashboarding solutions like Grafana.
 
@@ -66,7 +66,7 @@ This result provides a granular overview about the cluster's health status based
 
 ## Visualization
 
-The Visualization of the Kusto [Queries](#Queries) described above was implemented using Grafana. Grafana is used to show the results of Log Analytics queries and does not contain any logic itself. The Grafana stack is not part of the solution's deployment lifecycle, but released separately. For a detailed description of the Grafana deployment for AlwaysOn, please refer to the [Grafana README](/src/infra/monitoring/grafana/README.md).
+The Visualization of the Kusto [Queries](#Queries) described above was implemented using Grafana. Grafana is used to show the results of Log Analytics queries and does not contain any logic itself. The Grafana stack is not part of the solution's deployment lifecycle, but released separately. For a detailed description of the Grafana deployment for Azure Mission-Critical, please refer to the [Grafana README](/src/infra/monitoring/grafana/README.md).
 
 ## Alerting
 

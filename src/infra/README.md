@@ -172,7 +172,7 @@ The file needs to hold the resource IDs of the VNets per region. See [`/.ado/pip
 
 Azure Kubernetes Service (AKS) is used as the compute platform as it is most versatile and as Kubernetes is the de-facto compute platform standard for modern applications, both inside and outside of Azure.
 
-AlwaysOn uses Linux-only clusters as there is no requirement for any Windows-based containers and Linux is the more mature platform in terms of Kubernetes.
+The Azure Mission-Critical reference implementation uses Linux-only clusters as there is no requirement for any Windows-based containers and Linux is the more mature platform in terms of Kubernetes.
 
 - `role_based_access_control` (RBAC) is **enabled**.
 - `sku_tier` set to **Paid** (Uptime SLA) to achieve the 99.95% SLA within a single region (with `availability_zones` enabled).
@@ -237,7 +237,7 @@ This repository also contains a couple of supporting services for the AlwaysOn p
 
 ## Naming conventions
 
-All resources used for AlwaysOn follow a pre-defined and consistent naming structure to make it easier to identify them and to avoid confusion. Resource abbreviations are based on the [Cloud Adoption Framework](https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations#general). These abbreviations are typically attached as a suffix to each resource in Azure.
+All resources used for Azure Mission-Critical follow a pre-defined and consistent naming structure to make it easier to identify them and to avoid confusion. Resource abbreviations are based on the [Cloud Adoption Framework](https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations#general). These abbreviations are typically attached as a suffix to each resource in Azure.
 
 A **prefix** is used to uniquely identify "deployments" as some names in Azure must be worldwide unique. Examples of these include Storage Accounts, Container Registries and CosmosDB accounts.
 
