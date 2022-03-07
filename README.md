@@ -1,5 +1,5 @@
-[![Azure Mission-Critical Application](./icon-light.png#gh-light-mode-only)](./README.md)
-[![Azure Mission-Critical Application](./icon.png#gh-dark-mode-only)](./README.md)
+![Azure Mission-Critical Application](./icon-light.png#gh-light-mode-only "Azure Mission-Critical Connected")
+![Azure Mission-Critical Application](./icon.png#gh-light-mode-only "Azure Mission-Critical Connected")
 
 ## Welcome to Azure Mission-Critical Connected
 
