@@ -1,5 +1,5 @@
 ![Azure Mission-Critical Application](./icon-light.png#gh-light-mode-only "Azure Mission-Critical Connected")
-![Azure Mission-Critical Application](./icon.png#gh-light-mode-only "Azure Mission-Critical Connected")
+![Azure Mission-Critical Application](./icon-dark.png#gh-dark-mode-only "Azure Mission-Critical Connected")
 
 ## Welcome to Azure Mission-Critical Connected
 
@@ -16,7 +16,7 @@ This repository contains the reference implementation for an Azure Mission-Criti
 - [Reference Implementation Solution Guide](./docs/reference-implementation/README.md) - Everything required to understand and build a copy of the reference implementation
 - [Reference Implementation Build Artifacts](./src/infra/README.md) - Contains the Infrastructure-as-Code artifacts, CI/CD pipelines, and application code required to deploy the pre-configured reference solution
 
-![Architecture overview](/docs/media/AlwaysOn-architecture-foundational-connected.svg)
+![Architecture overview](/docs/media/mission-critical-architecture-connected.svg)
 
 ## Azure Mission-Critical overview and design guidelines
 
