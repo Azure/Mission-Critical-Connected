@@ -1,4 +1,4 @@
-[![Azure Mission-Critical Application](./icon.png "Azure Mission-Critical Connected")](./README.md)
+[![Azure Mission-Critical Application](./icon.png#gh-light-mode-only "Azure Mission-Critical Connected")](./README.md)
 
 ## Welcome to Azure Mission-Critical Connected
 

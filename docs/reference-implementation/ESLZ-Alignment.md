@@ -15,7 +15,7 @@ The three most common deployment scenarios are:
 
 This diagram visualizes the relationship and dependency an Azure Mission-Critical application can take on Enterprise-Scale landing zone.
 
-![Azure Mission-Critical - ESLZ dependency](/docs/media/AlwaysOn-ESLZ.gif "ESLZ dependency")
+![Azure Mission-Critical - landing zones dependency](/docs/media/mission-critical-landing-zones.gif "Landing zones dependency")
 
 > Note: The Azure Mission-Critical reference implementations are aligned with the Enterprise-Scale architecture and were successfully deployed and validated in an "online" and a "connected" landing zone (subscription).
 
