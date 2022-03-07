@@ -1,7 +1,9 @@
 # Grafana
+
 This directory contains all the files needed for the automated provisioning of the Grafana monitoring solution. A screenshot of the full dashboard is shown at the bottom of this page. 
 
 ## Contents
+
 When the Dockerfile is built, a container is created with the following:
 
 - Grafana
@@ -10,6 +12,7 @@ When the Dockerfile is built, a container is created with the following:
 - AlwaysOn-Healthmodelpanel custom visualization
 
 ## Environment Variables
+
 The container expects the following environment variables to be set:
 
 | Name | Value   |
@@ -19,22 +22,23 @@ The container expects the following environment variables to be set:
 | AZURE_DEFAULT_SUBSCRIPTION | Id of the Azure subscription that holds the Log Analytics instances |
 
 ## Managed Identity
+
 The data source has been set for Managed Identity authentication to Azure.
 This means that the infrastructure running the container, e.g. Azure App Service, should have its system-managed identity enabled and that identity should be assigned, at minimum, the 'Log Analytics Reader' permission on a scope that includes all required Log Analytics instances.
 
 ## Grafana Authentication
-Currently, authentication has been set to a username/password. Obviously this is not the best way in production scenarios, but OAuth authentication requires external dependencies that make this reference implementation harder to deploy and may be subject to security constraints in your local environment. 
 
-Before deploying this to your production environment, it is *highly recommended* to enable OAuth. This is done by editing the grafana.ini file and uncommenting/filling the values under the authentication section. Naturally, don't add secrets there. You can add ${MY_SECRET_VALUE} as a value and include that at runtime through environment variables. 
+Currently, authentication has been set to a username/password. Obviously this is not the best way in production scenarios, but OAuth authentication requires external dependencies that make this reference implementation harder to deploy and may be subject to security constraints in your local environment.
+
+Before deploying this to your production environment, it is *highly recommended* to enable OAuth. This is done by editing the grafana.ini file and uncommenting/filling the values under the authentication section. Naturally, don't add secrets there. You can add ${MY_SECRET_VALUE} as a value and include that at runtime through environment variables.
 
 ## Note about line endings
-When editing on Windows, ensure that for the dashboard queries as well as the .ts and .tsx files, line endings are set to **LF** to ensure a smooth docker build process.
 
-
+When editing on Windows, ensure that for the dashboard queries as well as the `.ts` and `.tsx` files, line endings are set to **LF** to ensure a smooth docker build process.
 
 # Grafana Health Model Panel
 
-The AlwaysOn health model has been implemented in Azure Log Analytics using KQL queries. This is a custom Grafana visualization panel, which can be used to visualize that health model. It's main purpose is to visualize, in an intuitive way:
+The Azure Mission-Critical health model has been implemented in Azure Log Analytics using KQL queries. This is a custom Grafana visualization panel, which can be used to visualize that health model. It's main purpose is to visualize, in an intuitive way:
 
 - The health state of each component
 - The hierarchical dependencies between components.
@@ -103,6 +107,5 @@ This docker container contains a full Grafana install as well as the healthmodel
 
 5. In order to run an unsigned Grafana panel, ensure that the following environment variable has been set:
    `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="alwayson-healthmodelpanel"`
-
 
 ![Solution Health Monitoring Screenshot](./media/healthmodel-fullpage.png)

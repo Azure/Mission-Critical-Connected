@@ -4,7 +4,7 @@ name: backgroundprocessor
 description: "background processor worker"
 version: 0.0.4
 sources:
-- https://github.com/azure/alwayson
+- https://github.com/Azure/Mission-Critical
 kubeVersion: ">=1.19.0"
 maintainers:
 - name: alwayson

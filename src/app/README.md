@@ -1,6 +1,6 @@
 # Sample Application
 
-The foundational AlwaysOn reference implementation uses a simple web shop catalog application where end users can browse through a catalog of items, see details of an item, and post ratings and comments for items. Although fairly straight forward, this application enables the Reference Implementation to demonstrate the asynchronous processing of requests and how to achieve high throughput within a solution. The application consists of three components and is implemented in .NET Core and hosted on Azure Kubernetes Service.
+The Azure Mission-Critical reference implementations use a simple web shop catalog application where end users can browse through a catalog of items, see details of an item, and post ratings and comments for items. Although fairly straight forward, this application enables the Reference Implementation to demonstrate the asynchronous processing of requests and how to achieve high throughput within a solution. The application consists of three components and is implemented in .NET Core and hosted on Azure Kubernetes Service.
 
 See [Application Design](/docs/reference-implementation/AppDesign-Application-Design.md) for more details about the application.
 
