@@ -307,34 +307,35 @@ stages:
 
                     if($LastExitCode -ne 0)
                     {
-                        throw "*** Error on fetching existing backends from Front Door $fdName for pool 'BackendApis'"
+                        throw "*** Error on fetching existing backends from Front Door $fdName for pool 'BackendApis'. Make sure the backend pool exists!"
                     }
 
-                    $extractedPrefixSuffix = ""
+                    $prefix = ""
                     # Only valid if we found any disabled backend (=an old release unit)
                     if($disabledBackendAddress)
                     {
                       echo "*** Found disabled backend $disabledBackendAddress"
-                      # Extract prefix-suffix from address. Expected format like "aoint5445-cluster.northeurope.cloudapp.azure.com" (prefixsuffix-cluster....)
-                      $disabledBackendAddress -match "^(?<prefix>.+)-cluster"
-                      $extractedPrefixSuffix = $Matches.prefix
-                      echo "*** Extracted prefix-suffix $extractedPrefixSuffix"
 
-                      $prefix = "$(prefix)"
-                      $suffix = $extractedPrefixSuffix -creplace "$(prefix)","" # get suffix by removing the prefix from the extractedPrefixSuffix
+                      # Lookup the Public IP resource for this FQDN and fetch the Prefix tag from it
+                      $prefix = az network public-ip list --query "[?dnsSettings.fqdn == '$disabledBackendAddress'].{prefix:tags.Prefix}" -o tsv
 
-                      echo "*** Extracted suffix $suffix"
+                      if(-not $prefix)
+                      {
+                        throw "*** No Public IP found (or not Prefix tag) for FQDN $disabledBackendAddress"
+                      }
 
-                      # set pipeline variables
-                      echo "##vso[task.setvariable variable=oldReleasePrefix]$prefix"
-                      echo "##vso[task.setvariable variable=oldReleaseSuffix]$suffix"
+                      echo "*** Found prefix tag $prefix"
                     }
 
-                    if((-not $disabledBackendAddress) -or ($extractedPrefixSuffix -eq ""))
+                    if((-not $disabledBackendAddress) -or ($prefix -eq ""))
                     {
-                      # This should not happen - if it does, we need to stop the pipeline and investigate. Otherwise the terraform destry task will fail because of the empty prefix variable
-                      throw "*** No disabled backends found or extractedPrefixSuffix empty. Nothing to destroy."
+                      # This can happen on the very first run of the INT or PROD pipeline. We'll set the prefix to some dummy. Terraform destroy will be happy but has nothing to really destroy
+                      Write-Warning "*** No disabled backends found or prefix empty. Nothing to destroy."
+
+                      $prefix = "DUMMYPRE"
                     }
+
+                    echo "##vso[task.setvariable variable=oldReleasePrefix]$prefix" # set pipeline variable
 
             - ${{ if eq(parameters.environment, 'e2e') }}: # Special case for E2E only
               - task: PowerShell@2
