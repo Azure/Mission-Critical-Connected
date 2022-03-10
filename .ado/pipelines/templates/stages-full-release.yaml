@@ -310,6 +310,8 @@ stages:
                         throw "*** Error on fetching existing backends from Front Door $fdName for pool 'BackendApis'. Make sure the backend pool exists!"
                     }
 
+                    $prefix = "$(prefix)"
+
                     # Only valid if we found any disabled backend (=an old release unit)
                     if($disabledBackendAddress)
                     {
@@ -325,17 +327,15 @@ stages:
 
                       echo "*** Found prefix-suffix $prefixSuffix"
 
-                      $prefix = "$(prefix)"
-                      $suffix = $prefixSuffix -creplace "$(prefix)","" # get suffix by removing the prefix from the prefixSuffix
+                      $suffix = $prefixSuffix -creplace "$prefix","" # get suffix by removing the prefix from the prefixSuffix
                     }
 
-                    if((-not $disabledBackendAddress) -or ($prefix -eq ""))
+                    if((-not $disabledBackendAddress) -or (-not $suffix))
                     {
                       # This can happen on the very first run of the INT or PROD pipeline. We'll set the prefix to some dummy. Terraform destroy will be happy but has nothing to really destroy
                       Write-Warning "*** No disabled backends found or prefix empty. Nothing to destroy."
 
-                      $prefix = "DUMMYPRE"
-                      $suffix = ""
+                      $suffix = "SUFF" # using some dummy value
                     }
 
                     # set pipeline variables
