@@ -21,6 +21,10 @@ module "subnet_addrs" {
     {
       name     = "private-endpoints"
       new_bits = 27 - local.netmask # For the private endpoints we want a /27 sized subnet. So we calculate based on the provided input address space
+    },
+    {
+      name     = "aks-lb"
+      new_bits = 29 - local.netmask # Subnet for internal AKS load balancer
     }
   ]
 }
@@ -86,5 +90,21 @@ resource "azurerm_subnet" "private_endpoints" {
 # NSG - Assign default nsg to private-endpoints-snet subnet
 resource "azurerm_subnet_network_security_group_association" "private_endpoints_default_nsg" {
   subnet_id                 = azurerm_subnet.private_endpoints.id
+  network_security_group_id = azurerm_network_security_group.default.id
+}
+
+# Subnet for aks internal lb
+resource "azurerm_subnet" "aks_lb" {
+  name                 = "aks-lb-snet"
+  resource_group_name  = local.vnet_resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.stamp.name
+  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["aks-lb"]]
+
+  enforce_private_link_endpoint_network_policies = true
+}
+
+# NSG - Assign default nsg to aks-lb-snet subnet
+resource "azurerm_subnet_network_security_group_association" "aks_lb_default_nsg" {
+  subnet_id                 = azurerm_subnet.aks_lb.id
   network_security_group_id = azurerm_network_security_group.default.id
 }

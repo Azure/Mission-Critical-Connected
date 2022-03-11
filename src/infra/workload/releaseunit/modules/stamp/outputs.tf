@@ -28,6 +28,10 @@ output "aks_cluster_name" {
   value = azurerm_kubernetes_cluster.stamp.name
 }
 
+output "aks_internal_lb_ip_address" {
+  value = cidrhost(azurerm_subnet.aks_lb.address_prefixes[0], 1)
+}
+
 output "public_storage_account_name" {
   value = azurerm_storage_account.public.name
 }
