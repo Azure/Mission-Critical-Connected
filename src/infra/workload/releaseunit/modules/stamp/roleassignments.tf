@@ -6,8 +6,10 @@ resource "azurerm_role_assignment" "aks_vnet_contributor" {
   principal_id         = azurerm_kubernetes_cluster.stamp.identity.0.principal_id
 }
 
+# Permission for AKS to assign the LB in the pre-created VNet
+# https://docs.microsoft.com/en-us/azure/aks/internal-lb#use-private-networks
 resource "azurerm_role_assignment" "aks_vnet_rg_vnet_contributor" {
-  scope                = data.azurerm_resource_group.vnet_rg.id
+  scope                = data.azurerm_virtual_network.stamp.id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_kubernetes_cluster.stamp.identity.0.principal_id
 }

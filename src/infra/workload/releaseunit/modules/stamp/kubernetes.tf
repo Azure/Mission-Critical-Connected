@@ -65,9 +65,9 @@ resource "azurerm_kubernetes_cluster" "stamp" {
     secret_rotation_interval = "5m"
   }
 
-  depends_on = [
-    azurerm_public_ip.aks_ingress
-  ]
+  # depends_on = [
+  #   azurerm_public_ip.aks_ingress
+  # ]
 
   tags = var.default_tags
 }

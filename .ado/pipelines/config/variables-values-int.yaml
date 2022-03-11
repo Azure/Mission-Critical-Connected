@@ -23,6 +23,6 @@ variables:
 
 # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: '' #'ao-dns-rg'                        # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
+  value: 'alwayson-dns-rg'                        # <===== CHANGE THIS VALUE
 - name: 'envDomainName'
-  value: '' #'int.shop-private.always-on.app'   # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
+  value: 'int.az-mc-connected.com'                # <===== CHANGE THIS VALUE

@@ -11,13 +11,13 @@ output "key_vault_name" {
 }
 
 # Ingress Controller PublicIP Address
-output "aks_ingress_publicip_address" {
-  value = azurerm_public_ip.aks_ingress.ip_address
-}
+# output "aks_ingress_publicip_address" {
+#   value = azurerm_public_ip.aks_ingress.ip_address
+# }
 
 # Ingress Controller PublicIP FQDN
 output "aks_ingress_fqdn" {
-  value = azurerm_public_ip.aks_ingress.fqdn
+  value = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from fqdn
 }
 
 output "aks_cluster_id" {
@@ -29,7 +29,7 @@ output "aks_cluster_name" {
 }
 
 output "aks_internal_lb_ip_address" {
-  value = cidrhost(azurerm_subnet.aks_lb.address_prefixes[0], 1)
+  value = local.aks_internal_lb_ip_address
 }
 
 output "public_storage_account_name" {

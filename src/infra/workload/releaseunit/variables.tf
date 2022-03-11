@@ -97,6 +97,16 @@ variable "frontdoor_id_header" {
   type        = string
 }
 
+variable "custom_dns_zone" {
+  description = "Custom DNS Zone name"
+  type        = string
+}
+
+variable "custom_dns_zone_resourcegroup_name" {
+  description = "Resource Group Name of the Custom DNS Zone"
+  type        = string
+}
+
 variable "acr_name" {
   description = "Azure Container Registry Name (without .azurecr.io)"
   type        = string

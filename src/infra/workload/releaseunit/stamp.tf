@@ -23,6 +23,9 @@ module "stamp" {
   frontdoor_id_header                    = var.frontdoor_id_header
   acr_name                               = var.acr_name
 
+  custom_dns_zone                    = var.custom_dns_zone
+  custom_dns_zone_resourcegroup_name = var.custom_dns_zone_resourcegroup_name
+
   aks_node_size                   = var.aks_node_size
   aks_node_pool_autoscale_minimum = var.aks_node_pool_autoscale_minimum
   aks_node_pool_autoscale_maximum = var.aks_node_pool_autoscale_maximum

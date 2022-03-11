@@ -20,3 +20,9 @@ variables:
 # Other settings
 - name:  'contactEmail'
   value: 'noreply@example.com'  # <===== CHANGE THIS VALUE TO ONE OF YOUR REAL EMAIL ADDRESSES (OR A GROUP)!
+
+  # Custom DNS name settings
+- name: 'envDnsZoneRG'
+  value: 'alwayson-dns-rg'                        # <===== CHANGE THIS VALUE
+- name: 'envDomainName'
+  value: 'e2e.az-mc-connected.com'                # <===== CHANGE THIS VALUE
