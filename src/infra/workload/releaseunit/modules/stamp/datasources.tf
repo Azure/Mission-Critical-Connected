@@ -1,5 +1,9 @@
 data "azurerm_client_config" "current" {}
 
+data "azurerm_resource_group" "vnet_rg" {
+  name = local.vnet_resource_group_name
+}
+
 data "azurerm_virtual_network" "stamp" {
   name                = local.vnet_name
   resource_group_name = local.vnet_resource_group_name
