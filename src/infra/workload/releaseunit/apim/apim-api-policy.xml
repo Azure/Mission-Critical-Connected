@@ -1,0 +1,27 @@
+<policies>
+    <inbound>
+    </inbound>
+    <backend>
+        <forward-request />
+    </backend>
+    <outbound>
+        <set-header name="location" exists-action="override">
+            <value>@{
+                var location = context.Response.Headers.GetValueOrDefault("Location", "");
+                if(string.IsNullOrEmpty(location))
+                {
+                    return null;
+                }
+                var scheme = context.Request.Headers.GetValueOrDefault("X-Forwarded-Proto", context.Request.OriginalUrl.Scheme);
+                var host = context.Request.Headers.GetValueOrDefault("X-Forwarded-Host", context.Request.OriginalUrl.Host);
+                var baseUrl = context.Api.ServiceUrl.ToString().Replace(context.Api.ServiceUrl.Path, "");
+                return location.Replace(baseUrl, $"{scheme}://{host}");
+            }</value>
+        </set-header>
+        <!-- <set-header name="Cache-Control" exists-action="override">
+            <value>no-cache</value>
+        </set-header> -->
+    </outbound>
+    <on-error>
+    </on-error>
+</policies>

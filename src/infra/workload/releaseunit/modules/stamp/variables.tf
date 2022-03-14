@@ -20,6 +20,12 @@ variable "queued_by" {
   default     = "n/a"
 }
 
+variable "contact_email" {
+  description = "Email address for alert notifications"
+  type        = string
+  default     = "OVERWRITE@noreply.com"
+}
+
 variable "default_tags" {}
 
 variable "vnet_resource_id" {

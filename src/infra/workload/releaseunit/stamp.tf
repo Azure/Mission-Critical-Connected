@@ -8,10 +8,11 @@ module "stamp" {
 
   kubernetes_version = var.kubernetes_version # kubernetes version
 
-  prefix       = var.prefix         # handing over the resource prefix
-  suffix       = var.suffix         # handing over the resource suffix
-  default_tags = local.default_tags # handing over the resource tags
-  queued_by    = var.queued_by
+  prefix        = var.prefix         # handing over the resource prefix
+  suffix        = var.suffix         # handing over the resource suffix
+  default_tags  = local.default_tags # handing over the resource tags
+  queued_by     = var.queued_by
+  contact_email = var.contact_email
 
   global_resource_group_name     = var.global_resource_group_name
   monitoring_resource_group_name = var.monitoring_resource_group_name
