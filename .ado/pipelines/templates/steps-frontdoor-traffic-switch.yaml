@@ -66,7 +66,7 @@ steps:
       foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
 
         # Build API backend config object for Front Door
-        $clusterFqdn = $stamp.aks_cluster_ingress_fqdn
+        $clusterFqdn = $stamp.apim_fqdn
 
         $apiProperties = @{address=$clusterFqdn; weight=$newBackendsWeight; enabled="true"}
         $apiBackend = New-Object PSObject –Property $apiProperties
@@ -158,7 +158,7 @@ steps:
                        -var=queued_by="$(Build.QueuedBy)"
                        -var=contact_email="$(contactEmail)"
                        -var=''stamps=$(stampLocations)''
-                       -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=www.$(envDomainName)
+                       -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=$(domainSuffix).$(envDomainName)
                        $(tfParameterFrontDoorBackendApis)
                        $(tfParameterFrontDoorStaticStorage)'
 

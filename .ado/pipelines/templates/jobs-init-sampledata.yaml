@@ -33,7 +33,7 @@ jobs:
 
           # TODO REMOVE. JUST FOR TESTING
           # Import through APIM
-          $url = "https://alwayson-apim-test.azure-api.net/api/1.0/CatalogItem"
+          $url = "https://$(stamp.apim_fqdn)/api/1.0/CatalogItem"
 
           Write-Host "*** Using URL $url"
 

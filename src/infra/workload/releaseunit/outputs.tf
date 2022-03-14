@@ -9,6 +9,8 @@ output "stamp_properties" {
     aks_kubelet_clientid        = instance.aks_kubelet_clientid
     aks_cluster_ingress_fqdn    = instance.aks_ingress_fqdn
     aks_internal_lb_ip_address  = instance.aks_internal_lb_ip_address
+    apim_fqdn                   = instance.apim_fqdn
+    apim_gateway_url            = instance.apim_gateway_url
     public_storage_account_name = instance.public_storage_account_name
     storage_web_host            = instance.public_storage_static_web_host
   }]

@@ -31,6 +31,14 @@ output "aks_internal_lb_ip_address" {
   value = local.aks_internal_lb_ip_address
 }
 
+output "apim_gateway_url" {
+  value = azurerm_api_management.stamp.gateway_url
+}
+
+output "apim_fqdn" {
+  value = replace(azurerm_api_management.stamp.gateway_url, "https://", "")
+}
+
 output "public_storage_account_name" {
   value = azurerm_storage_account.public.name
 }
