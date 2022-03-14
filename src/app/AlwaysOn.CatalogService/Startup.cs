@@ -1,4 +1,5 @@
 using AlwaysOn.CatalogService.Auth;
+using AlwaysOn.CatalogService.SwaggerHelpers;
 using AlwaysOn.Shared;
 using AlwaysOn.Shared.Interfaces;
 using AlwaysOn.Shared.Services;
