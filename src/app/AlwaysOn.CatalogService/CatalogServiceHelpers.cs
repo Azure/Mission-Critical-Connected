@@ -17,6 +17,10 @@ namespace AlwaysOn.CatalogService
 {
     public static class CatalogServiceHelpers
     {
+
+        public static int DefaultApiVersionMajor = 1;
+        public static int DefaultApiVersionMinor = 0;
+
         /// <summary>
         /// Creates a message on the message bus to request the deletion of any object by its ID
         /// Whether the object acutally exists and can be deleted is decided by the BackgroundProcessor during processing
