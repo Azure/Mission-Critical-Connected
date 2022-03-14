@@ -1,4 +1,10 @@
 resource "azurerm_api_management" "stamp" {
+
+  depends_on = [
+    # APIM requires that an NSG is attached to the subnet
+    azurerm_subnet_network_security_group_association.apim_nsg
+  ]
+
   name                = "${local.prefix}-${local.location_short}-apim"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
