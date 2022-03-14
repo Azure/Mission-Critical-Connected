@@ -158,7 +158,7 @@ steps:
                        -var=queued_by="$(Build.QueuedBy)"
                        -var=contact_email="$(contactEmail)"
                        -var=''stamps=$(stampLocations)''
-                       -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=www.$(envDomainName)
+                       -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=$(domainSuffix).$(envDomainName)
                        $(tfParameterFrontDoorBackendApis)
                        $(tfParameterFrontDoorStaticStorage)'
 
