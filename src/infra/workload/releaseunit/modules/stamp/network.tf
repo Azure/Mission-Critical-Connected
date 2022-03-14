@@ -162,7 +162,7 @@ resource "azurerm_network_security_rule" "apim_allow_inbound_https" {
   source_port_range           = "*"
   destination_port_ranges     = ["443"]
   source_address_prefix       = "Internet"
-  destination_address_prefix  = azurerm_public_ip.apim.ip_address
+  destination_address_prefix  = "VirtualNetwork"
   resource_group_name         = azurerm_resource_group.stamp.name
   network_security_group_name = azurerm_network_security_group.apim.name
 }
