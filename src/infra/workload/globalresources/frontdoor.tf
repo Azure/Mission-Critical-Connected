@@ -69,7 +69,7 @@ resource "azurerm_frontdoor" "main" {
     name                = "ApiHealthProbeSetting"
     protocol            = "Https"
     probe_method        = "HEAD"
-    path                = "/health/stamp"
+    path                = "/health/health/stamp" # TODO: remove extra path element, fix for APIM
     interval_in_seconds = 30
   }
 
