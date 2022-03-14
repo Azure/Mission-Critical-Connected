@@ -48,7 +48,7 @@ resource "azurerm_api_management_api" "catalogservice" {
   display_name        = "AlwaysOn CatalogService API"
   path                = ""
   protocols           = ["https"]
-  service_url         = "https://${trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".")}/"
+  service_url         = "https://${local.aks_ingress_fqdn}/"
 
   subscription_required = false
 
@@ -62,6 +62,31 @@ resource "azurerm_api_management_api_diagnostic" "catalogservice" {
   resource_group_name      = azurerm_resource_group.stamp.name
   api_management_name      = azurerm_api_management.stamp.name
   api_name                 = azurerm_api_management_api.catalogservice.name
+  api_management_logger_id = azurerm_api_management_logger.stamp.id
+  identifier               = "applicationinsights"
+}
+
+resource "azurerm_api_management_api" "healthservice" {
+  depends_on          = [azurerm_api_management_api.catalogservice]
+  name                = "healthservice-api"
+  resource_group_name = azurerm_resource_group.stamp.name
+  api_management_name = azurerm_api_management.stamp.name
+  revision            = "1"
+  display_name        = "AlwaysOn HealthService API"
+  path                = "health"
+  protocols           = ["https"]
+  service_url         = "https://${local.aks_ingress_fqdn}/"
+
+  import {
+    content_format = "openapi"
+    content_value  = file("./apim/healthservice-api-swagger.json")
+  }
+}
+
+resource "azurerm_api_management_api_diagnostic" "healthservice" {
+  resource_group_name      = azurerm_resource_group.stamp.name
+  api_management_name      = azurerm_api_management.stamp.name
+  api_name                 = azurerm_api_management_api.healthservice.name
   api_management_logger_id = azurerm_api_management_logger.stamp.id
   identifier               = "applicationinsights"
 }

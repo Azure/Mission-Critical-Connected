@@ -24,15 +24,11 @@ output "aks_kubelet_clientid" {
 
 # Ingress Controller FQDN (points to private IP address)
 output "aks_ingress_fqdn" {
-  value = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from fqdn
+  value = local.aks_ingress_fqdn
 }
 
 output "aks_internal_lb_ip_address" {
   value = local.aks_internal_lb_ip_address
-}
-
-output "apim_gateway_url" {
-  value = azurerm_api_management.stamp.gateway_url
 }
 
 output "apim_fqdn" {
