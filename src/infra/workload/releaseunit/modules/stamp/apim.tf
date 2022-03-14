@@ -77,6 +77,8 @@ resource "azurerm_api_management_api" "healthservice" {
   protocols           = ["https"]
   service_url         = "https://${local.aks_ingress_fqdn}/"
 
+  subscription_required = false
+
   import {
     content_format = "openapi"
     content_value  = file("./apim/healthservice-api-swagger.json")
