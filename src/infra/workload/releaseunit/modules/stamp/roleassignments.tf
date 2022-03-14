@@ -20,3 +20,10 @@ resource "azurerm_role_assignment" "acrpull_role" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
 }
+
+# DNS Contributor role for AKS kubelet, to be used by cert-manager
+resource "azurerm_role_assignment" "dns_contributor" {
+  scope                = data.azurerm_dns_zone.customdomain.id
+  role_definition_name = "DNS Zone Contributor"
+  principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
+}

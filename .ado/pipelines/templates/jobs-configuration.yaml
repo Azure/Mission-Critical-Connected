@@ -85,6 +85,9 @@ jobs:
         # load json data from downloaded pipeline artifact json
         $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
+        # Retrieve current subscription id
+        $subscriptionId = $(az account show --query "id" --output tsv)
+
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
 
@@ -99,9 +102,21 @@ jobs:
           echo "*** Apply cert-manager CRDs on $aksClusterName"
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/$(certManagerVersion)/cert-manager.crds.yaml
 
-          # Preparations to deploy cert-manager into it's own cert-manager namespace
-          echo "*** Create a separate namespace for cert-manager on $aksClusterName"
-          kubectl apply -f src/config/cert-manager/cert-manager.yaml
+          echo "*** Create namespace cert-manager on AKS cluster $aksClusterName via kubectl"
+          kubectl create namespace cert-manager `
+                    --dry-run=client --output yaml | kubectl apply -f -
+
+          $kubeletIdentityClientId = $(az aks show --resource-group $aksClusterResourceGroup --name $aksClusterName `
+                                                   --query "identityProfile.kubeletidentity.clientId" --output tsv)
+
+          helm upgrade --install cert-manager-azure-dns src/config/charts/cert-manager `
+                        --namespace "cert-manager" `
+                        --set azure.subscriptionId=$subscriptionId `
+                        --set azure.dnsZoneName="$(envDomainName)" `
+                        --set azure.dnsZoneResourceGroupName="$(envDnsZoneRG)" `
+                        --set azure.managedIdentityClientId="$kubeletIdentityClientId"
+
+          #kubectl apply -f src/config/cert-manager/cert-manager.yaml
 
           echo "*** Installing cert-manager via helm on $aksClusterName"
           helm repo add jetstack https://charts.jetstack.io
