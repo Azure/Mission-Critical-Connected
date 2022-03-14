@@ -1,23 +1,18 @@
 ﻿using AlwaysOn.Shared;
 using AlwaysOn.Shared.Exceptions;
 using AlwaysOn.Shared.Interfaces;
-using AlwaysOn.Shared.Models;
 using AlwaysOn.Shared.Models.DataTransfer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AlwaysOn.CatalogService
 {
     public static class CatalogServiceHelpers
     {
-
         public static int DefaultApiVersionMajor = 1;
         public static int DefaultApiVersionMinor = 0;
 
