@@ -10,22 +10,21 @@ output "key_vault_name" {
   value = azurerm_key_vault.stamp.name
 }
 
-# Ingress Controller PublicIP Address
-# output "aks_ingress_publicip_address" {
-#   value = azurerm_public_ip.aks_ingress.ip_address
-# }
-
-# Ingress Controller PublicIP FQDN
-output "aks_ingress_fqdn" {
-  value = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from fqdn
-}
-
 output "aks_cluster_id" {
   value = azurerm_kubernetes_cluster.stamp.id
 }
 
 output "aks_cluster_name" {
   value = azurerm_kubernetes_cluster.stamp.name
+}
+
+output "aks_kubelet_clientid" {
+  value = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.client_id
+}
+
+# Ingress Controller FQDN (points to private IP address)
+output "aks_ingress_fqdn" {
+  value = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from fqdn
 }
 
 output "aks_internal_lb_ip_address" {
