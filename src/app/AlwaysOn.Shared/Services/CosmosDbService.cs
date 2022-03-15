@@ -78,7 +78,7 @@ namespace AlwaysOn.Shared.Services
         {
             try
             {
-                _logger.LogInformation("Testing Read query to Cosmos DB");
+                _logger.LogDebug("Testing Read query to Cosmos DB");
                 var iterator = _catalogItemsContainer.GetItemQueryIterator<object>("SELECT GetCurrentDateTime ()");
                 var readResult = await iterator.ReadNextAsync(cancellationToken);
             }
@@ -90,7 +90,7 @@ namespace AlwaysOn.Shared.Services
 
             try
             {
-                _logger.LogInformation("Testing document Write to Cosmos DB");
+                _logger.LogDebug("Testing document Write to Cosmos DB");
                 // Create a test document to write to cosmos
                 var testRating = new ItemRating()
                 {
@@ -112,7 +112,7 @@ namespace AlwaysOn.Shared.Services
             return true;
         }
 
-        public async Task DeleteDocumentAsync<T>(string objectId, string partitionKey)
+        public async Task DeleteItemAsync<T>(string objectId, string partitionKey)
         {
             var startTime = DateTime.UtcNow;
             ItemResponse<T> response = null;
@@ -275,7 +275,7 @@ namespace AlwaysOn.Shared.Services
                 }
                 else
                 {
-                    throw new AlwaysOnDependencyException(responseMessage.StatusCode, $"Unexpected status code in {nameof(GetCatalogItemByIdAsync)}. Code={responseMessage.StatusCode}");
+                    throw new AlwaysOnDependencyException(responseMessage.StatusCode, $"Unexpected status code in {nameof(GetCommentByIdAsync)}. Code={responseMessage.StatusCode}");
                 }
             }
             catch (CosmosException cex)
@@ -343,7 +343,7 @@ namespace AlwaysOn.Shared.Services
                 }
                 else
                 {
-                    throw new AlwaysOnDependencyException(responseMessage.StatusCode, $"Unexpected status code in {nameof(GetCatalogItemByIdAsync)}. Code={responseMessage.StatusCode}");
+                    throw new AlwaysOnDependencyException(responseMessage.StatusCode, $"Unexpected status code in {nameof(GetRatingByIdAsync)}. Code={responseMessage.StatusCode}");
                 }
             }
             catch (CosmosException cex)
