@@ -107,3 +107,46 @@ resource "azurerm_api_management_policy" "all_apis_policy" {
   api_management_id = azurerm_api_management.stamp.id
   xml_content       = file("./apim/apim-api-policy.xml")
 }
+
+####################################### DIAGNOSTIC SETTINGS #######################################
+
+# Use this data source to fetch all available log and metrics categories. We then enable all of them
+data "azurerm_monitor_diagnostic_categories" "apim" {
+  resource_id = azurerm_api_management.stamp.id
+}
+
+resource "azurerm_monitor_diagnostic_setting" "apim" {
+  name                       = "apimladiagnostics"
+  target_resource_id         = azurerm_api_management.stamp.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.stamp.id
+
+  dynamic "log" {
+    iterator = entry
+    for_each = data.azurerm_monitor_diagnostic_categories.apim.logs
+
+    content {
+      category = entry.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = 30
+      }
+    }
+  }
+
+  dynamic "metric" {
+    iterator = entry
+    for_each = data.azurerm_monitor_diagnostic_categories.apim.metrics
+
+    content {
+      category = entry.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = 30
+      }
+    }
+  }
+}
