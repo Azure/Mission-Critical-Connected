@@ -276,10 +276,10 @@ stages:
 
             $privateLinkName = "$(prefix)$(customSuffix)-$($location)-aks-ingress-pl"
 
-            $existingPrivateLink = az network private-link-service show -n $privateLinkName `
+            $privateLinkService = az network private-link-service show -n $privateLinkName `
                                                                         -g $stampResourceGroup | ConvertFrom-JSON
 
-            if($existingPrivateLink)
+            if($privateLinkService)
             {
               echo "*** Private Link Service $privateLinkName already exists"
             }
@@ -301,11 +301,13 @@ stages:
               echo "*** Fetched frontend IP configuration $frontendIpConfigId"
 
               echo "*** Creating new  AKS ingress private link service $privateLinkName"
-              az network private-link-service create  -g $stampResourceGroup `
-                                                      -n $privateLinkName `
-                                                      --subnet $privateLinkSubnetId `
-                                                      --location $location `
-                                                      --lb-frontend-ip-configs $frontendIpConfigId
+              $privateLinkService = az network private-link-service create  -g $stampResourceGroup `
+                                                                            -n $privateLinkName `
+                                                                            --subnet $privateLinkSubnetId `
+                                                                            --location $location `
+                                                                            --lb-frontend-ip-configs $frontendIpConfigId | ConvertFrom-JSON
+
+              echo "*** Created new Private Link Service $(privateLinkService.id)"
             }
           }
 
