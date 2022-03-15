@@ -1,94 +1,10 @@
-# Integrating APIM with AlwaysOn-Connected 
-The following guide will help you integrate APIM with the current AlwaysOn-Connected framework to route traffic to your AKS cluster from Front Door. The implementation is broken into three stages: [establishing Front Door to APIM connectivity](#establishing-front-door-to-apim-connectivity), [privatizing the AKS cluster](#privatize-aks-cluster), and [implementing dynamic generation of api definitions in the deployment pipeline](#implement-dynamic-generation-of-api-definitions-in-deployment-pipeline).
+# Integrating APIM with Azure Mission-Critical-Connected 
+The following guide will help you integrate APIM with the current Azure Mission-Critical-Connected framework to route traffic to your AKS cluster from Front Door. The implementation is broken into three stages: [establishing Front Door to APIM connectivity](#establishing-front-door-to-apim-connectivity), [changing the ingress controller from a public to an internal load balancer](#change-ingress-controller-from-public-to-internal-load-balancer), and [implementing dynamic generation of api definitions in the deployment pipeline](#implement-dynamic-generation-of-api-definitions-in-deployment-pipeline).
 
 ## Establishing Front Door to APIM Connectivity
 See [this branch](https://github.com/Azure/Mission-Critical-Connected/tree/feature/apim) for implementation or follow the steps below.
 
-1. Go to the [stamp resources folder](/src/infra/workload/releaseunit/modules/stamp/) and add a file named "api_management.tf" with the following contents:
-    ```
-        resource "azurerm_api_management" "stamp" {
-
-            depends_on = [
-                # APIM requires that an NSG is attached to the subnet
-                azurerm_subnet_network_security_group_association.apim_nsg
-            ]
-            name                = "${local.prefix}-${local.location_short}-apim"
-            location            = azurerm_resource_group.stamp.location
-            resource_group_name = azurerm_resource_group.stamp.name
-            publisher_name      = var.apim_publisher_name
-            publisher_email     = var.apim_publisher_email
-            virtual_network_type = "External"
-            virtual_network_configuration {
-                subnet_id = azurerm_subnet.apim.id
-            }
-            sku_name = "Developer_1"
-            protocols {
-                enable_http2 = true
-            }
-            policy {
-                xml_content = file("apim/apim-api-policy.xml")
-            }
-            }
-        resource "azurerm_api_management_logger" "stamp" {
-            name                = "apimlogger"
-            api_management_name = azurerm_api_management.stamp.name
-            resource_group_name = azurerm_resource_group.stamp.name
-            application_insights {
-                instrumentation_key =data.azurerm_application_insights.stamp.instrumentation_key
-            }
-        }
-        resource "azurerm_api_management_api" "catalogservice" {
-            name                = "catalogservice-api"
-            resource_group_name = azurerm_resource_group.stamp.name
-            api_management_name = azurerm_api_management.stamp.name
-            revision            = "1"
-            display_name        = "AlwaysOn CatalogService API"
-            path                = ""
-            protocols           = ["https"]
-            service_url         = "https://${local.aks_ingress_fqdn}/"
-
-            subscription_required = false
-
-            import {
-                content_format = "openapi"
-                content_value  = file("./apim/catalogservice-api-swagger.json")
-            }
-        }
-        resource "azurerm_api_management_api_diagnostic" "catalogservice" {
-            resource_group_name      = azurerm_resource_group.stamp.name
-            api_management_name      = azurerm_api_management.stamp.name
-            api_name                 = azurerm_api_management_api.catalogservice.name
-            api_management_logger_id = azurerm_api_management_logger.stamp.id
-            identifier               = "applicationinsights"
-        }
-
-        resource "azurerm_api_management_api" "healthservice" {
-            depends_on          = [azurerm_api_management_api.catalogservice]
-            name                = "healthservice-api"
-            resource_group_name = azurerm_resource_group.stamp.name
-            api_management_name = azurerm_api_management.stamp.name
-            revision            = "1"
-            display_name        = "AlwaysOn HealthService API"
-            path                = "health"
-            protocols           = ["https"]
-            service_url         = "https://${local.aks_ingress_fqdn}/"
-
-            subscription_required = false
-
-            import {
-                content_format = "openapi"
-                content_value  = file("./apim/healthservice-api-swagger.json")
-            }
-        }
-
-        resource "azurerm_api_management_api_diagnostic" "healthservice" {
-            resource_group_name      = azurerm_resource_group.stamp.name
-            api_management_name      = azurerm_api_management.stamp.name
-            api_name                 = azurerm_api_management_api.healthservice.name
-            api_management_logger_id = azurerm_api_management_logger.stamp.id
-            identifier               = "applicationinsights"
-        }
-    ```
+1. Copy the [Terraform template](/docs/example-code/apim.tf) for APIM into your [stamp resources folder](/src/infra/workload/releaseunit/modules/stamp/) 
 2. Change `publisher_name` and `publisher_email` to the name of your company and an email. Checks any references to resource groups, names, etc. that may be defined outside your APIM definition. 
 3. Create a folder called "apim" in the [release unit folder](/src/infra/workload/releaseunit/) and add the 3 files in [example-code](/docs/example-code/) to your branch. These three files are the api definitions for the catalog and health service as well as the apim policy. 
 4. To connect Front Door to APIM, we need the value of the APIM FQDN to point Front Door to. In the [outputs.tf file](/src/infra/workload/releaseunit/modules/stamp/outputs.tf), add an output for the APIM FQDN with the following code:
@@ -135,7 +51,7 @@ See [this branch](https://github.com/Azure/Mission-Critical-Connected/tree/featu
 7. Now we need to point Front Door to the APIM instance instead of the ingress controller. Change `stamp.aks_cluster_ingress_fqdn` to `stamp.apim_fqdn` in the following places: [jobs-init-sampledata.yaml](/.ado/pipelines/templates/jobs-init-sampledata.yaml), [steps-frontdoor-traffic-switch.yaml](/.ado/pipelines/templates/steps-frontdoor-traffic-switch.yaml) and [SmokeTest.ps1](/.ado/scripts/SmokeTest.ps1)
 8. Test the implementation by running the deployment pipeline.
 
-## Privatize AKS Cluster
+## Change Ingress Controller from Public to Internal Load Balancer
 
 ## Implement Dynamic Generation of API Definitions in Deployment Pipeline
 The current implementation of APIM uses static api definitions that have been created prior to deployment. We want to enable dynamic generation those apis in order to catch configuration or environmental changes without having to update the file. 
