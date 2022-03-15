@@ -19,7 +19,7 @@ resource "azurerm_api_management" "stamp" {
     subnet_id = azurerm_subnet.apim.id
   }
 
-  sku_name = "Developer_1"
+  sku_name = var.apim_sku
 
   protocols {
     enable_http2 = true

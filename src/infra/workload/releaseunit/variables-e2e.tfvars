@@ -4,5 +4,7 @@ aks_node_size                   = "Standard_F8s_v2" # be aware of the disk size 
 aks_node_pool_autoscale_minimum = 1
 aks_node_pool_autoscale_maximum = 3
 
+apim_sku = "Developer_1"
+
 event_hub_thoughput_units     = 1
 event_hub_enable_auto_inflate = false

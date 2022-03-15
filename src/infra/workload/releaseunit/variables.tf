@@ -135,6 +135,12 @@ variable "aks_node_pool_autoscale_maximum" {
   default     = 9
 }
 
+variable "apim_sku" {
+  description = "APIM SKU"
+  type        = string
+  default     = "Developer_1"
+}
+
 variable "event_hub_thoughput_units" {
   description = "Number of Throughput Units for Event Hub Namespace"
   type        = number
