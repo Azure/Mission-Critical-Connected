@@ -237,9 +237,79 @@ stages:
   jobs:
   - template: jobs-workload-deploy.yaml
 
+- stage: createIngressPrivateLink
+  displayName: 'Create Private Link for AKS Ingress'
+  dependsOn: deployworkload
+  jobs:
+  - job: createIngressPrivateLinkJob
+    displayName: 'Create Private Link for AKS Ingress'
+    steps:
+
+    - download: current # download pipeline artifacts
+
+    - task: AzureCLI@2
+      displayName: 'Create Private Link for AKS Ingress'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+
+          # load json data from downloaded pipeline artifact json
+          $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+
+          # Retrieve current subscription id
+          $subscriptionId = $(az account show --query "id" --output tsv)
+
+          # loop through stamps from pipeline artifact json
+          foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+
+            $location = $stamp.location
+            $stampResourceGroup = $stamp.resource_group_name
+            $nodeResourceGroup = $stamp.aks_node_resourcegroup_name
+            $internalLbIp = $stamp.aks_internal_lb_ip_address
+            $privateLinkSubnetId = $stamp.aks_ingress_privatelink_subnetid
+
+            echo "*** Checking for existing AKS ingress private link service in region $location"
+
+            $privateLinkName = "$(prefix)$(suffix)-$($location)-aks-ingress-pl"
+
+            $existingPrivateLink = az network private-link-service show -n $privateLinkName `
+                                                                        -g $stampResourceGroup | ConvertFrom-JSON
+
+            if($existingPrivateLink)
+            {
+              echo "*** Private Link Service $privateLinkName already exists"
+            }
+            else
+            {
+              # Fetch the "kubernetes-internal" load balancer from the managed resource group
+              $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
+
+              # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
+              $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+
+              if(-not $ipConfig)
+              {
+                throw "*** No IP configuration found for IP address $internalLbIp"
+              }
+
+              $frontendIpConfigId = $ipConfig.id
+
+              echo "*** Fetched frontend IP configuration $frontendIpConfigId"
+
+              echo "*** Creating new  AKS ingress private link service $privateLinkName"
+              az network private-link-service create  -g $stampResourceGroup `
+                                                      -n $privateLinkName `
+                                                      --subnet $privateLinkSubnetId `
+                                                      --location $location `
+                                                      --lb-frontend-ip-configs $frontendIpConfigId
+            }
+          }
+
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
-  dependsOn: deployworkload
+  dependsOn: createIngressPrivateLink
   jobs:
   - template: jobs-init-sampledata.yaml
 
