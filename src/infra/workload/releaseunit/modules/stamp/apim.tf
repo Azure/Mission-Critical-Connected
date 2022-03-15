@@ -24,10 +24,6 @@ resource "azurerm_api_management" "stamp" {
   protocols {
     enable_http2 = true
   }
-
-  policy {
-    xml_content = file("./apim/apim-api-policy.xml")
-  }
 }
 
 resource "azurerm_api_management_logger" "stamp" {
@@ -93,10 +89,21 @@ resource "azurerm_api_management_api_diagnostic" "healthservice" {
   identifier               = "applicationinsights"
 }
 
+# Store the front door id header as a named value which get referenced in the xml policy
 resource "azurerm_api_management_named_value" "front_door_id_header" {
   name                = "azure-frontdoor-id-header"
   resource_group_name = azurerm_resource_group.stamp.name
   api_management_name = azurerm_api_management.stamp.name
   display_name        = "azure-frontdoor-id-header"
   value               = var.frontdoor_id_header
+}
+
+# Base bolicy which gets applied to all APIs. Contains the frontdoor id check
+resource "azurerm_api_management_policy" "all_apis_policy" {
+  depends_on = [
+    # The named value is referenced in the policy, so it needs to exist first
+    azurerm_api_management_named_value.front_door_id_header
+  ]
+  api_management_id = azurerm_api_management.stamp.id
+  xml_content       = file("./apim/apim-api-policy.xml")
 }
