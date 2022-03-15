@@ -6,7 +6,7 @@ resource "azurerm_public_ip" "apim" {
   sku                 = "Standard"
   allocation_method   = "Static"
 
-  domain_name_label = "${local.prefix}-cluster"
+  domain_name_label = "${local.prefix}-apim"
 
   tags = var.default_tags
 }
