@@ -87,9 +87,6 @@ jobs: # using jobs so they each run in parallel
 
           $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
 
-          $frontDoorId = $globalInfraDeployOutput.frontdoor_id_header.value
-          echo "*** Retrieved Azure Front Door Header ID $frontDoorId"
-
           $frontDoorFqdn = $globalInfraDeployOutput.frontdoor_fqdn.value
           echo "*** Retrieved Azure Front Door FQDN $frontDoorFqdn"
 
@@ -119,7 +116,6 @@ jobs: # using jobs so they each run in parallel
             echo "*** Using container image $fullContainerImageName"
 
             helm upgrade --install workload-catalogservice src/app/charts/catalogservice --namespace "$(workloadNamespace)" `
-                         --set azure.frontdoorid="$frontDoorId" `
                          --set azure.region="$region" `
                          --set azure.baseurl="$frontDoorFqdn" `
                          --set containerimage="$fullContainerImageName" `
