@@ -63,18 +63,18 @@ namespace AlwaysOn.BackgroundProcessor.Services
             {
                 try
                 {
-                    _logger.LogInformation("Deleting {type} from database. objectId={objectId}", deletionRequest.ObjectType, deletionRequest.ObjectId);
+                    _logger.LogDebug("Deleting {type} from database. objectId={objectId}", deletionRequest.ObjectType, deletionRequest.ObjectId);
 
                     switch (deletionRequest.ObjectType)
                     {
                         case (nameof(CatalogItem)):
-                            await _databaseService.DeleteDocumentAsync<CatalogItem>(deletionRequest.ObjectId, deletionRequest.PartitionId);
+                            await _databaseService.DeleteItemAsync<CatalogItem>(deletionRequest.ObjectId, deletionRequest.PartitionId);
                             break;
                         case (nameof(ItemComment)):
-                            await _databaseService.DeleteDocumentAsync<ItemComment>(deletionRequest.ObjectId, deletionRequest.PartitionId);
+                            await _databaseService.DeleteItemAsync<ItemComment>(deletionRequest.ObjectId, deletionRequest.PartitionId);
                             break;
                         case (nameof(ItemRating)):
-                            await _databaseService.DeleteDocumentAsync<ItemRating>(deletionRequest.ObjectId, deletionRequest.PartitionId);
+                            await _databaseService.DeleteItemAsync<ItemRating>(deletionRequest.ObjectId, deletionRequest.PartitionId);
                             break;
                         default:
                             _logger.LogWarning("Unknown type {type} to delete", deletionRequest.ObjectType);
@@ -105,7 +105,7 @@ namespace AlwaysOn.BackgroundProcessor.Services
             {
                 try
                 {
-                    _logger.LogInformation("Adding new CatalogItem to database. CatalogItemId={CatalogItemId}", item.Id);
+                    _logger.LogDebug("Adding new CatalogItem to database. CatalogItemId={CatalogItemId}", item.Id);
                     await _databaseService.AddNewCatalogItemAsync(item);
                     _logger.LogInformation("New CatalogItem written to database. CatalogItemId={CatalogItemId}", item.Id);
                 }
@@ -131,7 +131,7 @@ namespace AlwaysOn.BackgroundProcessor.Services
             {
                 try
                 {
-                    _logger.LogInformation("Adding new ItemComment to database. CommentId={CommentId}", comment.Id);
+                    _logger.LogDebug("Adding new ItemComment to database. CommentId={CommentId}", comment.Id);
                     await _databaseService.AddNewCommentAsync(comment);
                     _logger.LogInformation("New ItemComment written to database. CommentId={CommentId}", comment.Id);
                 }
@@ -157,7 +157,7 @@ namespace AlwaysOn.BackgroundProcessor.Services
             {
                 try
                 {
-                    _logger.LogInformation("Adding new ItemRating to database. RatingId={RatingId}", rating.Id);
+                    _logger.LogDebug("Adding new ItemRating to database. RatingId={RatingId}", rating.Id);
                     await _databaseService.AddNewRatingAsync(rating);
                     _logger.LogInformation("New ItemRating written to database. RatingId={RatingId}", rating.Id);
                 }
