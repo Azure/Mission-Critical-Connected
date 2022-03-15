@@ -247,6 +247,8 @@ stages:
 
     - download: current # download pipeline artifacts
 
+    - template: steps-set-pipeline-variables.yaml # load set-pipeline-variables function
+
     - task: AzureCLI@2
       displayName: 'Create Private Link for AKS Ingress'
       inputs:
@@ -272,7 +274,7 @@ stages:
 
             echo "*** Checking for existing AKS ingress private link service in region $location"
 
-            $privateLinkName = "$(prefix)$(suffix)-$($location)-aks-ingress-pl"
+            $privateLinkName = "$(prefix)$(customSuffix)-$($location)-aks-ingress-pl"
 
             $existingPrivateLink = az network private-link-service show -n $privateLinkName `
                                                                         -g $stampResourceGroup | ConvertFrom-JSON
