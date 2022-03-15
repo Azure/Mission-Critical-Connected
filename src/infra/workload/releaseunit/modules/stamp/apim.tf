@@ -73,7 +73,7 @@ resource "azurerm_api_management_api" "healthservice" {
   api_management_name = azurerm_api_management.stamp.name
   revision            = "1"
   display_name        = "AlwaysOn HealthService API"
-  path                = "health"
+  path                = "healthservice"
   protocols           = ["https"]
   service_url         = "https://${local.aks_ingress_fqdn}/"
 
@@ -91,4 +91,12 @@ resource "azurerm_api_management_api_diagnostic" "healthservice" {
   api_name                 = azurerm_api_management_api.healthservice.name
   api_management_logger_id = azurerm_api_management_logger.stamp.id
   identifier               = "applicationinsights"
+}
+
+resource "azurerm_api_management_named_value" "front_door_id_header" {
+  name                = "azure-frontdoor-id-header"
+  resource_group_name = azurerm_resource_group.stamp.name
+  api_management_name = azurerm_api_management.stamp.name
+  display_name        = "azure-frontdoor-id-header"
+  value               = var.frontdoor_id_header
 }
