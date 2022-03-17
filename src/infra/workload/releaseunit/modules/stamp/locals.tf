@@ -17,4 +17,7 @@ locals {
   aks_internal_lb_ip_address = cidrhost(azurerm_subnet.aks_lb.address_prefixes[0], 5) # 5th IP in the subnet as the previous ones are reserved by Azure
 
   aks_ingress_fqdn = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from the FQDN
+
+  apim_tier  = split(var.apim_sku, "_")[0] # extract tier from the sku name
+  apim_units = split(var.apim_sku, "_")[1] # extract tier from the sku name
 }

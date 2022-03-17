@@ -21,6 +21,9 @@ resource "azurerm_api_management" "stamp" {
 
   sku_name = var.apim_sku
 
+  # Availability Zones are only supported in Premium tier. For Premium at least 2 units (= 2 AZs) should be deployed, if 3 or more, we can use all three AZs
+  zones = local.apim_tier == "Premium" ? (local.apim_units < 3 ? ["1", "2"] : ["1", "2", "3"]) : null
+
   protocols {
     enable_http2 = true
   }

@@ -136,7 +136,7 @@ variable "aks_node_pool_autoscale_maximum" {
 }
 
 variable "apim_sku" {
-  description = "APIM SKU"
+  description = "APIM SKU. Number after the underscore determines the number of gateway units. For Premium (= Production), at least 2 units should be deploy for AZ-redundancy"
   type        = string
   default     = "Developer_1"
 }
