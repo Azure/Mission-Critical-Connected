@@ -18,6 +18,6 @@ locals {
 
   aks_ingress_fqdn = trimsuffix(azurerm_dns_a_record.cluster_subdomain.fqdn, ".") # remove trailing dot from the FQDN
 
-  apim_tier  = split(var.apim_sku, "_")[0] # extract tier from the sku name
-  apim_units = split(var.apim_sku, "_")[1] # extract tier from the sku name
+  apim_tier  = split("_", var.apim_sku)[0] # extract tier from the sku name
+  apim_units = split("_", var.apim_sku)[1] # extract tier from the sku name
 }
