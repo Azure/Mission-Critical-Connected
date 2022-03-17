@@ -51,7 +51,19 @@ You want to turn off zone redundancy for Cosmos DB. Go to [cosmosdb.tf](/src/inf
 
 For information on the sample application included in the Azure Mission-Critical reference implementation, check out the documentation [here](/docs/reference-implementation/AppDesign-Application-Design.md).
 
-The sample application can be swapped out for your own application. Since the deployment pipeline handles the infrastructure and the application, once you make a change in your application code, you can run the pipeline again to deploy the application without much overhead from the infrastructure stages.   
+The sample application can be swapped out for your own application. Since the deployment pipeline handles the infrastructure and the application, once you make a change in your application code, you can run the pipeline again to deploy the application without much overhead from the infrastructure stages.  
+
+### Application Structure
+The AlwaysOn Sample Application is split into three domains: [BackgroundProcessor](/src/app/AlwaysOn.BackgroundProcessor/), [CatalogService](/src/app/AlwaysOn.CatalogService/), and [HealthService](/src/app/AlwaysOn.HealthService/). The Background Processor handles connecting to the Cosmos DB. The Catalog Service [does something]. The Health Service [does something]. 
+
+Let's say we want to add another service to our application. 
+
+We need the following items to create and integrate our new service:
+1. A [.NET project](/src/app/AlwaysOn.CatalogService/) that contains API definitions
+2. A [Dockerfile](/src/app/AlwaysOn.CatalogService/Dockerfile) to build .NET project (service) and deploy the workload to a Kubernetes cluster
+3. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
+4. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
+
 
 ## Deployment
 
