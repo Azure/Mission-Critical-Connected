@@ -129,8 +129,8 @@ jobs: # using jobs so they each run in parallel
                          --set azure.region="$region" `
                          --set azure.baseurl="$frontDoorFqdn" `
                          --set containerimage="$fullContainerImageName" `
-                         #--set workload.domainname="$wildcardDomain" `
                          ${{ parameters.additionalHelmArguments }}
+                         #--set workload.domainname="$wildcardDomain" `
 
             if ($LastExitCode -ne 0)
             {
