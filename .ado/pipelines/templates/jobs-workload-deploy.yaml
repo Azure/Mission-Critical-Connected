@@ -126,20 +126,11 @@ jobs: # using jobs so they each run in parallel
             echo "*** Using container image $fullContainerImageName"
 
             helm upgrade --install workload-catalogservice src/app/charts/catalogservice --namespace "$(workloadNamespace)" `
-                         --dry-run --debug `
                          --set azure.region="$region" `
                          --set azure.baseurl="$frontDoorFqdn" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$wildcardDomain" `
+                         #--set workload.domainname="$wildcardDomain" `
                          ${{ parameters.additionalHelmArguments }}
-
-            helm upgrade --install workload-catalogservice src/app/charts/catalogservice --namespace "$(workloadNamespace)" `
-                         --set azure.region="$region" `
-                         --set azure.baseurl="$frontDoorFqdn" `
-                         --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$wildcardDomain" `
-                         ${{ parameters.additionalHelmArguments }}
-
 
             if ($LastExitCode -ne 0)
             {
