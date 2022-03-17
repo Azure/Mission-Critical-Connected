@@ -115,7 +115,7 @@ jobs: # using jobs so they each run in parallel
 
             # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
             # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
-            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            $wildcardDomain = $fqdn -replace '^[^.]*','\*'  # actually we replace with "\*". The backslash is escape for helm upgrade below
             echo "*** Using wildcard domain name $wildcardDomain"
 
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/catalogservice-containerImageName/catalogservice.txt"
@@ -129,7 +129,7 @@ jobs: # using jobs so they each run in parallel
                          --set azure.region="$region" `
                          --set azure.baseurl="$frontDoorFqdn" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="'$wildcardDomain'" `
+                         --set workload.domainname="$wildcardDomain" `
                          ${{ parameters.additionalHelmArguments }}
 
             if ($LastExitCode -ne 0)
