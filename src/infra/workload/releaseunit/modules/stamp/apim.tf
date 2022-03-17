@@ -27,6 +27,8 @@ resource "azurerm_api_management" "stamp" {
   protocols {
     enable_http2 = true
   }
+
+  tags = var.default_tags
 }
 
 resource "azurerm_api_management_logger" "stamp" {
