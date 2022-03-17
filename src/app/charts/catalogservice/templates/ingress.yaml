@@ -22,10 +22,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - '*.westeurope.internal.e2e.az-mc-connected.com' #{{ .Values.workload.domainname | quote }}
+    - "*.westeurope.internal.e2e.az-mc-connected.com" #{{ .Values.workload.domainname | quote }}
     secretName: {{ .Chart.Name }}-ingress-secret
   rules:
-  - host: '*.westeurope.internal.e2e.az-mc-connected.com' #{{ .Values.workload.domainname | quote }}
+  - host: "*.westeurope.internal.e2e.az-mc-connected.com" #{{ .Values.workload.domainname | quote }}
     http:
       paths:
       - path: /(api|swagger).*
