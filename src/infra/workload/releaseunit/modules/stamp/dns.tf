@@ -5,7 +5,7 @@ data "azurerm_dns_zone" "customdomain" {
 }
 
 resource "azurerm_dns_a_record" "cluster_subdomain" {
-  name                = "${local.prefix}-${local.location_short}-ingress-private"
+  name                = "${local.prefix}-ingress.${var.location}.internal"
   zone_name           = data.azurerm_dns_zone.customdomain.name
   resource_group_name = var.custom_dns_zone_resourcegroup_name
   ttl                 = 3600
