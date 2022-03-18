@@ -299,12 +299,12 @@ stages:
             $stampProperties = @{resource_group_name=$stampResourceGroup; lb_IpConfiguration_Id=$frontendIpConfigId; subnet_Id=$privateLinkSubnetId}
             $stampConfig = New-Object PSObject –Property $stampProperties
 
-            $stampConfigurations[$loation] = $stampConfig
+            $stampConfigurations[$location] = $stampConfig
           }
 
-          $flatJsonConfigs = $stampConfigurations | ConvertTo-Json -Compress -Depth 100 -AsArray
+          $flatJsonConfigs = $stampConfigurations | ConvertTo-Json -Compress -Depth 100
           echo "*** All private link service configs: " $flatJsonConfigs
-          $contentConfigs = "-var='private_link_service_targets$pool=$flatJsonConfigs'"
+          $contentConfigs = "-var='private_link_service_targets=$flatJsonConfigs'"
 
           echo "##vso[task.setvariable variable=tfParameterPrivateLinkConfigs]$contentConfigs"
 
