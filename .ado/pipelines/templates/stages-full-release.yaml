@@ -249,10 +249,18 @@ stages:
 
     - template: steps-set-pipeline-variables.yaml # load set-pipeline-variables function
 
+    # Global Resources terraform init
+    - template: steps-terraform-init.yaml # Initialize Terraform
+      parameters:
+        terraformStorageAccountName:       '$(terraformStorageAccount)'
+        terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+        terraformStateFilename:            '$(terraformStateFileGlobal)'
+        terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+
     - task: AzureCLI@2
-      displayName: 'Create Private Link for AKS Ingress'
+      displayName: 'Fetch Private Link service configuration inputs'
       inputs:
-        azureSubscription: $(azureServiceConnection)
+        azureSubscription: '$(azureServiceConnection)'
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
@@ -260,8 +268,7 @@ stages:
           # load json data from downloaded pipeline artifact json
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
-          # Retrieve current subscription id
-          $subscriptionId = $(az account show --query "id" --output tsv)
+          $stampConfigurations = @{}
 
           # loop through stamps from pipeline artifact json
           foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
@@ -272,44 +279,49 @@ stages:
             $internalLbIp = $stamp.aks_internal_lb_ip_address
             $privateLinkSubnetId = $stamp.aks_ingress_privatelink_subnetid
 
-            echo "*** Checking for existing AKS ingress private link service in region $location"
+            echo "*** Fetching internal AKS load balancer properties for stamp in region $location"
 
-            $privateLinkName = "$(prefix)$(customSuffix)-$($location)-aks-ingress-pl"
+            # Fetch the "kubernetes-internal" load balancer from the managed resource group
+            $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
 
-            $privateLinkService = az network private-link-service show -n $privateLinkName `
-                                                                        -g $stampResourceGroup | ConvertFrom-JSON
+            # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
+            $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
 
-            if($privateLinkService)
+            if(-not $ipConfig)
             {
-              echo "*** Private Link Service $privateLinkName already exists"
+              throw "*** No IP configuration found for IP address $internalLbIp"
             }
-            else
-            {
-              # Fetch the "kubernetes-internal" load balancer from the managed resource group
-              $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
 
-              # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
-              $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+            $frontendIpConfigId = $ipConfig.id
 
-              if(-not $ipConfig)
-              {
-                throw "*** No IP configuration found for IP address $internalLbIp"
-              }
+            echo "*** Fetched frontend IP configuration $frontendIpConfigId"
 
-              $frontendIpConfigId = $ipConfig.id
+            $stampProperties = @{resource_group_name=$stampResourceGroup; lb_IpConfiguration_Id=$frontendIpConfigId; subnet_Id=$privateLinkSubnetId}
+            $stampConfig = New-Object PSObject –Property $stampProperties
 
-              echo "*** Fetched frontend IP configuration $frontendIpConfigId"
-
-              echo "*** Creating new  AKS ingress private link service $privateLinkName"
-              $privateLinkService = az network private-link-service create  -g $stampResourceGroup `
-                                                                            -n $privateLinkName `
-                                                                            --subnet $privateLinkSubnetId `
-                                                                            --location $location `
-                                                                            --lb-frontend-ip-configs $frontendIpConfigId | ConvertFrom-JSON
-
-              echo "*** Created new Private Link Service $($privateLinkService.id)"
-            }
+            $stampConfigurations[$loation] = $stampConfig
           }
+
+          $flatJsonConfigs = $stampConfigurations | ConvertTo-Json -Compress -Depth 100 -AsArray
+          echo "*** All private link service configs: " $flatJsonConfigs
+          $contentConfigs = "-var='private_link_service_targets$pool=$flatJsonConfigs'"
+
+          echo "##vso[task.setvariable variable=tfParameterPrivateLinkConfigs]$contentConfigs"
+
+
+    # Global Resources deployment
+    - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
+      parameters:
+        jobName:                    'PrivateLinkInfra'
+        terraformWorkingDirectory:  '$(workingDirectory)/ingress_private_connections'
+        customPrefix:               '$(prefix)'      # custom resource prefix
+        customSuffix:               '$(customSuffix)'
+        customAttributes:           '-var=branch="$(sourceBranch)"
+                                    -var=queued_by="$(Build.QueuedBy)"
+                                    -var=contact_email="$(contactEmail)"
+                                    -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                    -var custom_fqdn=$(domainSuffix).$(envDomainName)
+                                    $(tfParameterPrivateLinkConfigs)'
 
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
