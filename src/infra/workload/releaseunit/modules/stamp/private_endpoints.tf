@@ -14,7 +14,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
 }
 
 resource "azurerm_private_endpoint" "acr" {
-  name                = "${local.prefix}-${local.location_short}-acr-pe"
+  name                = "${local.prefix}-${var.location}-acr-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -25,7 +25,7 @@ resource "azurerm_private_endpoint" "acr" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-acr-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-acr-privateserviceconnection"
     private_connection_resource_id = data.azurerm_container_registry.global.id
     is_manual_connection           = false
     subresource_names              = ["registry"]
@@ -50,7 +50,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmosdb" {
 }
 
 resource "azurerm_private_endpoint" "cosmosdb" {
-  name                = "${local.prefix}-${local.location_short}-cosmosdb-pe"
+  name                = "${local.prefix}-${var.location}-cosmosdb-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -86,7 +86,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "servicebus" {
 }
 
 resource "azurerm_private_endpoint" "eventhub_namespace" {
-  name                = "${local.prefix}-${local.location_short}-evhns-pe"
+  name                = "${local.prefix}-${var.location}-evhns-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -129,7 +129,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
 }
 
 resource "azurerm_private_endpoint" "keyvault" {
-  name                = "${local.prefix}-${local.location_short}-keyvault-pe"
+  name                = "${local.prefix}-${var.location}-keyvault-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -140,7 +140,7 @@ resource "azurerm_private_endpoint" "keyvault" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-keyvault-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-keyvault-privateserviceconnection"
     private_connection_resource_id = azurerm_key_vault.stamp.id
     is_manual_connection           = false
     subresource_names              = ["vault"]
@@ -172,7 +172,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage" {
 }
 
 resource "azurerm_private_endpoint" "blob_storage" {
-  name                = "${local.prefix}-${local.location_short}-storage-blob-pe"
+  name                = "${local.prefix}-${var.location}-storage-blob-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -183,7 +183,7 @@ resource "azurerm_private_endpoint" "blob_storage" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-storage-blob-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-storage-blob-privateserviceconnection"
     private_connection_resource_id = azurerm_storage_account.private.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
@@ -215,7 +215,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "table_storage" {
 
 resource "azurerm_private_endpoint" "table_storage" {
   depends_on          = [azurerm_private_endpoint.blob_storage] # to avoid a race condition, we deploy the private endpoints one after another
-  name                = "${local.prefix}-${local.location_short}-storage-table-pe"
+  name                = "${local.prefix}-${var.location}-storage-table-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   subnet_id           = azurerm_subnet.private_endpoints.id
@@ -226,7 +226,7 @@ resource "azurerm_private_endpoint" "table_storage" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-storage-table-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-storage-table-privateserviceconnection"
     private_connection_resource_id = azurerm_storage_account.private.id
     is_manual_connection           = false
     subresource_names              = ["table"]
