@@ -44,6 +44,7 @@ if ($mode -eq "stamp") {
 
   # load json data from downloaded terraform artifacts
   $releaseUnitInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+  $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
   # setting header with X-Azure-FDID for HTTP-based smoke tests (required to access the individual stamps directly, bypassing Front Door)
   $header = @{
@@ -52,15 +53,15 @@ if ($mode -eq "stamp") {
   }
 
   # loop through stamps from pipeline artifact json
-  foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+  foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value) {
     # from stamp we need:
-    # - aks_cluster_ingress_fqdn = endpoint to be called
+    # - buildagent_pe_ingress_fqdn = endpoint to be called from the build agent
     # - storage_web_host = ui host
 
     $props = @{
       # Individual Cluster Endpoint FQDN (from pipeline artifact json)
-      ApiEndpointFqdn = $stamp.aks_cluster_ingress_fqdn
-      UiEndpointFqdn = $stamp.storage_web_host
+      ApiEndpointFqdn = $stamp.buildagent_pe_ingress_fqdn
+      #UiEndpointFqdn = $stamp.storage_web_host
     }
 
     $obj = New-Object PSObject -Property $props
@@ -74,7 +75,7 @@ else {
 
   $props = @{
     ApiEndpointFqdn = $frontdoorFqdn
-    UiEndpointFqdn = $frontdoorFqdn
+    #UiEndpointFqdn = $frontdoorFqdn
   }
 
   $obj = New-Object PSObject -Property $props
@@ -88,7 +89,7 @@ foreach($target in $targets) {
 
   # shorthand for easier manipulation in strings
   $targetFqdn = $target.ApiEndpointFqdn
-  $targetUiFqdn = $target.UiEndpointFqdn
+  #$targetUiFqdn = $target.UiEndpointFqdn
 
   Write-Output "*** Testing $mode availability using $targetFqdn"
 
@@ -138,12 +139,12 @@ foreach($target in $targets) {
   Write-Output "*** Call - Get newly created comment ($mode)"
   Invoke-WebRequestWithRetry -Uri $getCommentUrl -Method 'GET' -Headers $header -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
 
-  Write-Output "*** Call - UI app for $mode"
-  $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
-  $responseUi
+  # Write-Output "*** Call - UI app for $mode"
+  # $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
+  # $responseUi
 
-  if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) # Check in the HTML content of the response for a known string (the page title in this case)
-  {
-    throw "*** Web UI for $targetUiFqdn doesn't contain the expected site title."
-  }
+  # if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) # Check in the HTML content of the response for a known string (the page title in this case)
+  # {
+  #   throw "*** Web UI for $targetUiFqdn doesn't contain the expected site title."
+  # }
 }
