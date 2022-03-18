@@ -357,6 +357,7 @@ stages:
     jobs:
     - deployment: 'destroyOldReleaseStampsJob' # Using a deployment job so that we can have manual approves, which are configured on the environment specificed below
       displayName: 'Destroy Old Release Unit Deployment'
+      timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
       environment: '$(environment)'
       strategy:
         runOnce:
