@@ -12,5 +12,5 @@ resource "azurerm_dns_a_record" "build_agent_ingress_private_endpoint" {
   zone_name           = data.azurerm_dns_zone.customdomain.name
   resource_group_name = data.azurerm_dns_zone.customdomain.resource_group_name
   ttl                 = 3600
-  records             = [azurerm_private_endpoint.buildagent_aks[each.key].private_service_connection.private_ip_address]
+  records             = [azurerm_private_endpoint.buildagent_aks[each.key].private_service_connection.0.private_ip_address]
 }

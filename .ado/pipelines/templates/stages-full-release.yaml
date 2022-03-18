@@ -576,6 +576,7 @@ stages:
     - ${{ if eq(parameters.environment, 'e2e') }}: # Only happens in E2E
       - deployment: 'destroyE2EGlobalResourcesJob'  # Destroy globally shared resources for this E2E env
         displayName: 'Destroy E2E Global Resources'
+        timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
         environment: '$(environment)'
         dependsOn: 'destroyOldReleaseStampsJob'
         strategy:
