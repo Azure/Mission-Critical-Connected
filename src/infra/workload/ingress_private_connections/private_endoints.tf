@@ -2,7 +2,7 @@
 
 ### AKS ingress ###
 resource "azurerm_private_endpoint" "buildagent_aks" {
-  for_each            = var.private_link_service_targets
+  for_each = var.private_link_service_targets
 
   name                = "${local.prefix}-${each.key}-built-agent-aks-ingress-pe"
   location            = data.azurerm_resource_group.buildagent.location

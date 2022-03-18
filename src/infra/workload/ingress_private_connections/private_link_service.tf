@@ -1,5 +1,5 @@
 resource "azurerm_private_link_service" "aks_ingress" {
-  for_each            = var.private_link_service_targets
+  for_each = var.private_link_service_targets
 
   name                = "${local.prefix}-${each.key}-aks-ingress-pl"
   resource_group_name = each.value.resource_group_name
