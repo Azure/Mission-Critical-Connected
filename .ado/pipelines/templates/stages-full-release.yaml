@@ -254,7 +254,7 @@ stages:
       parameters:
         terraformStorageAccountName:       '$(terraformStorageAccount)'
         terraformStorageResourceGroupName: '$(terraformResourceGroup)'
-        terraformStateFilename:            '$(terraformStateFileGlobal)'
+        terraformStateFilename:            '$(terraformStateFileReleaseUnitPrivateLink)'
         terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
 
     - task: AzureCLI@2
