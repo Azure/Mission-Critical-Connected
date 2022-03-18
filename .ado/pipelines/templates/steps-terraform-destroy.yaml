@@ -1,4 +1,5 @@
 parameters:
+#  jobName:                          '' # optional: to make this job unique
   terraformStorageAccountName: ''
   terraformStorageResourceGroupName: ''
   terraformStateFilename:           ''
@@ -17,7 +18,7 @@ steps:
 
 - task: Bash@3
   displayName: 'Terraform destroy'
-  name: 'terraformdestroy'
+#  name: 'terraformdestroy${{ parameters.jobName }}'
   retryCountOnTaskFailure: 1
   inputs:
     workingDirectory: '${{ parameters.terraformWorkingDirectory }}'
@@ -34,6 +35,7 @@ steps:
 # Delete Terraform state file. We need to run this in any case, even if variables.oldReleaseCustomSuffix=='' since Terrraform init also will always run and thereby create an empty state file
 - task: AzureCLI@2
   displayName: 'Delete Terraform state file'
+  name:
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: pscore
