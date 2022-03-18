@@ -1,5 +1,4 @@
 parameters:
-#  jobName:                          '' # optional: to make this job unique
   terraformStorageAccountName: ''
   terraformStorageResourceGroupName: ''
   terraformStateFilename:           ''
@@ -18,7 +17,6 @@ steps:
 
 - task: Bash@3
   displayName: 'Terraform destroy'
-#  name: 'terraformdestroy${{ parameters.jobName }}'
   retryCountOnTaskFailure: 1
   inputs:
     workingDirectory: '${{ parameters.terraformWorkingDirectory }}'
