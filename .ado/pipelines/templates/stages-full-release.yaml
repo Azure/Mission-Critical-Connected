@@ -307,7 +307,7 @@ stages:
                                                                             --location $location `
                                                                             --lb-frontend-ip-configs $frontendIpConfigId | ConvertFrom-JSON
 
-              echo "*** Created new Private Link Service $(privateLinkService.id)"
+              echo "*** Created new Private Link Service $($privateLinkService.id)"
             }
           }
 
