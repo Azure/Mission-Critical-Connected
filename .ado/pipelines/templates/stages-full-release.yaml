@@ -475,13 +475,29 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
+            # Terraform destroy the private endpoints and private link service for ingress
+            - template: steps-terraform-destroy.yaml
+              parameters:
+                terraformStorageAccountName:       '$(terraformStorageAccount)'
+                terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix)-privatelink.state'
+                terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+                customAttributes:        '-var=prefix="$(oldReleasePrefix)"
+                                          -var=suffix="$(oldReleaseSuffix)"
+                                          -var=branch="$(sourceBranch)"
+                                          -var=queued_by="$(Build.QueuedBy)"
+                                          -var=contact_email="$(contactEmail)"
+                                          -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                          -var=custom_dns_zone=$(envDomainName)
+                                          -var=private_link_service_targets={}'
+
             # Pick a VNet from the list of pre-provided VNets or create news one if needed
             - template: steps-get-or-create-vnet.yaml
               parameters:
                 prefix: $(oldReleasePrefix)
                 suffix: $(oldReleaseSuffix)
 
-            # Initialize Terraform for destroy
+            # Terraform destroy the stamps
             - template: steps-terraform-destroy.yaml
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
