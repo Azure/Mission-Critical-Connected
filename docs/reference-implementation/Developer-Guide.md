@@ -63,7 +63,12 @@ We need the following items to create and integrate our new service:
 2. A [Dockerfile](/src/app/AlwaysOn.CatalogService/Dockerfile) to build .NET project (service) and deploy the workload to a Kubernetes cluster
 3. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
 4. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
-5. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. 
+5. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
+
+Adding a new API with APIM
+1. Go to the [APIM Terraform template](/docs/example-code/apim.tf) and copy lines 39-63. Replace the resource name of `azurerm_api_management_api` as well as the name and display_name within the definition to the name of your api (e.g. inventoryservice-api and AlwaysOn InventoryService API).
+2. Under `azurerm_api_management_api` content_value, you need to include a reference to your [API swagger file](/docs/example-code/catalogservice-api-swagger.json) similar to the example linked here. Change the existing file reference to your new json file.
+3. Under `azurerm_api_management_api_diagnostic` or line 57 in the original code, change the `api_name` to reference your new api (e.g. azurerm_api_management_api.inventoryservice.name).
 
 
 ## Deployment
