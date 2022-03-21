@@ -38,7 +38,7 @@ You want to turn off zone redundancy for Cosmos DB. Go to [cosmosdb.tf](/src/inf
 
   You want to add another database to Cosmos DB for Inventory. You need to instantiate another database in the cosmosdb.tf and edit all the files that contain variables or variable references for database names.
 
-  1. Go to the [global varibles file](/src/infra/workload/globalresources/variables.tf). Copy and paste lines 67-71. Replace `cosmosdb_database_name` with a new name for your database (e.g. `cosmosdb_inventory_database_name`).
+  1. Go to the [global variables file](/src/infra/workload/globalresources/variables.tf). Copy and paste lines 67-71. Replace `cosmosdb_database_name` with a new name for your database (e.g. `cosmosdb_inventory_database_name`).
   2. Go to the [stamp variables file](/src/infra/workload/releaseunit/modules/stamp/variables.tf). Copy and paste lines 51-54. Replace `cosmosdb_database_name` with a new name for your database (e.g. `cosmosdb_inventory_database_name`).
   3. Go to the [release unit variables file](/src/infra/workload/releaseunit/variables.tf). Copy and paste lines 75-78. Replace `cosmosdb_database_name` with a new name for your database (e.g. `cosmosdb_inventory_database_name`).
   4. Go to the [stamp definition file](/src/infra/workload/releaseunit/stamp.tf). Copy and paste line 19. Replace both `cosmosdb_database_name` with your new name for your database from step 3 (e.g. `cosmosdb_inventory_database_name`).
@@ -63,6 +63,7 @@ We need the following items to create and integrate our new service:
 2. A [Dockerfile](/src/app/AlwaysOn.CatalogService/Dockerfile) to build .NET project (service) and deploy the workload to a Kubernetes cluster
 3. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
 4. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
+5. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. 
 
 
 ## Deployment
