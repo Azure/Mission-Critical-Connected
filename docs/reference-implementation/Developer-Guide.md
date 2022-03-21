@@ -60,10 +60,11 @@ Let's say we want to add another service to our application.
 
 We need the following items to create and integrate our new service:
 1. A [.NET project](/src/app/AlwaysOn.CatalogService/) that contains API definitions
-2. A [Dockerfile](/src/app/AlwaysOn.CatalogService/Dockerfile) to build .NET project (service) and deploy the workload to a Kubernetes cluster
-3. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
-4. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
-5. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
+2. If you need to update any connections your API needs such as an additional database, you will also need to update the [configuration file for the app](/src/app/AlwaysOn.Shared/SysConfiguration.cs). See line 53 for example of how to include a database.
+3. A [Dockerfile](/src/app/AlwaysOn.CatalogService/Dockerfile) to build .NET project (service) and deploy the workload to a Kubernetes cluster
+4. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
+5. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
+6. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
 
 Adding a new API with APIM
 1. Go to the [APIM Terraform template](/docs/example-code/apim.tf) and copy lines 39-63. Replace the resource name of `azurerm_api_management_api` as well as the name and display_name within the definition to the name of your api (e.g. inventoryservice-api and AlwaysOn InventoryService API).
