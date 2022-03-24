@@ -16,6 +16,8 @@ variables:
   value: 'v1.6.2'
 - name: 'dotnetSdkVersion'    # dotnet sdk version
   value: '6.0.200'
+- name: 'uiAppNodeVersion'    # nodejs version for the UI app
+  value: '16.x'
 
 - name: 'workloadNamespace'   # K8s namespace for workload deployment
   value: 'workload'
