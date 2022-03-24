@@ -23,6 +23,11 @@ jobs:
       command: 'test'
       workingDirectory: ${{ parameters.workingDirectory }} # path to SLN
 
+  - task: NodeTool@0
+    displayName: 'Use Node v17 for UI app'
+    inputs:
+      versionSpec: '17.x'
+
   - task: Npm@1
     displayName: 'NPM audit'
     continueOnError: true # using just as non-blocking warning about vulnerable packages
