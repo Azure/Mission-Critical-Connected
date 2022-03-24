@@ -24,7 +24,7 @@ jobs:
       workingDirectory: ${{ parameters.workingDirectory }} # path to SLN
 
   - task: NodeTool@0
-    displayName: 'Use Node v16 for UI app'
+    displayName: 'Use Node v$(uiAppNodeVersion) for UI app'
     inputs:
       versionSpec: '$(uiAppNodeVersion)'
 
