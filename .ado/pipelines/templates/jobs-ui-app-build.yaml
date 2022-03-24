@@ -9,9 +9,9 @@ jobs:
   steps:
 
   - task: NodeTool@0
-    displayName: 'Use Node v17 for UI app'
+    displayName: 'Use Node v16 for UI app'
     inputs:
-      versionSpec: '17.x'
+      versionSpec: '16.x'
 
   - task: Npm@1
     displayName: 'NPM install'
@@ -21,8 +21,6 @@ jobs:
 
   - task: Npm@1
     displayName: 'Build the static UI app for deployment'
-    env:
-      NODE_OPTIONS: '--openssl-legacy-provider' # enable node 17 support for vue-cli
     inputs:
       command: 'custom'
       customCommand: 'run build'
