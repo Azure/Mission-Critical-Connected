@@ -15,8 +15,6 @@ jobs:
 
   - task: Npm@1
     displayName: 'NPM install'
-    env:
-      NODE_OPTIONS: 'openssl-legacy-provider' # enable node 17 support for vue-cli
     inputs:
       command: 'install'
       workingDir: ${{ parameters.workingDirectory }}
@@ -24,7 +22,7 @@ jobs:
   - task: Npm@1
     displayName: 'Build the static UI app for deployment'
     env:
-      NODE_OPTIONS: 'openssl-legacy-provider' # enable node 17 support for vue-cli
+      NODE_OPTIONS: '--openssl-legacy-provider' # enable node 17 support for vue-cli
     inputs:
       command: 'custom'
       customCommand: 'run build'
