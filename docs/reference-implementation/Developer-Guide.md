@@ -78,3 +78,15 @@ Adding a new API with APIM
 ## Deployment
 
 Follow the [Getting Started Guide](./Getting-Started.md)
+
+## Development Process
+
+Developers should use the following naming conventions for creating branches: "feature/[name]", "docs/[name]", or "bug/[name]". Use the appropriate name for what your work entails. 
+
+The main branch will be protected and can only be merged into by initiating a pull request. Each pull request will have several designated approvers. 
+
+Each time you submit a PR, it will be subject to the following rules:
+  1. You must deploy your code into the e2e environment successfully before the PR can be approved. 
+  2. Once it is successful and you have resolved all comments in your PR, you need to run your deployment pipeline again on your branch and destroy the infrastructure.
+  3. Once the infrastructure has been successfully destroyed and your PR has been approved, the PR can be completed and your branch should be deleted.
+
