@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.0.0"
+      version = "3.0.2"
     }
   }
 
@@ -13,6 +13,9 @@ provider "azurerm" {
   features {
     key_vault {
       purge_soft_delete_on_destroy = false
+    }
+    resource_group {
+      prevent_deletion_if_contains_resources = false # Hardcoded to false (for all environments) as expression do not work at the moment
     }
   }
 }
