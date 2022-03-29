@@ -50,6 +50,24 @@ Sorry, we are currently experiencing high demand in this region, and cannot fulf
 
 As disabling zone redundancy is not a recommended solution for a production deployment, you should open an Azure Support Ticket to request quota for zone-redundant deployments for Cosmos DB in your required regions.
 
+---
+
+**Error:**
+
+```console
+Provisioning of resource(s) for container service afe******-<region>-aks in resource group afe******-stamp-<region>-rg failed. Message: Operation could not be completed as it results in exceeding approved Total Regional Cores quota.
+```
+
+Often times followed by more details about the affected region, the current usage and the additional required quota:
+
+```console
+Location: SwedenCentral, Current Limit: 100, Current Usage: 96, Additional Required: 8, (Minimum) New Limit Required: 104. 
+```
+
+**Description:** Occurs when a deployment requires more cores than the current quota allows.
+
+**Solution:** Either reduce the number of cores used, request more quota for a given VM SKU size in a given region or switch to another region that provides the required quota. See [regional quota requests](https://docs.microsoft.com/azure/azure-supportability/regional-quota-requests) for more details.
+
 ### Deploy Workload stage
 
 **Error:**

@@ -260,7 +260,7 @@ resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' 
       }
       osProfile: {
         computerNamePrefix: '${prefixsuffix}buildagent'
-        customData: loadFileAsBase64('cloudinit.conf')
+        customData: loadFileAsBase64('cloudinit_buildagents.conf')
         adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
       }
@@ -326,7 +326,7 @@ resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' = 
       }
       osProfile: {
         computerNamePrefix: '${prefixsuffix}jumpbox'
-        customData: loadFileAsBase64('cloudinit.conf')
+        customData: loadFileAsBase64('cloudinit_jumpservers.conf')
         adminUsername: vmssAdminUsername
         adminPassword: vmssAdminPassword
       }
