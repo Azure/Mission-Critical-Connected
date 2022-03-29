@@ -510,8 +510,5 @@ stages:
                   customAttributes:           '-var=prefix="$(prefix)"
                                                -var=environment="${{ parameters.environment }}"
                                                -var=suffix="$(globalSuffix)"
-                                               -var=branch="$(sourceBranch)"
-                                               -var=queued_by="$(Build.QueuedBy)"
-                                               -var=contact_email="$(contactEmail)"
                                                -var=''stamps=$(stampLocations)''
                                                $(terraformAdditionalParametersCustomDomains)'
