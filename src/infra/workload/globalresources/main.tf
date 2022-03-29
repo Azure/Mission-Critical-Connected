@@ -12,7 +12,8 @@ terraform {
 provider "azurerm" {
   features {
     key_vault {
-      purge_soft_delete_on_destroy = false
+      purge_soft_delete_on_destroy = false # required when purge is not possible
+      purge_soft_deleted_secrets_on_destroy = false # required when purge is not possible
     }
     resource_group {
       # Non-empty resource groups can only be deleted in e2e environments
