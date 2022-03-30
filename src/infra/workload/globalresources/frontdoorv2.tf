@@ -55,12 +55,20 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
-
   for_each = var.backends_BackendApis
 
-  name                          = each.value.address
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
-  host_name                     = each.value.address
-  weight                        = each.value.weight
+  name      = each.key
+  host_name = each.value.address
+  weight    = each.value.weight
 
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain" "test" {
+  count = var.custom_fqdn != "" ? 1 : 0
+
+  name                     = local.frontdoor_custom_frontend_name
+  frontdoor_cdn_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  host_name = ""
 }
