@@ -29,13 +29,12 @@ variable "branch" {
 variable "queued_by" {
   description = "Name of the user who has queued the pipeline run that has deployed this environment. Used as an Azure Resource Tag."
   type        = string
-  default     = "n/a"
+  default     = "not set"
 }
 
 variable "environment" {
   description = "Environment - int, prod or e2e"
   type        = string
-  default     = "int"
 }
 
 variable "contact_email" {
