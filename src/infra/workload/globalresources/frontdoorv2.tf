@@ -1,6 +1,8 @@
 resource "azurerm_cdn_frontdoor_profile" "main" {
   name                                         = local.frontdoor_name
   resource_group_name                          = azurerm_resource_group.global.name
+ 
+  sku_name = "Premium_AzureFrontDoor"
 
   tags = local.default_tags
 }
