@@ -6,14 +6,14 @@ parameters:
 
 steps:
 # Install Terraform tooling
-#- task: Bash@3
-#  displayName: 'Install Terraform CLI v$(terraformVersion)'
-#  inputs:
-#    targetType: 'inline'
-#    script: |
-#      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-#      sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-#      sudo apt-get update && sudo apt install terraform=$(terraformVersion)
+- task: Bash@3
+  displayName: 'Install Terraform CLI v$(terraformVersion)'
+  inputs:
+    targetType: 'inline'
+    script: |
+      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      sudo apt-get update && sudo apt install terraform=$(terraformVersion)
 
 - task: GoTool@0
   displayName: 'Install Go tooling'
