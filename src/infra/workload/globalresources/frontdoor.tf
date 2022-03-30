@@ -1,6 +1,6 @@
 resource "azurerm_frontdoor" "main" {
-  name                                         = local.frontdoor_name
-  resource_group_name                          = azurerm_resource_group.global.name
+  name                = local.frontdoor_name
+  resource_group_name = azurerm_resource_group.global.name
 
   tags = local.default_tags
 
