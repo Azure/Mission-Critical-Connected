@@ -26,7 +26,7 @@ steps:
     targetType: 'inline'
     script: |
       # Install prerequisites
-      sudo apt-get install build-essential
+      sudo apt-get install build-essential -y
 
       # define custom terraform azurerm provider repo and branch
       SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
