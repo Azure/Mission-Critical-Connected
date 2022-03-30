@@ -25,11 +25,15 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      # Install prerequisites
+      sudo apt-get install build-essential
+
       # define custom terraform azurerm provider repo and branch
       SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
       SOURCE_BRANCH=r-frontdoor-profile
       # making sure that GOPATH is set
       export GOPATH=~/go
+
       # create and enter the required directories
       mkdir -p $GOPATH/src/github.com/hashicorp
       cd $GOPATH/src/github.com/hashicorp
