@@ -151,6 +151,19 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 }
 
+resource "azurerm_cdn_frontdoor_route" "staticstorage" {
+  name                          = "StaticStorage"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
+  enabled                       = true
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+
+  link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+
+  cdn_frontdoor_origin_ids = [
+    azurerm_cdn_frontdoor_origin.staticstorage.*.id
+  ]
+}
+
 #resource "azurerm_cdn_frontdoor_route" "backendapis" {
 #  name                          = "BackendAPIs"
 #  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
