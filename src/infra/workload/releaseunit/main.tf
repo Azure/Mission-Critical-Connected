@@ -11,6 +11,11 @@ terraform {
 
 provider "azurerm" {
   features {
+    resource_group {
+      # Allows the deletion of non-empty resource groups
+      # This is required to delete rgs with stale resources left
+      prevent_deletion_if_contains_resources = false
+    }
     key_vault {
       recover_soft_deleted_key_vaults       = true
       purge_soft_delete_on_destroy          = false # required when purge is not possible
