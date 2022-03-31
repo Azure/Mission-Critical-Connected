@@ -47,6 +47,11 @@ jobs: # using jobs so they each run in parallel
                           --set azure.region="$region" `
                           ${{ parameters.additionalHelmArguments }}
 
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of healthservice"
+            }
+
             # Wait for healthservice-deploy k8s deployment to come up
             $retrycount = 0;
             $maxretrycount = 5
@@ -108,6 +113,11 @@ jobs: # using jobs so they each run in parallel
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
+            # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
+            # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
+            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            echo "*** Using wildcard domain name $wildcardDomain"
+
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/catalogservice-containerImageName/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
@@ -119,8 +129,13 @@ jobs: # using jobs so they each run in parallel
                          --set azure.region="$region" `
                          --set azure.baseurl="$frontDoorFqdn" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$fqdn" `
+                         --set workload.domainname="$wildcardDomain" `
                          ${{ parameters.additionalHelmArguments }}
+
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of catalogservice"
+            }
 
             # Wait for CatalogService-deploy k8s deployment to come up
             $retrycount = 0;
@@ -192,6 +207,11 @@ jobs: # using jobs so they each run in parallel
                          --set containerimage="$fullContainerImageName" `
                          --set azure.region="$region" `
                          ${{ parameters.additionalHelmArguments }}
+
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of backgroundprocessor"
+            }
 
             # Wait for BackgroundProcessor-deploy k8s deployment to come up
             $retrycount = 0;

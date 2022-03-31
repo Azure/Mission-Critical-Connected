@@ -22,10 +22,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - {{ .Values.workload.domainname }}
+    - {{ .Values.workload.domainname | quote }}
     secretName: {{ .Chart.Name }}-ingress-secret
   rules:
-  - host: {{ .Values.workload.domainname }}
+  - host: {{ .Values.workload.domainname | quote }}
     http:
       paths:
       - path: /(api|swagger).*

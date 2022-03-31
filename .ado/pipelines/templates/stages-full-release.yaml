@@ -237,9 +237,95 @@ stages:
   jobs:
   - template: jobs-workload-deploy.yaml
 
+- stage: createIngressPrivateLink
+  displayName: 'Create Private Link for AKS Ingress'
+  dependsOn: deployworkload
+  jobs:
+  - job: createIngressPrivateLinkJob
+    displayName: 'Create Private Link for AKS Ingress'
+    steps:
+
+    - download: current # download pipeline artifacts
+
+    - template: steps-set-pipeline-variables.yaml # load set-pipeline-variables function
+
+    # Global Resources terraform init
+    - template: steps-terraform-init.yaml # Initialize Terraform
+      parameters:
+        terraformStorageAccountName:       '$(terraformStorageAccount)'
+        terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+        terraformStateFilename:            '$(terraformStateFileReleaseUnitPrivateLink)'
+        terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+
+    - task: AzureCLI@2
+      displayName: 'Fetch Private Link service configuration inputs'
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+
+          # load json data from downloaded pipeline artifact json
+          $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+
+          $stampConfigurations = @{}
+
+          # loop through stamps from pipeline artifact json
+          foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+
+            $location = $stamp.location
+            $stampResourceGroup = $stamp.resource_group_name
+            $nodeResourceGroup = $stamp.aks_node_resourcegroup_name
+            $internalLbIp = $stamp.aks_internal_lb_ip_address
+            $privateLinkSubnetId = $stamp.aks_ingress_privatelink_subnetid
+
+            echo "*** Fetching internal AKS load balancer properties for stamp in region $location"
+
+            # Fetch the "kubernetes-internal" load balancer from the managed resource group
+            $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
+
+            # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
+            $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+
+            if(-not $ipConfig)
+            {
+              throw "*** No IP configuration found for IP address $internalLbIp"
+            }
+
+            $frontendIpConfigId = $ipConfig.id
+
+            echo "*** Fetched frontend IP configuration $frontendIpConfigId"
+
+            $stampProperties = @{resource_group_name=$stampResourceGroup; lb_IpConfiguration_Id=$frontendIpConfigId; subnet_Id=$privateLinkSubnetId}
+            $stampConfig = New-Object PSObject –Property $stampProperties
+
+            $stampConfigurations[$location] = $stampConfig
+          }
+
+          $flatJsonConfigs = $stampConfigurations | ConvertTo-Json -Compress -Depth 100
+          echo "*** All private link service configs: " $flatJsonConfigs
+          $contentConfigs = "-var='private_link_service_targets=$flatJsonConfigs'"
+
+          echo "##vso[task.setvariable variable=tfParameterPrivateLinkConfigs]$contentConfigs"
+
+
+    # Global Resources deployment
+    - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
+      parameters:
+        jobName:                    'PrivateLinkInfra'
+        terraformWorkingDirectory:  '$(workingDirectory)/ingress_private_connections'
+        customPrefix:               '$(prefix)'      # custom resource prefix
+        customSuffix:               '$(customSuffix)'
+        customAttributes:           '-var=branch="$(sourceBranch)"
+                                    -var=queued_by="$(Build.QueuedBy)"
+                                    -var=contact_email="$(contactEmail)"
+                                    -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                    -var custom_dns_zone=$(envDomainName)
+                                    $(tfParameterPrivateLinkConfigs)'
+
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
-  dependsOn: deployworkload
+  dependsOn: createIngressPrivateLink
   jobs:
   - template: jobs-init-sampledata.yaml
 
@@ -271,6 +357,7 @@ stages:
     jobs:
     - deployment: 'destroyOldReleaseStampsJob' # Using a deployment job so that we can have manual approves, which are configured on the environment specificed below
       displayName: 'Destroy Old Release Unit Deployment'
+      timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
       environment: '$(environment)'
       strategy:
         runOnce:
@@ -388,13 +475,29 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
+            # Terraform destroy the private endpoints and private link service for ingress
+            - template: steps-terraform-destroy.yaml
+              parameters:
+                terraformStorageAccountName:       '$(terraformStorageAccount)'
+                terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix)-privatelink.state'
+                terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+                customAttributes:        '-var=prefix="$(oldReleasePrefix)"
+                                          -var=suffix="$(oldReleaseSuffix)"
+                                          -var=branch="$(sourceBranch)"
+                                          -var=queued_by="$(Build.QueuedBy)"
+                                          -var=contact_email="$(contactEmail)"
+                                          -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                          -var=custom_dns_zone=$(envDomainName)
+                                          -var=private_link_service_targets={}'
+
             # Pick a VNet from the list of pre-provided VNets or create news one if needed
             - template: steps-get-or-create-vnet.yaml
               parameters:
                 prefix: $(oldReleasePrefix)
                 suffix: $(oldReleaseSuffix)
 
-            # Initialize Terraform for destroy
+            # Terraform destroy the stamps
             - template: steps-terraform-destroy.yaml
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
@@ -489,6 +592,7 @@ stages:
     - ${{ if eq(parameters.environment, 'e2e') }}: # Only happens in E2E
       - deployment: 'destroyE2EGlobalResourcesJob'  # Destroy globally shared resources for this E2E env
         displayName: 'Destroy E2E Global Resources'
+        timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
         environment: '$(environment)'
         dependsOn: 'destroyOldReleaseStampsJob'
         strategy:
