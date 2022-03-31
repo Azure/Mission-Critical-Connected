@@ -114,8 +114,19 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
 
+resource "azurerm_cdn_frontdoor_route" "globalstorage" {
+  name                          = "GlobalStorage"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
+  enabled                       = true
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+  cdn_frontdoor_origin_ids = [
+    azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
+    azurerm_cdn_frontdoor_origin.globalstorage-secondary.id
+  ]
+}
+
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
-  for_each = toset(keys({for i, r in var.backends_BackendApis:  i => r}))
+  for_each = toset(keys({ for i, r in var.backends_BackendApis : i => r }))
 
   name      = replace(var.backends_BackendApis[each.value]["address"], ".", "-")
   host_name = var.backends_BackendApis[each.value]["address"]
@@ -125,7 +136,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
-  for_each = toset(keys({for i, r in var.backends_StaticStorage:  i => r}))
+  for_each = toset(keys({ for i, r in var.backends_StaticStorage : i => r }))
 
   name      = replace(var.backends_StaticStorage[each.value]["address"], ".", "-")
   host_name = var.backends_StaticStorage[each.value]["address"]
@@ -134,13 +145,13 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 }
 
-resource "azurerm_cdn_frontdoor_route" "backendapis" {
-  name                          = "BackendAPIs"
-  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
-  enabled                       = true
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.backendapi.*.id]
-}
+#resource "azurerm_cdn_frontdoor_route" "backendapis" {
+#  name                          = "BackendAPIs"
+#  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
+#  enabled                       = true
+#  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
+#  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.backendapi.*.id]
+#}
 
 resource "azurerm_cdn_frontdoor_custom_domain" "test" {
   count = var.custom_fqdn != "" ? 1 : 0
