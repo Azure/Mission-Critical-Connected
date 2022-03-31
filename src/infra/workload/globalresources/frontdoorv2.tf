@@ -99,7 +99,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
   weight     = 1
   priority   = 1
 
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+  cdn_frontdoor_origin_host_header = azurerm_storage_account.global.primary_web_host
+  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
 
 resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
@@ -111,7 +112,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
   weight     = 1
   priority   = 2
 
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+  cdn_frontdoor_origin_host_header = azurerm_storage_account.global.secondary_web_host
+  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
 
 resource "azurerm_cdn_frontdoor_route" "globalstorage" {
@@ -132,7 +134,8 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   host_name = var.backends_BackendApis[each.value]["address"]
   weight    = var.backends_BackendApis[each.value]["weight"]
 
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
+  cdn_frontdoor_origin_host_header = var.backends_BackendApis[each.value]["address"]
+  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.backendapis.id
 }
 
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
@@ -142,7 +145,8 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   host_name = var.backends_StaticStorage[each.value]["address"]
   weight    = var.backends_StaticStorage[each.value]["weight"]
 
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+  cdn_frontdoor_origin_host_header = var.backends_StaticStorage[each.value]["address"]
+  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 }
 
 #resource "azurerm_cdn_frontdoor_route" "backendapis" {
