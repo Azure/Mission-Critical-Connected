@@ -7,19 +7,10 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
   tags     = local.default_tags
 }
 
+# Default Front Door endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "default" {
   name    = local.frontdoor_default_frontend_name
   enabled = true
-
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
-}
-
-resource "azurerm_cdn_frontdoor_endpoint" "cname" {
-  count = azurerm_dns_cname_record.app_subdomain != "" ? 1 : 0
-
-  name    = local.frontdoor_custom_frontend_name
-  enabled = true
-  tags    = local.default_tags
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 }
@@ -99,6 +90,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
   weight     = 1
   priority   = 1
 
+  enable_health_probes = true
+
   cdn_frontdoor_origin_host_header = azurerm_storage_account.global.primary_web_host
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
@@ -111,6 +104,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
   https_port = 443
   weight     = 1
   priority   = 2
+
+  enable_health_probes = true
 
   cdn_frontdoor_origin_host_header = azurerm_storage_account.global.secondary_web_host
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
@@ -134,6 +129,8 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   host_name = var.backends_BackendApis[each.value]["address"]
   weight    = var.backends_BackendApis[each.value]["weight"]
 
+  enable_health_probes = var.backends_BackendApis[each.value]["enabled"]
+
   cdn_frontdoor_origin_host_header = var.backends_BackendApis[each.value]["address"]
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.backendapis.id
 }
@@ -144,6 +141,8 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   name      = replace(var.backends_StaticStorage[each.value]["address"], ".", "-")
   host_name = var.backends_StaticStorage[each.value]["address"]
   weight    = var.backends_StaticStorage[each.value]["weight"]
+
+  enable_health_probes = var.backends_StaticStorage[each.value]["enabled"]
 
   cdn_frontdoor_origin_host_header = var.backends_StaticStorage[each.value]["address"]
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.staticstorage.id
