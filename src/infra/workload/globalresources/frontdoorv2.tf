@@ -24,6 +24,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "cname" {
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 }
 
+# Front Door Origin Group used for Backend APIs hosted on AKS
 resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   name = "backendapis"
 
@@ -45,6 +46,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   }
 }
 
+# Front Door Origin Group used for Global Storage Accounts
 resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   name = "GlobalStorage"
 
@@ -66,6 +68,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 }
 
+# Front Door Origin Group used for Static Storage Accounts
 resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   name = "StaticStorage"
 
@@ -88,7 +91,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
-  name      = azurerm_storage_account.global.primary_web_host
+  name      = "primary"
   host_name = azurerm_storage_account.global.primary_web_host
 
   http_port  = 80
@@ -100,7 +103,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
-  name      = azurerm_storage_account.global.secondary_web_host
+  name      = "secondary"
   host_name = azurerm_storage_account.global.secondary_web_host
 
   http_port  = 80
@@ -114,7 +117,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = toset(keys({for i, r in var.backends_BackendApis:  i => r}))
 
-  name      = split(var.backends_BackendApis[each.value]["address"], ".")[0]
+  name      = split(var.backends_BackendApis[each.value]["address"], ".")[1]
   host_name = var.backends_BackendApis[each.value]["address"]
   weight    = var.backends_BackendApis[each.value]["weight"]
 
@@ -124,7 +127,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = toset(keys({for i, r in var.backends_StaticStorage:  i => r}))
 
-  name      = split(var.backends_StaticStorage[each.value]["address"], ".")[0]
+  name      = split(var.backends_StaticStorage[each.value]["address"], ".")[1]
   host_name = var.backends_StaticStorage[each.value]["address"]
   weight    = var.backends_StaticStorage[each.value]["weight"]
 
