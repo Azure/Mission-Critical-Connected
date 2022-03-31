@@ -54,6 +54,36 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   }
 }
 
+resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
+  name = "GlobalStorage"
+
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+}
+
+resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
+  name      = azurerm_storage_account.global.primary_web_host
+  host_name = azurerm_storage_account.global.primary_web_host
+
+  http_port  = 80
+  https_port = 443
+  weight     = 1
+  priority   = 1
+
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+}
+
+resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
+  name      = azurerm_storage_account.global.secondary_web_host
+  host_name = azurerm_storage_account.global.secondary_web_host
+
+  http_port  = 80
+  https_port = 443
+  weight     = 1
+  priority   = 2
+
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+}
+
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = var.backends_BackendApis
 
@@ -70,5 +100,10 @@ resource "azurerm_cdn_frontdoor_custom_domain" "test" {
   name                     = local.frontdoor_custom_frontend_name
   frontdoor_cdn_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-  host_name = ""
+  host_name = azurerm_dns_cname_record.app_subdomain
+
+  tls_settings {
+    certificate_type    = "ManagedCertificate"
+    minimum_tls_version = "TLS12"
+  }
 }
