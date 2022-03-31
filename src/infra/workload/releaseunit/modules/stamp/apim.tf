@@ -31,6 +31,14 @@ resource "azurerm_api_management" "stamp" {
   tags = var.default_tags
 }
 
+resource "azurerm_api_management_backend" "aks_cluster" {
+  name                = "aks-cluster"
+  resource_group_name = azurerm_resource_group.stamp.name
+  api_management_name = azurerm_api_management.stamp.name
+  protocol            = "http"
+  url                 = "https://${local.aks_ingress_fqdn}/"
+}
+
 resource "azurerm_api_management_logger" "stamp" {
   name                = "apimlogger"
   api_management_name = azurerm_api_management.stamp.name
@@ -49,7 +57,6 @@ resource "azurerm_api_management_api" "catalogservice" {
   display_name        = "AlwaysOn CatalogService API"
   path                = ""
   protocols           = ["https"]
-  service_url         = "https://${local.aks_ingress_fqdn}/"
 
   subscription_required = false
 
@@ -76,7 +83,6 @@ resource "azurerm_api_management_api" "healthservice" {
   display_name        = "AlwaysOn HealthService API"
   path                = "healthservice"
   protocols           = ["https"]
-  service_url         = "https://${local.aks_ingress_fqdn}/"
 
   subscription_required = false
 
@@ -107,7 +113,8 @@ resource "azurerm_api_management_named_value" "front_door_id_header" {
 resource "azurerm_api_management_policy" "all_apis_policy" {
   depends_on = [
     # The named value is referenced in the policy, so it needs to exist first
-    azurerm_api_management_named_value.front_door_id_header
+    azurerm_api_management_named_value.front_door_id_header,
+    azurerm_api_management_backend.aks_cluster
   ]
   api_management_id = azurerm_api_management.stamp.id
   xml_content       = file("./apim/apim-api-policy.xml")

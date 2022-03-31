@@ -4,6 +4,8 @@
         <check-header name="X-Azure-FDID" failed-check-httpcode="401" failed-check-error-message="Not authorized" ignore-case="true">
             <value>{{azure-frontdoor-id-header}}</value>
         </check-header>
+        <!-- send all requests to our AKS backend -->
+        <set-backend-service backend-id="aks-cluster" />
     </inbound>
     <backend>
         <forward-request />
