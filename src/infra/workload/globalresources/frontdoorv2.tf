@@ -114,7 +114,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = toset(keys({for i, r in var.backends_BackendApis:  i => r}))
 
-  name      = var.backends_BackendApis[each.value]["address"]
+  name      = split(var.backends_BackendApis[each.value]["address"], ".")[0]
   host_name = var.backends_BackendApis[each.value]["address"]
   weight    = var.backends_BackendApis[each.value]["weight"]
 
@@ -124,7 +124,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = toset(keys({for i, r in var.backends_StaticStorage:  i => r}))
 
-  name      = var.backends_StaticStorage[each.value]["address"]
+  name      = split(var.backends_StaticStorage[each.value]["address"], ".")[0]
   host_name = var.backends_StaticStorage[each.value]["address"]
   weight    = var.backends_StaticStorage[each.value]["weight"]
 
