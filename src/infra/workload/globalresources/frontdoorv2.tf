@@ -98,7 +98,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "test" {
   count = var.custom_fqdn != "" ? 1 : 0
 
   name                     = local.frontdoor_custom_frontend_name
-  frontdoor_cdn_profile_id = azurerm_cdn_frontdoor_profile.main.id
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
   host_name = azurerm_dns_cname_record.app_subdomain
 
