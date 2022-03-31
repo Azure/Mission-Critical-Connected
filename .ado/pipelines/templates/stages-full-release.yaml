@@ -614,9 +614,10 @@ stages:
                   terraformStateFilename:             '$(terraformStateFileGlobal)'
                   terraformWorkingDirectory:          '$(workingDirectory)/globalresources'
                   customAttributes:           '-var=prefix="$(prefix)"
-                                              -var=suffix="$(globalSuffix)"
-                                              -var=branch="$(sourceBranch)"
-                                              -var=queued_by="$(Build.QueuedBy)"
-                                              -var=contact_email="$(contactEmail)"
-                                              -var=''stamps=$(stampLocations)''
-                                              -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=$(domainSuffix).$(envDomainName)'
+                                               -var=environment="${{ parameters.environment }}"
+                                               -var=suffix="$(globalSuffix)"
+                                               -var=branch="$(sourceBranch)"
+                                               -var=queued_by="$(Build.QueuedBy)"
+                                               -var=contact_email="$(contactEmail)"
+                                               -var=''stamps=$(stampLocations)''
+                                               -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_fqdn=$(domainSuffix).$(envDomainName)'
