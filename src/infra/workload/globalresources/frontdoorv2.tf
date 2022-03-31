@@ -117,7 +117,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 
-  link_to_default_domain = var.custom_fqdn == "" ? false : true
+  link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
