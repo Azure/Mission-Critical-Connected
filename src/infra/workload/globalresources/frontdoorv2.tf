@@ -117,6 +117,14 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 
+  patterns_to_match = [
+    "/images/*"
+  ]
+
+  supported_protocols = [
+    "HTTPS"
+  ]
+
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
@@ -156,6 +164,14 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+
+  patterns_to_match = [
+    "/*"
+  ]
+
+  supported_protocols = [
+    "HTTPS"
+  ]
 
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
