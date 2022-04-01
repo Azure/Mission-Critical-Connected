@@ -117,9 +117,8 @@ resource "azurerm_api_management_named_value" "front_door_id_header" {
 # Base bolicy which gets applied to all APIs. Contains the frontdoor id check
 resource "azurerm_api_management_policy" "all_apis_policy" {
   depends_on = [
-    # The named value is referenced in the policy, so it needs to exist first
-    azurerm_api_management_named_value.front_door_id_header,
-    azurerm_api_management_backend.aks_cluster
+    azurerm_api_management_named_value.front_door_id_header, # The named value is referenced in the policy, so it needs to exist first
+    azurerm_api_management_backend.aks_cluster               # The backend is referenced in the policy, so it needs to exist first
   ]
   api_management_id = azurerm_api_management.stamp.id
   xml_content       = file("./apim/apim-api-policy.xml")
