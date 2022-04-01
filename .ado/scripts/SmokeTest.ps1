@@ -53,7 +53,7 @@ if ($mode -eq "stamp") {
   }
 
   # loop through stamps from pipeline artifact json
-  foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value) {
+  foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
     # from stamp we need:
     # - apim_fqdn = endpoint to be called
     # - storage_web_host = ui host
