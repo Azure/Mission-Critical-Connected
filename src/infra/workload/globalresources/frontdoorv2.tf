@@ -122,7 +122,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
 
   supported_protocols = [
-    "HTTPS"
+    "Https"
   ]
 
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
@@ -150,7 +150,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   name                          = "BackendAPI"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapi.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
 
   patterns_to_match = [
     "/api/*", 
@@ -159,7 +159,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   ]
 
   supported_protocols = [
-    "HTTPS"
+    "Https"
   ]
 
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
@@ -194,7 +194,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 
   supported_protocols = [
-    "HTTPS"
+    "Https"
   ]
 
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
@@ -204,14 +204,6 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
     azurerm_cdn_frontdoor_origin.globalstorage-secondary.id # cannot be empty - requires a valid origin resource id
   ]
 }
-
-#resource "azurerm_cdn_frontdoor_route" "backendapis" {
-#  name                          = "BackendAPIs"
-#  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
-#  enabled                       = true
-#  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
-#  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.backendapi.*.id]
-#}
 
 resource "azurerm_cdn_frontdoor_custom_domain" "test" {
   count = var.custom_fqdn != "" ? 1 : 0
