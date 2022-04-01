@@ -146,6 +146,30 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.backendapis.id
 }
 
+resource "azurerm_cdn_frontdoor_route" "backendapi" {
+  name                          = "BackendAPI"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
+  enabled                       = true
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapi.id
+
+  patterns_to_match = [
+    "/api/*", 
+    "/health/*",
+    "/swagger/*"
+  ]
+
+  supported_protocols = [
+    "HTTPS"
+  ]
+
+  link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+
+  cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
+    azurerm_cdn_frontdoor_origin.globalstorage-primary.id, # cannot be empty - requires a valid origin resource id
+    azurerm_cdn_frontdoor_origin.globalstorage-secondary.id # cannot be empty - requires a valid origin resource id
+  ]
+}
+
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = toset(keys({ for i, r in var.backends_StaticStorage : i => r }))
 
