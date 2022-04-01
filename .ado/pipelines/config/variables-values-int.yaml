@@ -25,4 +25,4 @@ variables:
 - name: 'envDnsZoneRG'
   value: '' #'ao-dns-rg'                        # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
 - name: 'envDomainName'
-  value: '' #'int.shop-private.always-on.app'   # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
+  value: '' #'int.shop-private.mission-critical.app'   # <===== CHANGE THIS OR LEAVE THE VALUE BLANK
