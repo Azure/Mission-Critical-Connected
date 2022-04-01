@@ -160,7 +160,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [
-    azurerm_cdn_frontdoor_origin.staticstorage.*.id
+    azurerm_cdn_frontdoor_origin.staticstorage[*].id
   ]
 }
 
