@@ -34,7 +34,7 @@ output "aks_internal_lb_ip_address" {
 output "apim_fqdn" {
   value = replace(azurerm_api_management.stamp.gateway_url, "https://", "")
 }
-  
+
 # ID of the subnet in which the private link for the ingress will be created
 output "aks_ingress_privatelink_subnetid" {
   value = azurerm_subnet.aks_pl.id

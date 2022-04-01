@@ -37,6 +37,11 @@ resource "azurerm_api_management_backend" "aks_cluster" {
   api_management_name = azurerm_api_management.stamp.name
   protocol            = "http"
   url                 = "https://${local.aks_ingress_fqdn}/"
+
+  tls {
+    validate_certificate_chain = true
+    validate_certificate_name  = true
+  }
 }
 
 resource "azurerm_api_management_logger" "stamp" {
