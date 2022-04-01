@@ -24,10 +24,10 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   session_affinity = false
 
   health_probe {
-    protocol            = "Http"
-    request_type        = "GET"
-    path                = "/"
-    interval_in_seconds = 240
+    protocol            = "Https"
+    request_type        = "HEAD"
+    path                = "/health/stamp"
+    interval_in_seconds = 30
   }
 
   load_balancing {
@@ -44,10 +44,10 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   session_affinity = false
 
   health_probe {
-    protocol            = "Http"
-    request_type        = "GET"
-    path                = "/"
-    interval_in_seconds = 240
+    protocol            = "Https"
+    request_type        = "HEAD"
+    path                = "/images/health.check"
+    interval_in_seconds = 30
   }
 
   load_balancing {
@@ -66,10 +66,10 @@ resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   session_affinity = false
 
   health_probe {
-    protocol            = "Http"
-    request_type        = "GET"
+    protocol            = "Https"
+    request_type        = "HEAD"
     path                = "/"
-    interval_in_seconds = 240
+    interval_in_seconds = 30
   }
 
   load_balancing {
