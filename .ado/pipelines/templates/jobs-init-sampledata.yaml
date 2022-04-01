@@ -19,7 +19,7 @@ jobs:
           $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
 
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
-          
+
           $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
 
@@ -30,7 +30,7 @@ jobs:
 
           # Take the first stamp. We only need to upload the test data once as it will be automatically globally distributed
           # We cannot send it through Front Door at this point, since the new stamp might not be wired up yet in AFD
-          $stamp = $privateLinkInfraDeployOutput.stamp_properties.value[0]
+          $stamp = $releaseUnitInfraDeployOutput.stamp_properties.value[0]
 
           # $url = "https://$($stamp.buildagent_pe_ingress_fqdn)/api/1.0/CatalogItem"
           # TODO REMOVE. JUST FOR TESTING
