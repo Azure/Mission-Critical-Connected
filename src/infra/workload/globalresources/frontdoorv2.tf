@@ -160,8 +160,8 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   link_to_default_domain = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
-    azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
-    azurerm_cdn_frontdoor_origin.globalstorage-secondary.id
+    azurerm_cdn_frontdoor_origin.globalstorage-primary.id, # cannot be empty - requires a valid origin resource id
+    azurerm_cdn_frontdoor_origin.globalstorage-secondary.id # cannot be empty - requires a valid origin resource id
   ]
 }
 
