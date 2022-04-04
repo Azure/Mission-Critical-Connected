@@ -65,9 +65,11 @@ We need the following items to create and integrate our new service:
 4. A [Helm Chart](/src/app/charts/catalogservice/Chart.yaml) to define our service for Kubernetes 
 5. A [set of values for the Helm Chart](/src/app/charts/catalogservice/values.yaml) that defines parameters for the service such as the ports for the workload, scaling, and connection information to Front Door, Ingress, etc.
 6. KeyVault Integration is setup in the [Program.cs file](/src/app/AlwaysOn.CatalogService/Program.cs) of each service. 
-7. Any configurations such as connection to Cosmos DB, region name, etc. are set in the [SysConfiguration file](/src/app/AlwaysOn.Shared/SysConfiguration.cs) of the [Shared project](/src/app/AlwaysOn.Shared/). 
-8. To access data from Cosmos DB, there is a [service](/src/app/AlwaysOn.Shared/Services/CosmosDbService.cs) created in the [Shared project](/src/app/AlwaysOn.Shared/) that is injected into the services. It contains calls to CRUD on the database. 
-9. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
+7. Update the [configuration.yaml](/.ado/pipelines/config/configuration.yaml) to include the new Docker image and Dockerfile. See lines 24-27 for an example.
+8. Update the [pipeline deployment stages](/.ado/pipelines/templates/stages-full-release.yaml) to include a build job for our new service. See lines 207-211 under the build application stage for an example. 
+9. Any configurations such as connection to Cosmos DB, region name, etc. are set in the [SysConfiguration file](/src/app/AlwaysOn.Shared/SysConfiguration.cs) of the [Shared project](/src/app/AlwaysOn.Shared/). 
+10. To access data from Cosmos DB, there is a [service](/src/app/AlwaysOn.Shared/Services/CosmosDbService.cs) created in the [Shared project](/src/app/AlwaysOn.Shared/) that is injected into the services. It contains calls to CRUD on the database. 
+11. If you have integrated APIM, you will also need to update the [APIM Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
 
 Adding a new API with APIM
 1. Go to the [APIM Terraform template](/docs/example-code/apim.tf) and copy lines 39-63. Replace the resource name of `azurerm_api_management_api` as well as the name and display_name within the definition to the name of your api (e.g. inventoryservice-api and AlwaysOn InventoryService API).
