@@ -8,3 +8,5 @@ apim_sku = "Developer_1"
 
 event_hub_thoughput_units     = 1
 event_hub_enable_auto_inflate = false
+
+ai_adaptive_sampling          = true # enables/disables adaptive sampling for Application Insights; disabled means that 100 % of telemetry will be collected
