@@ -10,7 +10,5 @@ resource "azurerm_public_ip" "apim" {
 
   zones = ["1", "2", "3"]
 
-  zones = [ "1", "2", "3" ]
-
   tags = var.default_tags
 }

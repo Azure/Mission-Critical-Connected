@@ -76,6 +76,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Install cert-manager $(certManagerVersion) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
