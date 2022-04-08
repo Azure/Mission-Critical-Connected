@@ -160,7 +160,7 @@ jobs:
 
           echo "*** Retrieved Kubelet clientId $kubeletIdentityClientId for cluster $clusterName"
 
-          helm upgrade --install csi-secrets-driver src/config/charts/csi-secrets-driver `
+          helm upgrade --install csi-secrets-driver src/config/csi-secrets-driver/chart/csi-secrets-driver-config `
                         --namespace "$(workloadNamespace)" `
                         --set azure.tenantId=$tenantId `
                         --set azure.keyVaultName="$keyVaultName" `
