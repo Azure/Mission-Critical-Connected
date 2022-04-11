@@ -9,6 +9,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Install ingress-nginx $(ingressNginxVersion) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -41,7 +42,7 @@ jobs:
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
                 --namespace kube-system `
-                --values src/config/ingress/values.helm.yaml `
+                --values src/config/ingress-nginx/values.helm.yaml `
                 --set controller.service.loadBalancerIP="$aksIngressIp" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="aks-lb-snet" `
@@ -50,6 +51,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Configure OMSAgent (Container Insights) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -112,13 +114,13 @@ jobs:
           $kubeletIdentityClientId = $stamp.aks_kubelet_clientid
 
           echo "*** Setting up cert-manager ClusterIssuer for Azure DNS-based Let's Encrypt issuer with domain name $(envDomainName)"
-          helm upgrade --install cert-manager-azure-dns src/config/charts/cert-manager `
-                        --namespace $certManagerNamespace `
-                        --set azure.subscriptionId=$subscriptionId `
-                        --set azure.dnsZoneName="$(envDomainName)" `
-                        --set azure.dnsZoneResourceGroupName="$(envDnsZoneRG)" `
-                        --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
-                        --set letsencrypt.contactEmail="$(contactEmail)"
+          helm upgrade --install cert-manager-config src/config/cert-manager/chart/cert-manager-config`
+                       --namespace $certManagerNamespace `
+                       --set azure.subscriptionId=$subscriptionId `
+                       --set azure.dnsZoneName="$(envDomainName)" `
+                       --set azure.dnsZoneResourceGroupName="$(envDnsZoneRG)" `
+                       --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
+                       --set letsencrypt.contactEmail="$(contactEmail)"
 
           echo "*** Installing cert-manager via helm on $aksClusterName"
           helm repo add jetstack https://charts.jetstack.io
@@ -131,6 +133,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Install KeyVault CSI driver on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -170,7 +173,7 @@ jobs:
 
           echo "*** Retrieved Kubelet clientId $kubeletIdentityClientId for cluster $clusterName"
 
-          helm upgrade --install csi-secrets-driver src/config/charts/csi-secrets-driver `
+          helm upgrade --install csi-secrets-driver src/config/csi-secrets-driver/chart/csi-secrets-driver-config `
                         --namespace "$(workloadNamespace)" `
                         --set azure.tenantId=$tenantId `
                         --set azure.keyVaultName="$keyVaultName" `
