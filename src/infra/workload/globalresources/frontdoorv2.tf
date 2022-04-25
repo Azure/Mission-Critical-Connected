@@ -21,7 +21,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-  session_affinity = false
+  session_affinity_enabled = false
 
   health_probe {
     protocol            = "Https"
@@ -31,7 +31,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   }
 
   load_balancing {
-    sample_size                        = 6
+    sample_count                       = 16
     successful_samples_required        = 3
     additional_latency_in_milliseconds = 0
   }
@@ -41,7 +41,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
 resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   name = "GlobalStorage"
 
-  session_affinity = false
+  session_affinity_enabled = false
 
   health_probe {
     protocol            = "Https"
@@ -51,7 +51,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   }
 
   load_balancing {
-    sample_size                        = 6
+    sample_count                       = 16
     successful_samples_required        = 3
     additional_latency_in_milliseconds = 0
   }
@@ -63,7 +63,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
 resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   name = "StaticStorage"
 
-  session_affinity = false
+  session_affinity_enabled = false
 
   health_probe {
     protocol            = "Https"
@@ -73,7 +73,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   }
 
   load_balancing {
-    sample_size                        = 6
+    sample_count                       = 16
     successful_samples_required        = 3
     additional_latency_in_milliseconds = 0
   }
@@ -217,7 +217,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "test" {
 
   host_name = azurerm_dns_cname_record.app_subdomain
 
-  tls_settings {
+  tls {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
   }
