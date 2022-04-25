@@ -1,7 +1,7 @@
 apiVersion: "v2"
 appVersion: 0.0.1
-name: cert-manager-azuredns
-description: "Configuration for cert-manager using Azure DNS issuer"
+name: cert-manager-alwayson
+description: "Configuration for cert-manager using the HTTP issuer"
 version: 0.0.1
 sources:
 - https://github.com/Azure/Mission-Critical

@@ -9,6 +9,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Install ingress-nginx $(ingressNginxVersion) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -38,10 +39,16 @@ jobs:
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
 
+          $ingressNamespace = "ingress-nginx"
+
+          echo "*** Create namespace '$ingressNamespace' on AKS cluster $aksClusterName via kubectl"
+          kubectl create namespace $ingressNamespace  `
+                    --dry-run=client --output yaml | kubectl apply -f -
+
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
-                --namespace kube-system `
-                --values src/config/ingress/values.helm.yaml `
+                --namespace $ingressNamespace `
+                --values src/config/ingress-nginx/values.helm.yaml `
                 --set controller.service.loadBalancerIP="$aksIngressIp" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="aks-lb-snet" `
@@ -50,6 +57,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Configure OMSAgent (Container Insights) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -69,13 +77,14 @@ jobs:
           # load AKS cluster credentials
           az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-          # Deploy required custom resource definitions needed for cert-manager
+          # Apply ConfigMap which configures OMS Agent's log and metric collection. Take a look at the reference file to understand what is being collected/excluded
           echo "*** Apply configmap for OMSAgent (Container Insights) on $aksClusterName"
           kubectl apply -f src/config/monitoring/container-azm-ms-agentconfig.yaml
         }
 
   - task: AzureCLI@2
     displayName: 'Install cert-manager $(certManagerVersion) on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -111,7 +120,7 @@ jobs:
           $kubeletIdentityClientId = $stamp.aks_kubelet_clientid
 
           echo "*** Setting up cert-manager ClusterIssuer for Azure DNS-based Let's Encrypt issuer with domain name $(envDomainName)"
-          helm upgrade --install cert-manager-azure-dns src/config/charts/cert-manager `
+          helm upgrade --install cert-manager-config src/config/cert-manager/chart/cert-manager-config`
                         --namespace $certManagerNamespace `
                         --set azure.subscriptionId=$subscriptionId `
                         --set azure.dnsZoneName="$(envDomainName)" `
@@ -130,6 +139,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Install KeyVault CSI driver on AKS clusters'
+    retryCountOnTaskFailure: 1
     inputs:
       azureSubscription: $(azureServiceConnection)
       scriptType: pscore
@@ -169,7 +179,7 @@ jobs:
 
           echo "*** Retrieved Kubelet clientId $kubeletIdentityClientId for cluster $clusterName"
 
-          helm upgrade --install csi-secrets-driver src/config/charts/csi-secrets-driver `
+          helm upgrade --install csi-secrets-driver src/config/csi-secrets-driver/chart/csi-secrets-driver-config `
                         --namespace "$(workloadNamespace)" `
                         --set azure.tenantId=$tenantId `
                         --set azure.keyVaultName="$keyVaultName" `
