@@ -36,7 +36,7 @@ namespace AlwaysOn.CatalogService
                 config.AddKeyPerFile(directoryPath: "/mnt/secrets-store/", optional: true, reloadOnChange: true);
 
                 var builtConfig = config.Build();
-                
+
                 // TODO: Transition Serilog AppInsights sink to use the connection string instead of Instrumentation Key, once that is fully supported
                 Log.Logger = new LoggerConfiguration()
                                     .ReadFrom.Configuration(builtConfig)
