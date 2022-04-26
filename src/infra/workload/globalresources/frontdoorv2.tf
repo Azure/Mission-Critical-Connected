@@ -145,7 +145,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   health_probes_enabled = each.value.enabled
 
   dynamic "private_link" {
-    for_each = each.value.privatelink_service_id != "" ? [] : [1]
+    for_each = each.value.privatelink_service_id != null ? [] : [1]
     content {
       request_message        = "Request access for CDN Frontdoor Private Link Origin"
       location               = each.value.privatelink_location
@@ -222,7 +222,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "test" {
   name                     = local.frontdoor_custom_frontend_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-  host_name = azurerm_dns_cname_record.app_subdomain
+  host_name = trimsuffix(azurerm_dns_cname_record.app_subdomain[0].fqdn, ".")
 
   tls {
     certificate_type    = "ManagedCertificate"
