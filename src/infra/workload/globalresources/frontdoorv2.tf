@@ -127,7 +127,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled = true # var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
@@ -176,7 +176,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled = true #var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
@@ -216,7 +216,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled = true #var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
   cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
