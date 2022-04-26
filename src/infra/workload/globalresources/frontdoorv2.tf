@@ -147,6 +147,10 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   origin_host_header = var.backends_BackendApis[each.value]["address"]
 
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.backendapis.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
@@ -181,10 +185,14 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   weight    = var.backends_StaticStorage[each.value]["weight"]
 
   health_probes_enabled = var.backends_StaticStorage[each.value]["enabled"]
-  
+
   origin_host_header = var.backends_StaticStorage[each.value]["address"]
 
   cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
