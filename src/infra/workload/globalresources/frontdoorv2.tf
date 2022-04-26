@@ -145,7 +145,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   health_probes_enabled = each.value.enabled
 
   dynamic "private_link" {
-    for = each.value.privatelink_service_id != "" ? 1 : 0
+    for_each = each.value.privatelink_service_id != "" ? [] : [1]
     content {
       request_message        = "Request access for CDN Frontdoor Private Link Origin"
       location               = each.value.privatelink_location
@@ -183,13 +183,13 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
 
-  name      = replace(backend.address, ".", "-")
-  host_name = backend.address
-  weight    = backend.weight
+  name      = replace(each.value.address, ".", "-")
+  host_name = each.value.address
+  weight    = each.value.weight
 
-  health_probes_enabled = backend.enabled
+  health_probes_enabled = each.value.enabled
 
-  origin_host_header = backend.address
+  origin_host_header = each.value.address
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 }
