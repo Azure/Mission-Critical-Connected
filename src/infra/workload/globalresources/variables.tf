@@ -100,7 +100,7 @@ variable "backends_BackendApis" {
   }))
   default = [{
     address                = "changeme-api.example.com"
-    privatelink_service_id = "" # Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
+    privatelink_service_id = "dummy" # Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
     privatelink_location   = "" # Example: "westus2"
     weight                 = 1
     enabled                = true

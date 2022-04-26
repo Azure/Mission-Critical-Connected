@@ -145,7 +145,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   health_probes_enabled = each.value.enabled
 
   dynamic "private_link" {
-    for_each = each.value.privatelink_service_id != "" ? [1] : []
+    for_each = each.value.privatelink_service_id != "dummy" ? [1] : []
     content {
       request_message        = "Request access for CDN Frontdoor Private Link Origin"
       location               = each.value.privatelink_location
