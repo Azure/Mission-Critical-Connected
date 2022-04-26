@@ -94,7 +94,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
 
   origin_host_header = azurerm_storage_account.global.primary_web_host
 
-  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
 
 resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
@@ -110,7 +110,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
 
   origin_host_header = azurerm_storage_account.global.secondary_web_host
 
-  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.globalstorage.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 }
 
 resource "azurerm_cdn_frontdoor_route" "globalstorage" {
@@ -136,17 +136,24 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
-  for_each = toset(keys({ for i, r in var.backends_BackendApis : i => r }))
+  for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
 
-  name      = replace(var.backends_BackendApis[each.value]["address"], ".", "-")
-  host_name = var.backends_BackendApis[each.value]["address"]
-  weight    = var.backends_BackendApis[each.value]["weight"]
+  name      = replace(backend.address, ".", "-") # Name must not contain dots, so we use hyphens instead
+  host_name = backend.address
+  weight    = backend.weight
 
-  health_probes_enabled = var.backends_BackendApis[each.value]["enabled"]
+  health_probes_enabled = backend.enabled
 
-  origin_host_header = var.backends_BackendApis[each.value]["address"]
+  dynamic "private_link" {
+    for = backend.privatelink_service_id != "" ? 1 : 0
+    content {
+      request_message        = "Request access for CDN Frontdoor Private Link Origin"
+      location               = backend.privatelink_location
+      private_link_target_id = backend.privatelink_service_id
+    }
+  }
 
-  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.backendapis.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
@@ -156,7 +163,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
 
   patterns_to_match = [
-    "/api/*", 
+    "/api/*",
     "/health/*",
     "/swagger/*"
   ]
@@ -167,8 +174,8 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
 
   link_to_default_domain_enabled = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
-  cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
-    azurerm_cdn_frontdoor_origin.globalstorage-primary.id, # cannot be empty - requires a valid origin resource id
+  cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
+    azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
     azurerm_cdn_frontdoor_origin.globalstorage-secondary.id # cannot be empty - requires a valid origin resource id
   ]
 }
@@ -184,7 +191,7 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
 
   origin_host_header = backend.address
 
-  cdn_frontdoor_origin_group_id    = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
@@ -203,8 +210,8 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
 
   link_to_default_domain_enabled = var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
 
-  cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
-    azurerm_cdn_frontdoor_origin.globalstorage-primary.id, # cannot be empty - requires a valid origin resource id
+  cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
+    azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
     azurerm_cdn_frontdoor_origin.globalstorage-secondary.id # cannot be empty - requires a valid origin resource id
   ]
 }

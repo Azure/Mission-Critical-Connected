@@ -92,14 +92,18 @@ variable "cosmosdb_collection_itemratings_max_autoscale_throughputunits" {
 # We use example.com for the very first creation of Front Door when we have no backends yet
 variable "backends_BackendApis" {
   type = list(object({
-    address = string
-    weight  = number
-    enabled = bool
+    address                = string
+    privatelink_service_id = string
+    privatelink_location   = string
+    weight                 = number
+    enabled                = bool
   }))
   default = [{
-    address = "changeme-api.example.com"
-    weight  = 1
-    enabled = true
+    address                = "changeme-api.example.com"
+    privatelink_service_id = "" # Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
+    privatelink_location   = "" # Example: "westus2"
+    weight                 = 1
+    enabled                = true
   }]
 }
 

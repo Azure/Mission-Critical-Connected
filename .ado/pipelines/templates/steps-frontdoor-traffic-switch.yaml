@@ -62,6 +62,7 @@ steps:
 
       # Load and parse release unit terraform outputs
       $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+      $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
       # loop through stamps from pipeline artifact json
       foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
@@ -69,7 +70,20 @@ steps:
         # Build API backend config object for Front Door
         $clusterFqdn = $stamp.aks_cluster_ingress_fqdn
 
-        $apiProperties = @{address=$clusterFqdn; weight=$newBackendsWeight; enabled="true"}
+        # Fetch corresponsing private link properties for this stamp
+        $privateLinkProperties = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object { $_.location -eq $stamp.location }
+
+        if(-not $privateLinkProperties)
+        {
+          throw "*** No private link properties for stamp $($stamp.location)"
+        }
+
+        $apiProperties = @{ address = $privateLinkProperties.private_link_service_fqdn; `
+                            weight = $newBackendsWeight; `
+                            enabled = "true"; `
+                            privatelink_service_id = $privateLinkProperties.private_link_service_resource_id;
+                            privatelink_location = $stamp.location}
+
         $apiBackend = New-Object PSObject –Property $apiProperties
 
         echo "*** Adding API backend $apiBackend"
