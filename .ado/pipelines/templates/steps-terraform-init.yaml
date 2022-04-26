@@ -16,6 +16,39 @@ steps:
       sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
       sudo apt-get update && sudo apt install terraform=$(terraformVersion)
 
+
+- task: GoTool@0
+  displayName: 'Install Go tooling'
+  inputs:
+    version: 1.17.3
+
+- task: Bash@3
+  displayName: 'Clone and Build Terraform binaries'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Install prerequisites
+      sudo apt-get install build-essential -y
+      # define custom terraform azurerm provider repo and branch
+      SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
+      SOURCE_BRANCH=r-frontdoor-profile
+      # making sure that GOPATH is set
+      export GOPATH=~/go
+      # create and enter the required directories
+      mkdir -p $GOPATH/src/github.com/hashicorp
+      cd $GOPATH/src/github.com/hashicorp
+      # git clone the source repository
+      git clone $SOURCE_REPO
+      cd $GOPATH/src/github.com/hashicorp/terraform-provider-azurerm
+      git checkout $SOURCE_BRANCH 
+      make build
+      echo "provider_installation {
+      dev_overrides {
+      \"hashicorp/azurerm\" = \"$GOPATH/bin\"
+      }
+      direct {}
+      }" > ~/.terraformrc
+
 # Setting env vars for Terraform Backend configuration
 # Using Terraform CLI instead of Terraform Tasks
 # https://cloudarchitected.com/2021/02/using-terraform-in-azure-pipelines-without-extensions/
