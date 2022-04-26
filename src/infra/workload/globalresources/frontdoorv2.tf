@@ -224,7 +224,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain" "test" {
+resource "azurerm_cdn_frontdoor_custom_domain" "global" {
   count = var.custom_fqdn != "" ? 1 : 0
 
   name                     = local.frontdoor_custom_frontend_name
