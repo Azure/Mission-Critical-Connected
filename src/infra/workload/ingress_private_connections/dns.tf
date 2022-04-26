@@ -1,4 +1,3 @@
-// If a custom domain name is supplied, we are creating a CNAME to point to the Front Door
 data "azurerm_dns_zone" "customdomain" {
   name                = var.custom_dns_zone
   resource_group_name = var.custom_dns_zone_resourcegroup_name
