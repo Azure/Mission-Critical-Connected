@@ -10,6 +10,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 RUN apt-get update && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
+
 # Create a new user group and user to run the workload as non-root
 RUN groupadd -r workload && useradd --no-log-init -r -g workload workload
 USER workload
