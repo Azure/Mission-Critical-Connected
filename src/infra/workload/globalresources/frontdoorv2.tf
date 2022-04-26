@@ -154,6 +154,10 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   }
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
@@ -192,6 +196,10 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   origin_host_header = each.value.address
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
