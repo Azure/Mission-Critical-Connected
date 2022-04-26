@@ -1,5 +1,5 @@
 resource "azurerm_cdn_frontdoor_profile" "main" {
-  name                     = local.frontdoor_name
+  name                     = local.frontdoor_name_v2
   resource_group_name      = azurerm_resource_group.global.name
   response_timeout_seconds = 120
 
@@ -9,7 +9,7 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
 
 # Default Front Door endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "default" {
-  name    = local.frontdoor_default_frontend_name
+  name    = "DefaultFrontendEndpointv2"
   enabled = true
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
