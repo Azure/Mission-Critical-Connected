@@ -138,18 +138,18 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
 
-  name      = replace(backend.address, ".", "-") # Name must not contain dots, so we use hyphens instead
-  host_name = backend.address
-  weight    = backend.weight
+  name      = replace(each.value.address, ".", "-") # Name must not contain dots, so we use hyphens instead
+  host_name = each.value.address
+  weight    = each.value.weight
 
-  health_probes_enabled = backend.enabled
+  health_probes_enabled = each.value.enabled
 
   dynamic "private_link" {
-    for = backend.privatelink_service_id != "" ? 1 : 0
+    for = each.value.privatelink_service_id != "" ? 1 : 0
     content {
       request_message        = "Request access for CDN Frontdoor Private Link Origin"
-      location               = backend.privatelink_location
-      private_link_target_id = backend.privatelink_service_id
+      location               = each.value.privatelink_location
+      private_link_target_id = each.value.privatelink_service_id
     }
   }
 
