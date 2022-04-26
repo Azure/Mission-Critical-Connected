@@ -224,16 +224,16 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain" "global" {
-  count = var.custom_fqdn != "" ? 1 : 0
+# resource "azurerm_cdn_frontdoor_custom_domain" "global" {
+#   count = var.custom_fqdn != "" ? 1 : 0
 
-  name                     = local.frontdoor_custom_frontend_name
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+#   name                     = local.frontdoor_custom_frontend_name
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-  host_name = trimsuffix(azurerm_dns_cname_record.app_subdomain[0].fqdn, ".")
+#   host_name = trimsuffix(azurerm_dns_cname_record.app_subdomain[0].fqdn, ".")
 
-  tls {
-    certificate_type    = "ManagedCertificate"
-    minimum_tls_version = "TLS12"
-  }
-}
+#   tls {
+#     certificate_type    = "ManagedCertificate"
+#     minimum_tls_version = "TLS12"
+#   }
+# }
