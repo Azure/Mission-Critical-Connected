@@ -9,7 +9,7 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
 
 # Default Front Door endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "default" {
-  name    = "DefaultFrontendEndpointv2"
+  name    = "DefaultFrontendEndpoint"
   enabled = true
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
@@ -166,7 +166,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
-  name                          = "BackendAPI"
+  name                          = "BackendApi"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
