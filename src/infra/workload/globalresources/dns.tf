@@ -10,4 +10,6 @@ resource "azurerm_dns_cname_record" "afd_subdomain" {
   resource_group_name = var.custom_dns_zone_resourcegroup_name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.default.host_name
+
+  tags = local.default_tags
 }
