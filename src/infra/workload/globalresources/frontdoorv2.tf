@@ -240,21 +240,20 @@ resource "azurerm_dns_txt_record" "global" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
-  name                     = "${local.prefix}globalfdfp"
-  resource_group_name      = azurerm_resource_group.global.name
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
-  sku_name                 = "Premium_AzureFrontDoor"
-  enabled                  = true
-  mode                     = "Prevention"
+# resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
+#   name                     = "${local.prefix}globalfdfp"
+#   resource_group_name      = azurerm_resource_group.global.name
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+#   sku_name                 = "Premium_AzureFrontDoor"
+#   enabled                  = true
+#   mode                     = "Prevention"
 
-  managed_rule {
-    type    = "Microsoft_DefaultRuleSet"
-    version = "2.0"
-
-  }
-  managed_rule {
-    type    = "Microsoft_BotManagerRuleSet"
-    version = "1.0"
-  }
-}
+#   managed_rule {
+#     type    = "Microsoft_DefaultRuleSet"
+#     version = "2.0"
+#   }
+#   managed_rule {
+#     type    = "Microsoft_BotManagerRuleSet"
+#     version = "1.0"
+#   }
+# }
