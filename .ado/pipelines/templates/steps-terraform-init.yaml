@@ -43,9 +43,8 @@ steps:
       # git checkout $SOURCE_BRANCH 
       # make build
 
-      sudo apt install unzip
-
-      unzip $(System.DefaultWorkingDirectory)/tf_custom_build/terraform-provider-azurerm.zip –d $(System.DefaultWorkingDirectory)/tf_custom_build
+      cd $(System.DefaultWorkingDirectory)/tf_custom_build
+      unzip terraform-provider-azurerm.zip
 
       echo "provider_installation {
       dev_overrides {
