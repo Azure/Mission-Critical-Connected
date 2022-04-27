@@ -184,7 +184,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
-  cdn_frontdoor_origin_ids = azurerm_cdn_frontdoor_origin.backendapi.*.id
+  cdn_frontdoor_origin_ids = azurerm_cdn_frontdoor_origin.backendapi[*].id
 }
 
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
@@ -222,7 +222,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
-  cdn_frontdoor_origin_ids = azurerm_cdn_frontdoor_origin.staticstorage.*.id
+  cdn_frontdoor_origin_ids = azurerm_cdn_frontdoor_origin.staticstorage[*].id
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "global" {
