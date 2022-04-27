@@ -90,7 +90,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
   weight     = 1
   priority   = 1
 
-  health_probes_enabled = true
+  health_probes_enabled          = true
+  certificate_name_check_enabled = true
 
   origin_host_header = azurerm_storage_account.global.primary_web_host
 
@@ -106,7 +107,8 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
   weight     = 1
   priority   = 2
 
-  health_probes_enabled = true
+  health_probes_enabled          = true
+  certificate_name_check_enabled = true
 
   origin_host_header = azurerm_storage_account.global.secondary_web_host
 
@@ -142,15 +144,15 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   host_name = each.value.address
   weight    = each.value.weight
 
-  health_probes_enabled = each.value.enabled
+  health_probes_enabled          = each.value.enabled
   certificate_name_check_enabled = true
 
   dynamic "private_link" {
     for_each = each.value.privatelink_service_id != "" ? [1] : [] # a workaround to make a nested block optional
     content {
-      request_message                = "Request access for CDN Frontdoor Private Link Origin"
-      location                       = each.value.privatelink_location
-      private_link_target_id         = each.value.privatelink_service_id
+      request_message        = "Request access for CDN Frontdoor Private Link Origin"
+      location               = each.value.privatelink_location
+      private_link_target_id = each.value.privatelink_service_id
     }
   }
 
@@ -192,7 +194,8 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   host_name = each.value.address
   weight    = each.value.weight
 
-  health_probes_enabled = each.value.enabled
+  health_probes_enabled          = each.value.enabled
+  certificate_name_check_enabled = true
 
   origin_host_header = each.value.address
 
