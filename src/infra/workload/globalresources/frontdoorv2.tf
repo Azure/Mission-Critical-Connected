@@ -243,3 +243,13 @@ resource "azurerm_cdn_frontdoor_custom_domain" "global" {
     minimum_tls_version = "TLS12"
   }
 }
+
+resource "azurerm_dns_txt_record" "global" {
+  name                = join(".", ["_dnsauth", local.custom_domain_subdomain])
+  zone_name           = local.custom_domain_name
+  resource_group_name = var.custom_dns_zone_resourcegroup_name
+  ttl                 = 3600
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.global.validation_properties.0.validation_token
+  }
+}
