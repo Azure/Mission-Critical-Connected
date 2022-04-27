@@ -27,8 +27,6 @@ steps:
     scriptType: pscore
     scriptLocation: inlineScript
     inlineScript: |
-      # We need the az CLI Front Door extension
-      az extension add --name front-door
 
       $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
 
@@ -110,46 +108,56 @@ steps:
           $queryOptionEnabledOnly = "?enabledState=='Enabled'" # If the switch to remove disabled backends is true, we only fetch the currently enabled ones and thereby not re-adding the disabled ones
         }
 
-        # Fetch existing backends in the pool from Front Door. We need the attributes "address", "weight" and "enabledState"
-        $backends = $(az network front-door backend-pool backend list `
-                        --front-door-name $fdName `
-                        --pool-name $pool `
-                        --resource-group $rgName `
-                        --query "[$queryOptionEnabledOnly].{address:address,weight:weight,enabled:enabledState}")
+        # Fetch existing backends in the pool from Front Door
+        $backends = az afd origin list `
+                    --profile-name $fdName `
+                    --origin-group-name $pool -g $rgName `
+                    --query "[$queryOptionEnabledOnly]` | ConvertFrom-Json -NoEnumerate
 
         if($LastExitCode -ne 0)
         {
             throw "*** Error on fetching existing backends from Front Door $fdName for pool $pool"
         }
 
-        $jsonBackends = $backends | ConvertFrom-Json -NoEnumerate
-
-        foreach($backend in $jsonBackends)
+        foreach($backend in $backends)
         {
-          if(($newBackends[$pool] | Select-Object "address") -match $backend.address) # This is the case if the backend was already added from the Terraform output above
+          if(($newBackends[$pool] | Select-Object "address") -match $backend.hostName) # This is the case if the backend was already added from the Terraform output above
           {
-            echo "*** Skipping backend $($backend.address) since it is already in the list"
+            echo "*** Skipping backend $($backend.hostName) since it is already in the list"
           }
           else
           {
-            if($backend.address -like "*.example.com") # In the Front Door Terraform template we use example.com for the very first creation of Front Door when we have no backends yet
+            if($backend.hostName -like "*.example.com") # In the Front Door Terraform template we use example.com for the very first creation of Front Door when we have no backends yet
             {
-              echo "*** Ignoring dummy backend $($backend.address)"
+              echo "*** Ignoring dummy backend $($backend.hostName)"
             }
             else
             {
-              $backend.weight = $oldBackendsWeight # set weight of existing (previous release) to what was calculated above
+              $backendProperties = @{ address = $backend.hostName; `
+                        weight = $oldBackendsWeight; `
+                        enabled = ""; `
+                        privatelink_location = ""; `
+                        privatelink_service_id = "" }
 
               # Rewrite EnabledState into bool (true/false) for terraform input
-              if($backend.enabled -eq "Enabled")
+              if($backend.enabledState -eq "Enabled")
               {
-                $backend.enabled = $oldBackendsEnabled
+                $backendProperties.enabled = $oldBackendsEnabled
               }
               else
               {
-                $backend.enabled = "false"
+                $backendProperties.enabled = "false"
               }
-              $newBackends[$pool] += $backend
+
+              if($backend.sharedPrivateLinkResource)
+              {
+                # This is a privatelink backend
+                $backendProperties.privatelink_location = $backend.sharedPrivateLinkResource.privateLinkLocation
+                $backendProperties.privatelink_service_id = $backend.sharedPrivateLinkResource.privateLink.id
+              }
+
+              $backendConfig = New-Object PSObject –Property $backendProperties
+              $newBackends[$pool] += $backendConfig
             }
           }
         }

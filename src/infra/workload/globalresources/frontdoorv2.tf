@@ -1,5 +1,5 @@
 resource "azurerm_cdn_frontdoor_profile" "main" {
-  name                     = local.frontdoor_name_v2
+  name                     = local.frontdoor_name
   resource_group_name      = azurerm_resource_group.global.name
   response_timeout_seconds = 120
 
@@ -17,7 +17,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "default" {
 
 # Front Door Origin Group used for Backend APIs hosted on AKS
 resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
-  name = "BackendAPIs"
+  name = "BackendApis"
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
@@ -129,7 +129,8 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = true # var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled  = true
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
   cdn_frontdoor_origin_ids = [ # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
@@ -179,7 +180,8 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = true #var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled  = true
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
   cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
@@ -220,7 +222,8 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
     "Https"
   ]
 
-  link_to_default_domain_enabled = true #var.custom_fqdn == "" ? true : false # link to default when no custom domain is set
+  link_to_default_domain_enabled  = true
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
   cdn_frontdoor_origin_ids = [                              # this attribute is probably obsolete - commented on github
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,  # cannot be empty - requires a valid origin resource id
@@ -228,16 +231,15 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 }
 
-# resource "azurerm_cdn_frontdoor_custom_domain" "global" {
-#   count = var.custom_fqdn != "" ? 1 : 0
+resource "azurerm_cdn_frontdoor_custom_domain" "global" {
+  name                     = local.frontdoor_custom_frontend_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-#   name                     = local.frontdoor_custom_frontend_name
-#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+  host_name   = trimsuffix(azurerm_dns_cname_record.afd_subdomain.fqdn, ".")
+  dns_zone_id = data.azurerm_dns_zone.customdomain.id
 
-#   host_name = trimsuffix(azurerm_dns_cname_record.app_subdomain[0].fqdn, ".")
-
-#   tls {
-#     certificate_type    = "ManagedCertificate"
-#     minimum_tls_version = "TLS12"
-#   }
-# }
+  tls {
+    certificate_type    = "ManagedCertificate"
+    minimum_tls_version = "TLS12"
+  }
+}

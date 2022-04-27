@@ -11,4 +11,6 @@ resource "azurerm_dns_a_record" "cluster_ingress" {
   resource_group_name = data.azurerm_dns_zone.customdomain.resource_group_name
   ttl                 = 3600
   records             = [local.aks_internal_lb_ip_address]
+
+  tags = var.default_tags
 }
