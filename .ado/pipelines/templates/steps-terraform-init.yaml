@@ -17,31 +17,11 @@ steps:
       sudo apt-get update && sudo apt install terraform=$(terraformVersion)
 
 
-- task: GoTool@0
-  displayName: 'Install Go tooling'
-  inputs:
-    version: 1.17.3
-
 - task: Bash@3
-  displayName: 'Clone and Build Terraform binaries'
+  displayName: 'Use custom-built Terraform azurerm provider'
   inputs:
     targetType: 'inline'
     script: |
-      # Install prerequisites
-      # sudo apt-get install build-essential -y
-      # # define custom terraform azurerm provider repo and branch
-      # SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
-      # SOURCE_BRANCH=r-frontdoor-profile
-      # making sure that GOPATH is set
-      export GOPATH=~/go
-      # create and enter the required directories
-      # mkdir -p $GOPATH/src/github.com/hashicorp
-      # cd $GOPATH/src/github.com/hashicorp
-      # # git clone the source repository
-      # git clone $SOURCE_REPO
-      # cd $GOPATH/src/github.com/hashicorp/terraform-provider-azurerm
-      # git checkout $SOURCE_BRANCH 
-      # make build
 
       cd $(System.DefaultWorkingDirectory)/tf_custom_build
       unzip terraform-provider-azurerm.zip
