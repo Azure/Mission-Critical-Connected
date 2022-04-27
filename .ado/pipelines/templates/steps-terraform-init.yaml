@@ -45,6 +45,7 @@ steps:
 
       cd $(System.DefaultWorkingDirectory)/tf_custom_build
       unzip terraform-provider-azurerm.zip
+      chmod 777 terraform-provider-azurerm
 
       echo "provider_installation {
       dev_overrides {
