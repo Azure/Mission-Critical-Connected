@@ -48,7 +48,7 @@ steps:
 
       echo "provider_installation {
       dev_overrides {
-      \"hashicorp/azurerm\" = \"$(System.DefaultWorkingDirectory/tf_custom_build\"
+      \"hashicorp/azurerm\" = \"$(System.DefaultWorkingDirectory)/tf_custom_build\"
       }
       direct {}
       }" > ~/.terraformrc
