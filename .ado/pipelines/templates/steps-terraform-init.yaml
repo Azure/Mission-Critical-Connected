@@ -28,23 +28,28 @@ steps:
     targetType: 'inline'
     script: |
       # Install prerequisites
-      sudo apt-get install build-essential -y
-      # define custom terraform azurerm provider repo and branch
-      SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
-      SOURCE_BRANCH=r-frontdoor-profile
+      # sudo apt-get install build-essential -y
+      # # define custom terraform azurerm provider repo and branch
+      # SOURCE_REPO=https://github.com/hashicorp/terraform-provider-azurerm.git
+      # SOURCE_BRANCH=r-frontdoor-profile
       # making sure that GOPATH is set
       export GOPATH=~/go
       # create and enter the required directories
-      mkdir -p $GOPATH/src/github.com/hashicorp
-      cd $GOPATH/src/github.com/hashicorp
-      # git clone the source repository
-      git clone $SOURCE_REPO
-      cd $GOPATH/src/github.com/hashicorp/terraform-provider-azurerm
-      git checkout $SOURCE_BRANCH 
-      make build
+      # mkdir -p $GOPATH/src/github.com/hashicorp
+      # cd $GOPATH/src/github.com/hashicorp
+      # # git clone the source repository
+      # git clone $SOURCE_REPO
+      # cd $GOPATH/src/github.com/hashicorp/terraform-provider-azurerm
+      # git checkout $SOURCE_BRANCH 
+      # make build
+
+      sudo apt install unzip
+
+      unzip $(System.DefaultWorkingDirectory/tf_custom_build/terraform-provider-azurerm.zip –d $(System.DefaultWorkingDirectory/tf_custom_build
+
       echo "provider_installation {
       dev_overrides {
-      \"hashicorp/azurerm\" = \"$GOPATH/bin\"
+      \"hashicorp/azurerm\" = \"$(System.DefaultWorkingDirectory/tf_custom_build\"
       }
       direct {}
       }" > ~/.terraformrc
