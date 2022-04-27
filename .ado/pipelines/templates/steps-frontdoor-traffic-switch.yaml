@@ -194,8 +194,6 @@ steps:
     scriptType: pscore
     scriptLocation: inlineScript
     inlineScript: |
-      # We need the az CLI Front Door extension
-      az extension add --name front-door
 
       $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
 
@@ -203,7 +201,7 @@ steps:
       $fdName = $globalInfraDeployOutput.frontdoor_name.value
 
       echo "*** Purging Front Door cache with path /*"
-      az network front-door purge-endpoint -g $rgName -n $fdName --content-paths "/*"
+      az afd endpoint purge -g $rgName --profile-name $fdName --content-paths "/*" --endpoint-name DefaultFrontendEndpointv2
 
       if($LastExitCode -ne 0)
       {
