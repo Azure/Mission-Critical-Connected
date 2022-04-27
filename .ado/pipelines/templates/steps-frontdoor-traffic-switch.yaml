@@ -68,7 +68,7 @@ steps:
           throw "*** No private link properties for stamp $($stamp.location)"
         }
 
-        $apiProperties = @{ address = $privateLinkProperties.private_link_service_fqdn; `
+        $apiProperties = @{ address = $clusterFqdn; `
                             weight = $newBackendsWeight; `
                             enabled = "true"; `
                             privatelink_service_id = $privateLinkProperties.private_link_service_resource_id; `
@@ -104,7 +104,7 @@ steps:
         $backends = az afd origin list `
                     --profile-name $fdName `
                     --origin-group-name $pool -g $rgName `
-                    --query "[$queryOptionEnabledOnly]` | ConvertFrom-Json -NoEnumerate
+                    --query "[$queryOptionEnabledOnly]" | ConvertFrom-Json -NoEnumerate
 
         if($LastExitCode -ne 0)
         {
@@ -128,8 +128,8 @@ steps:
               $backendProperties = @{ address = $backend.hostName; `
                         weight = $oldBackendsWeight; `
                         enabled = ""; `
-                        privatelink_location = ""; `
-                        privatelink_service_id = "" }
+                        privatelink_service_id = ""; `
+                        privatelink_location = "" }
 
               # Rewrite EnabledState into bool (true/false) for terraform input
               if($backend.enabledState -eq "Enabled")
@@ -141,11 +141,10 @@ steps:
                 $backendProperties.enabled = "false"
               }
 
-              if($backend.sharedPrivateLinkResource)
+              if($backend.sharedPrivateLinkResource) # This is a privatelink backend
               {
-                # This is a privatelink backend
-                $backendProperties.privatelink_location = $backend.sharedPrivateLinkResource.privateLinkLocation
                 $backendProperties.privatelink_service_id = $backend.sharedPrivateLinkResource.privateLink.id
+                $backendProperties.privatelink_location = $backend.sharedPrivateLinkResource.privateLinkLocation
               }
 
               $backendConfig = New-Object PSObject –Property $backendProperties
