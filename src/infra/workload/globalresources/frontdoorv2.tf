@@ -9,7 +9,7 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
 
 # Default Front Door endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "default" {
-  name    = "DefaultFrontendEndpoint"
+  name    = "PrimaryFrontendEndpoint"
   enabled = true
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
@@ -226,7 +226,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "global" {
-  name                     = local.frontdoor_custom_frontend_name
+  name                     = "CustomDomainFrontendEndpoint"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
   host_name   = trimsuffix(azurerm_dns_cname_record.afd_subdomain.fqdn, ".")
