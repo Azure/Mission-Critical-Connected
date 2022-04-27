@@ -69,6 +69,9 @@ stages:
                 {
                   foreach($pool in $backendPools)
                   {
+
+                    echo "*** Fetching existing backends from Front Door $fdName for pool $pool"
+
                     $backends = az afd origin list `
                                 --profile-name $fdName `
                                 --origin-group-name $pool -g $rgName | ConvertFrom-Json -NoEnumerate
