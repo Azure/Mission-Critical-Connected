@@ -143,14 +143,14 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   weight    = each.value.weight
 
   health_probes_enabled = each.value.enabled
+  certificate_name_check_enabled = true
 
   dynamic "private_link" {
-    for_each = each.value.privatelink_service_id != "" ? [1] : []
+    for_each = each.value.privatelink_service_id != "" ? [1] : [] # a workaround to make a nested block optional
     content {
       request_message                = "Request access for CDN Frontdoor Private Link Origin"
       location                       = each.value.privatelink_location
       private_link_target_id         = each.value.privatelink_service_id
-      certificate_name_check_enabled = true
     }
   }
 
