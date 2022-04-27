@@ -45,7 +45,7 @@ steps:
 
       sudo apt install unzip
 
-      unzip $(System.DefaultWorkingDirectory/tf_custom_build/terraform-provider-azurerm.zip –d $(System.DefaultWorkingDirectory/tf_custom_build
+      unzip $(System.DefaultWorkingDirectory)/tf_custom_build/terraform-provider-azurerm.zip –d $(System.DefaultWorkingDirectory)/tf_custom_build
 
       echo "provider_installation {
       dev_overrides {
