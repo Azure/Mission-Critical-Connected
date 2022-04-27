@@ -116,7 +116,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "globalstorage" {
-  name                          = "GlobalStorage"
+  name                          = "GlobalStorageRoute"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
@@ -166,7 +166,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
-  name                          = "BackendApi"
+  name                          = "BackendApiRoute"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
@@ -206,7 +206,7 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
-  name                          = "StaticStorage"
+  name                          = "StaticStorageRoute"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
