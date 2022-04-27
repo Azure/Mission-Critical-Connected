@@ -159,10 +159,6 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   }
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
@@ -199,10 +195,6 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   certificate_name_check_enabled = true
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
@@ -245,5 +237,24 @@ resource "azurerm_dns_txt_record" "global" {
   ttl                 = 3600
   record {
     value = azurerm_cdn_frontdoor_custom_domain.global.validation_properties.0.validation_token
+  }
+}
+
+resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
+  name                     = "${local.prefix}globalfdfp"
+  resource_group_name      = azurerm_resource_group.global.name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+  sku_name                 = "Premium_AzureFrontDoor"
+  enabled                  = true
+  mode                     = "Prevention"
+
+  managed_rule {
+    type    = "Microsoft_DefaultRuleSet"
+    version = "2.0"
+
+  }
+  managed_rule {
+    type    = "Microsoft_BotManagerRuleSet"
+    version = "1.0"
   }
 }
