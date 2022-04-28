@@ -9,7 +9,7 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
 
 # Default Front Door endpoint
 resource "azurerm_cdn_frontdoor_endpoint" "default" {
-  name    = "PrimaryFrontendEndpoint"
+  name    = "${local.prefix}-primaryendpoint" # needs to be a gloablly unique name
   enabled = true
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
