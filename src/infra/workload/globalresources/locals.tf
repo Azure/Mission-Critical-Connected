@@ -13,15 +13,9 @@ locals {
   location = var.stamps[0] # we use the first location in the list of stamps as the "main" location to root our global resources in, which need it. E.g. Cosmos DB
 
   frontdoor_name = "${local.prefix}-global-fd"
+  frontdoor_fqdn = trimsuffix(azurerm_dns_cname_record.afd_subdomain.fqdn, ".") # remove trailing dot from fqdn
 
   kql_queries = "${path.root}/../../monitoring/queries/global" # directory that contains the kql queries
 
   prefix = "${lower(var.prefix)}${lower(var.suffix)}"
-
-  # var.custom_fqdn is expected to be something like "www.int.myapp.net"
-  # custom_domain_subdomain will then be "www"
-  custom_domain_subdomain = var.custom_fqdn != "" ? split(".", var.custom_fqdn)[0] : ""
-  # custom_domain_name will then be "int.myapp.net"
-  custom_domain_name = trimprefix(var.custom_fqdn, "${local.custom_domain_subdomain}.")
-
 }

@@ -39,7 +39,7 @@ output "frontdoor_id_header" {
 
 # Azure Front Door FQDN
 output "frontdoor_fqdn" {
-  value = var.custom_fqdn
+  value = local.frontdoor_fqdn
 }
 
 output "global_storage_account_name" {

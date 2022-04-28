@@ -221,22 +221,12 @@ resource "azurerm_cdn_frontdoor_custom_domain" "global" {
   name                     = "CustomDomainFrontendEndpoint"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 
-  host_name   = trimsuffix(azurerm_dns_cname_record.afd_subdomain.fqdn, ".")
+  host_name   = local.frontdoor_fqdn
   dns_zone_id = data.azurerm_dns_zone.customdomain.id
 
   tls {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
-  }
-}
-
-resource "azurerm_dns_txt_record" "global" {
-  name                = "_dnsauth.${local.custom_domain_subdomain}"
-  zone_name           = local.custom_domain_name
-  resource_group_name = var.custom_dns_zone_resourcegroup_name
-  ttl                 = 3600
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.global.validation_properties.0.validation_token
   }
 }
 
