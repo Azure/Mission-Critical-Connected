@@ -185,6 +185,41 @@ steps:
                        $(tfParameterFrontDoorBackendApis)
                        $(tfParameterFrontDoorStaticStorage)'
 
+# After new backends have been added to Front Door, we might have to approve new Private Endpoint connections for Front Door
+- task: AzureCLI@2
+  displayName: 'Approve Front Door Private Endpoint Connections'
+  retryCountOnTaskFailure: 1
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: pscore
+    scriptLocation: inlineScript
+    inlineScript: |
+
+      $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
+
+      # loop through stamps from pipeline artifact json
+      foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value)
+      {
+        $plServiceId = $stamp.private_link_service_resource_id
+        echo "*** Looking up Pending Private Endpoint connections on Private Link $plServiceId"
+
+        $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
+        $pendingConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
+        foreach($pendingPe in $pendingConnections)
+        {
+          if($pendingPe.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix %$(prefix)$(globalSuffix)")
+          {
+            echo "*** Found pending Private Endpoint Connection from Frot Door. Approving..."
+            az network private-endpoint-connection approve --id $pendingPe.properties.privateEndpoint --description "Approved by automated pipeline"
+
+            if($LastExitCode -ne 0)
+            {
+                throw "*** Error on approving private endpoint connection $($pendingPe.properties.privateEndpoint)"
+            }
+          }
+        }
+      }
+
 # After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
 - task: AzureCLI@2
   displayName: 'Purge Front Door cache'
