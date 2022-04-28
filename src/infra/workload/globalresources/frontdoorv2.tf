@@ -141,6 +141,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   supported_protocols = [
     "Https"
   ]
+  forwarding_protocol = "HttpsOnly"
 
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
@@ -189,6 +190,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   supported_protocols = [
     "Https"
   ]
+  forwarding_protocol = "HttpsOnly"
 
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
@@ -223,6 +225,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   supported_protocols = [
     "Https"
   ]
+  forwarding_protocol = "HttpsOnly"
 
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
