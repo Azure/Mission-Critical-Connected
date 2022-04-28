@@ -24,7 +24,7 @@ steps:
     script: |
 
       cd $(System.DefaultWorkingDirectory)/tf_custom_build
-      unzip terraform-provider-azurerm.zip
+      unzip -o terraform-provider-azurerm.zip
       chmod 777 terraform-provider-azurerm
 
       echo "provider_installation {
