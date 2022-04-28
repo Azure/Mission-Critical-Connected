@@ -204,18 +204,26 @@ steps:
         echo "*** Looking up Pending Private Endpoint connections on Private Link $plServiceId"
 
         $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
-        $pendingConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
+
+        # Get pending connections which were made by our Front Door
+        $afdConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix $(prefix)$(globalSuffix)" }
+        if(-not $afdConnections)
+        {
+          # If there are no connections from Front Door, that indicates a problem as we would expect at least a pending connection at this point
+          throw "*** No Private Endpoint connections from Front Door on Private Link service $plServiceId"
+        }
+
+        # Get connections which are pending approval
+        $pendingConnections = $afdConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
         foreach($pendingPe in $pendingConnections)
         {
-          if($pendingPe.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix %$(prefix)$(globalSuffix)")
-          {
-            echo "*** Found pending Private Endpoint Connection from Frot Door. Approving..."
-            az network private-endpoint-connection approve --id $pendingPe.properties.privateEndpoint --description "Approved by automated pipeline"
+          echo "*** Found pending Private Endpoint Connection from Frot Door: $($pendingPe.name). Approving..."
+          az network private-endpoint-connection approve --id $pendingPe.id `
+                                                          --description "Approved by automated pipeline"
 
-            if($LastExitCode -ne 0)
-            {
-                throw "*** Error on approving private endpoint connection $($pendingPe.properties.privateEndpoint)"
-            }
+          if($LastExitCode -ne 0)
+          {
+              throw "*** Error on approving private endpoint connection $($pendingPe.name)"
           }
         }
       }
