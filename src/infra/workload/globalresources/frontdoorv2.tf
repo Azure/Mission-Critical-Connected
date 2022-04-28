@@ -15,6 +15,19 @@ resource "azurerm_cdn_frontdoor_endpoint" "default" {
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
 }
 
+resource "azurerm_cdn_frontdoor_custom_domain" "global" {
+  name                     = "CustomDomainFrontendEndpoint"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  host_name   = local.frontdoor_fqdn
+  dns_zone_id = data.azurerm_dns_zone.customdomain.id
+
+  tls {
+    certificate_type    = "ManagedCertificate"
+    minimum_tls_version = "TLS12"
+  }
+}
+
 # Front Door Origin Group used for Backend APIs hosted on AKS
 resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   name = "BackendApis"
@@ -215,19 +228,6 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.staticstorage : b.id]
-}
-
-resource "azurerm_cdn_frontdoor_custom_domain" "global" {
-  name                     = "CustomDomainFrontendEndpoint"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
-
-  host_name   = local.frontdoor_fqdn
-  dns_zone_id = data.azurerm_dns_zone.customdomain.id
-
-  tls {
-    certificate_type    = "ManagedCertificate"
-    minimum_tls_version = "TLS12"
-  }
 }
 
 # resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
