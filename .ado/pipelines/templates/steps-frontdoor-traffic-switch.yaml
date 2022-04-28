@@ -246,7 +246,7 @@ steps:
       $fdName = $globalInfraDeployOutput.frontdoor_name.value
 
       echo "*** Purging Front Door cache with path /*"
-      az afd endpoint purge -g $rgName --profile-name $fdName --content-paths "/*" --endpoint-name PrimaryFrontendEndpoint
+      az afd endpoint purge -g $rgName --profile-name $fdName --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
 
       if($LastExitCode -ne 0)
       {
