@@ -221,7 +221,7 @@ steps:
         {
           echo "*** Found pending Private Endpoint Connection from Front Door: $($pendingPe.name). Approving..."
           az network private-endpoint-connection approve --id $pendingPe.id `
-                                                          --description "Approved by automated pipeline"
+                                                         --description $pendingPe.privateLinkServiceConnectionState.description # keep original description
 
           if($LastExitCode -ne 0)
           {
