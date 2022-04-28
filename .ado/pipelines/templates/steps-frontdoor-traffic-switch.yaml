@@ -219,7 +219,7 @@ steps:
         $pendingConnections = $afdConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
         foreach($pendingPe in $pendingConnections)
         {
-          echo "*** Found pending Private Endpoint Connection from Frot Door: $($pendingPe.name). Approving..."
+          echo "*** Found pending Private Endpoint Connection from Front Door: $($pendingPe.name). Approving..."
           az network private-endpoint-connection approve --id $pendingPe.id `
                                                           --description "Approved by automated pipeline"
 
