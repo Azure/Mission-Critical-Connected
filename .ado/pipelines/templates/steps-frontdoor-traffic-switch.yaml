@@ -217,6 +217,12 @@ steps:
 
         # Get connections which are pending approval
         $pendingConnections = $afdConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
+
+        if(-not $pendingConnections)
+        {
+          echo "*** Found $($afdConnections.Count) Private Endpoint connections from Front Door, all of which are already approved"
+        }
+
         foreach($pendingPe in $pendingConnections)
         {
           echo "*** Found pending Private Endpoint Connection from Front Door: $($pendingPe.name). Approving..."
