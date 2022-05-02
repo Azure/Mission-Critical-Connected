@@ -59,7 +59,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   health_probe {
     protocol            = "Https"
     request_type        = "HEAD"
-    path                = "/images/health.check"
+    path                = "/health.check"
     interval_in_seconds = 30
   }
 
