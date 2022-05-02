@@ -46,7 +46,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   load_balancing {
     sample_count                       = 16
     successful_samples_required        = 3
-    additional_latency_in_milliseconds = 0
+    additional_latency_in_milliseconds = 1000
   }
 }
 
@@ -66,7 +66,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   load_balancing {
     sample_count                       = 16
     successful_samples_required        = 3
-    additional_latency_in_milliseconds = 0
+    additional_latency_in_milliseconds = 1000
   }
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
@@ -88,7 +88,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   load_balancing {
     sample_count                       = 16
     successful_samples_required        = 3
-    additional_latency_in_milliseconds = 0
+    additional_latency_in_milliseconds = 1000
   }
 
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
