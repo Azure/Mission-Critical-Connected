@@ -155,7 +155,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = { for index, backend in var.backends_BackendApis : backend.address => backend }
 
-  name               = each.index # replace(each.value.address, ".", "-") # Name must not contain dots, so we use hyphens instead
+  name               = each.key # replace(each.value.address, ".", "-") # Name must not contain dots, so we use hyphens instead
   host_name          = each.value.address
   origin_host_header = each.value.address
   weight             = each.value.weight
@@ -201,7 +201,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
 
-  name               = each.index # replace(each.value.address, ".", "-")
+  name               = each.key # replace(each.value.address, ".", "-")
   host_name          = each.value.address
   origin_host_header = each.value.address
   weight             = each.value.weight
