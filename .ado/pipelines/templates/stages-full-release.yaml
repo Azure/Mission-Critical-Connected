@@ -485,6 +485,38 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
+            # Before the Private Link services can be destroyed, all Private Endpoint connections need to be deleted
+            - task: AzureCLI@2
+              displayName: 'Delete AKS Private Endpoint Connections'
+              retryCountOnTaskFailure: 1
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+
+                  $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
+
+                  # loop through stamps from pipeline artifact json
+                  foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value)
+                  {
+                    $plServiceId = $stamp.private_link_service_resource_id
+                    echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
+
+                    $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
+
+                    foreach($peConnection in $peConnections)
+                    {
+                      echo "*** Deleting private endpoint connection: $($peConnection.name)"
+                      az network private-endpoint-connection delete --id $peConnection.id --yes
+
+                      if($LastExitCode -ne 0)
+                      {
+                          throw "*** Error on deleting private endpoint connection $($peConnection.name)"
+                      }
+                    }
+                  }
+
             # Terraform destroy the private endpoints and private link service for ingress
             - template: steps-terraform-destroy.yaml
               parameters:
