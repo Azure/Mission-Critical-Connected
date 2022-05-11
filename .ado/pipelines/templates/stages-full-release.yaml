@@ -487,7 +487,7 @@ stages:
 
             # Before the Private Link services can be destroyed, all Private Endpoint connections need to be deleted
             - task: AzureCLI@2
-              displayName: 'Delete AKS Private Endpoint Connections'
+              displayName: 'Delete AKS Ingress Private Link Endpoint Connections'
               retryCountOnTaskFailure: 1
               inputs:
                 azureSubscription: $(azureServiceConnection)
@@ -495,12 +495,13 @@ stages:
                 scriptLocation: inlineScript
                 inlineScript: |
 
-                  $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
+                  $privateLinkServices = az network private-link-service list --query "[?tags.Prefix == '$(oldReleasePrefix)$(oldReleaseSuffix)']" | ConvertFrom-JSON
 
-                  # loop through stamps from pipeline artifact json
-                  foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value)
+                  echo "*** Found $($privateLinkServices.Count) Private Link service(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
+
+                  foreach($plService in $privateLinkServices)
                   {
-                    $plServiceId = $stamp.private_link_service_resource_id
+                    $plServiceId = $plService.id
                     echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
 
                     $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
