@@ -8,13 +8,14 @@ parameters:
 - name: environment
   displayName: 'Environment (Subscriptions)'
   type: string
-  default: 'int'
+  default: 'e2e'
   values:
+  - e2e
   - int
   - prod
 
 pool:
-  vmImage: 'ubuntu-20.04'
+  name: 'e2e-private-agents' # self-hosted agentpool
 
 variables:
 - name:  'environment' # set the environment name as variable
