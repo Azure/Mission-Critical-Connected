@@ -39,6 +39,8 @@ jobs:
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
 
+          $ingressNamespace = "ingress-nginx"
+
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
           $ingressNamespace = "ingress-nginx"
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
@@ -103,7 +105,8 @@ jobs:
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/$(certManagerVersion)/cert-manager.crds.yaml
 
           $certManagerNamespace = "cert-manager"
-          echo "*** Setting up cert-manager ClusterIssuer with Let's Encrypt in namespace $certManagerNamespace"
+
+          echo "*** Setting up cert-manager ClusterIssuer with Let's Encrypt in namespace $certManagerNamespace on $aksClusterName"
           helm upgrade --install cert-manager-config src/config/cert-manager/chart/cert-manager-config`
                        --namespace $certManagerNamespace --create-namespace `
                        --set letsencrypt.contactEmail="$(contactEmail)"
@@ -113,7 +116,7 @@ jobs:
           helm repo update
           helm upgrade --install cert-manager jetstack/cert-manager `
                        --values src/config/cert-manager/values.helm.yaml `
-                       --namespace $certManagerNamespace `
+                       --namespace $certManagerNamespace --create-namespace `
                        --version "$(certManagerVersion)"
         }
 
