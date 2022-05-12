@@ -50,6 +50,7 @@ stages:
           jobName:                    'GlobalInfra'
           terraformWorkingDirectory:  '$(workingDirectory)/terraform/globalresources'
           customPrefix:               '$(prefix)'
+          customSuffix:               ''
           customAttributes:           '-var=queued_by="$(Build.QueuedBy)"
                                       -var=branch="$(Build.SourceBranch)"
                                       -var=contact_email="$(contactEmail)"
@@ -123,6 +124,7 @@ stages:
           jobName:                    'StampInfra'
           terraformWorkingDirectory:  '$(workingDirectory)/terraform/stamps'
           customPrefix:               '$(prefix)'
+          customSuffix:               ''
           customAttributes:           '-var=queued_by="$(Build.QueuedBy)"
                                       -var=branch="$(Build.SourceBranch)"
                                       -var=contact_email="$(contactEmail)"
