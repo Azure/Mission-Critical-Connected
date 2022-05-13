@@ -18,7 +18,7 @@ pool:
 
 parameters:
 - name: destroyEnvironment
-  displayName: "Destroy Environment at the end"
+  displayName: "Destroy environment at the end"
   type: boolean
   default: true
 
