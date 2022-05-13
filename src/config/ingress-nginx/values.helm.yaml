@@ -4,7 +4,7 @@
 
 controller:
   securityContext:
-    readOnlyRootFilesystem: true # If a container does not need to write files, it should be run with a read-only filesystem. 
+    readOnlyRootFilesystem: true # If a container does not need to write files, it should be run with a read-only filesystem.
     privileged: false # Running a container as privileged gives all capabilities to the container, and it also lifts all the limitations enforced by the device cgroup controller.
   autoscaling:
     enabled:     true # Enable autoscaling via horizontal pod autoscaler
@@ -24,7 +24,7 @@ controller:
         prometheus.io/port: "10254"
   service:
     type: LoadBalancer
-    enableHttp: true # enable plain http (req. for cert-manager)
+    enableHttp:  true # enable plain http (req. for cert-manager)
     enableHttps: true  # enable https listener
     annotations:
       service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: "/healthz"

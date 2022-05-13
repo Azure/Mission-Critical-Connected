@@ -42,3 +42,4 @@ resource "azurerm_monitor_action_group" "main" {
 #     action_group_id = azurerm_monitor_action_group.main.id
 #   }
 # }
+# }

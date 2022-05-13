@@ -47,26 +47,6 @@ jobs: # using jobs so they each run in parallel
                           --set containerimage="$fullContainerImageName" `
                           --set azure.region="$region" `
                           ${{ parameters.additionalHelmArguments }}
-
-            if ($LastExitCode -ne 0)
-            {
-              throw "*** Error on helm deployment of healthservice"
-            }
-
-            # Wait for healthservice-deploy k8s deployment to come up
-            $retrycount = 0;
-            $maxretrycount = 5
-            do {
-              kubectl rollout status deployment/healthservice-deploy -n $(workloadNamespace)
-
-              if ($LastExitCode -ne 0) {
-                $retrycount++;
-                echo "Deployment not ready. Retrying... $retrycount/$maxretrycount";
-                start-sleep $(60*$retrycount) # sleep for <retry> * 60 seconds
-              } else {
-                $retrycount = $maxretrycount
-              }
-            } while ( ($retrycount -lt $maxretrycount) )
           }
 
 - job: deploycontainerCatalogService
@@ -146,10 +126,10 @@ jobs: # using jobs so they each run in parallel
             do {
               kubectl rollout status deployment/catalogservice-deploy -n $(workloadNamespace)
 
-              # checking if certificate for CatalogService-ingress-secret was issued
+              # checking if certificate for catalogservice-ingress-secret was issued
               if ($(kubectl get certificates/catalogservice-ingress-secret -n $(workloadNamespace) -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') -ne "True")
               {
-                $LastExitCode=1
+                $LASTEXITCODE=1
                 echo "certificate for catalogservice-ingress-secret pending.. "
               }
 
@@ -198,6 +178,7 @@ jobs: # using jobs so they each run in parallel
             $region = $(az eventhubs namespace list --resource-group $aksClusterResourceGroup --query "[0].location" --output tsv)
             echo "*** Use Azure Region $region from Event Hub namespace."
 
+            # Load AKS / K8s cluster credentials via az aks get-credentials (using IAM permissions)
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
@@ -211,26 +192,6 @@ jobs: # using jobs so they each run in parallel
                          --set containerimage="$fullContainerImageName" `
                          --set azure.region="$region" `
                          ${{ parameters.additionalHelmArguments }}
-
-            if ($LastExitCode -ne 0)
-            {
-              throw "*** Error on helm deployment of backgroundprocessor"
-            }
-
-            # Wait for BackgroundProcessor-deploy k8s deployment to come up
-            $retrycount = 0;
-            $maxretrycount = 5
-            do {
-              kubectl rollout status deployment/backgroundprocessor-deploy -n $(workloadNamespace)
-              if ($LastExitCode -ne 0) {
-                $retrycount++;
-                echo "Deployment not ready. Retrying... $retrycount/$maxretrycount";
-                start-sleep $(60*$retrycount) # sleep for <retry> * 60 seconds
-              } else {
-                $retrycount = $maxretrycount
-              }
-            } while ( ($retrycount -lt $maxretrycount) )
-
           }
 
 - job: deployuiapp
@@ -266,7 +227,7 @@ jobs: # using jobs so they each run in parallel
 
             echo "*** Storing configuration to $configFilePath"
             # warning: make sure that these variable names are in sync with client code
-            Add-Content -Path $configFilePath -Value "window.API_URL = `"/api`""
+            Add-Content -Path $configFilePath -Value "window.API_URL = `"/catalogservice/api`""
             Add-Content -Path $configFilePath -Value "window.APPLICATIONINSIGHTS_CONNECTION_STRING = `"$appInsightsConnString`""
 
             $versionLabel = "$(riVariant)-$("$(Build.SourceBranch)" -Replace 'refs/heads/', '')-$(Build.BuildId)"
