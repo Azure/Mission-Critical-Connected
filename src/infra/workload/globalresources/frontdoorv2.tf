@@ -39,7 +39,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   health_probe {
     protocol            = "Https"
     request_type        = "HEAD"
-    path                = "/health/stamp"
+    path                = "/healthservice/health/stamp"
     interval_in_seconds = 30
   }
 
