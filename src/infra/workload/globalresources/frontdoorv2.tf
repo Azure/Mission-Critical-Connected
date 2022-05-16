@@ -181,6 +181,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "backendapi" {
+  count                         = length(var.backends_BackendApis) > 0 ? 1 : 0 # only create this route if there are already backends
   name                          = "BackendApiRoute"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
@@ -222,6 +223,7 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "staticstorage" {
+  count                         = length(var.backends_StaticStorage) > 0 ? 1 : 0 # only create this route if there are already backends
   name                          = "StaticStorageRoute"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.default.id
   enabled                       = true
