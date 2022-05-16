@@ -65,9 +65,9 @@ resource "azurerm_kubernetes_cluster" "stamp" {
     secret_rotation_interval = "5m"
   }
 
-  # depends_on = [
-  #   azurerm_public_ip.aks_ingress
-  # ]
+  depends_on = [
+    azurerm_subnet.aks_lb # explicit dependency on the subnet that the "kubernetes-internal" load balancer will be put into, so we don't have a race condition on deletion
+  ]
 
   tags = var.default_tags
 }
