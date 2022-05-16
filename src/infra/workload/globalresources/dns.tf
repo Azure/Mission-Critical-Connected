@@ -21,6 +21,6 @@ resource "azurerm_dns_txt_record" "global" {
   resource_group_name = data.azurerm_dns_zone.customdomain.resource_group_name
   ttl                 = 3600
   record {
-    value = azurerm_cdn_frontdoor_custom_domain.global.validation_properties.0.validation_token
+    value = azurerm_cdn_frontdoor_custom_domain.global.validation_token
   }
 }

@@ -44,8 +44,8 @@ resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   }
 
   load_balancing {
-    sample_count                       = 16
-    successful_samples_required        = 3
+    sample_size                        = 4
+    successful_samples_required        = 2
     additional_latency_in_milliseconds = 1000
   }
 }
@@ -64,8 +64,8 @@ resource "azurerm_cdn_frontdoor_origin_group" "globalstorage" {
   }
 
   load_balancing {
-    sample_count                       = 16
-    successful_samples_required        = 3
+    sample_size                        = 4
+    successful_samples_required        = 2
     additional_latency_in_milliseconds = 1000
   }
 
@@ -86,8 +86,8 @@ resource "azurerm_cdn_frontdoor_origin_group" "staticstorage" {
   }
 
   load_balancing {
-    sample_count                       = 16
-    successful_samples_required        = 3
+    sample_size                        = 4
+    successful_samples_required        = 2
     additional_latency_in_milliseconds = 1000
   }
 
@@ -139,7 +139,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
 
   supported_protocols = [
-    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
+    "Http", # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
@@ -188,7 +188,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   ]
 
   supported_protocols = [
-    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
+    "Http", # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
@@ -224,7 +224,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 
   supported_protocols = [
-    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
+    "Http", # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
