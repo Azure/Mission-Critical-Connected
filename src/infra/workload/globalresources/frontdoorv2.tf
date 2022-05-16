@@ -266,3 +266,46 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
 #     version = "1.0"
 #   }
 # }
+
+####################################### DIAGNOSTIC SETTINGS #######################################
+
+# Use this data source to fetch all available log and metrics categories. We then enable all of them
+data "azurerm_monitor_diagnostic_categories" "frontdoor" {
+  resource_id = azurerm_cdn_frontdoor_profile.main.id
+}
+
+resource "azurerm_monitor_diagnostic_setting" "frontdoor" {
+  name                       = "frontdoorladiagnostics"
+  target_resource_id         = azurerm_cdn_frontdoor_profile.main.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.global.id
+
+  dynamic "log" {
+    iterator = entry
+    for_each = data.azurerm_monitor_diagnostic_categories.frontdoor.logs
+
+    content {
+      category = entry.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = 30
+      }
+    }
+  }
+
+  dynamic "metric" {
+    iterator = entry
+    for_each = data.azurerm_monitor_diagnostic_categories.frontdoor.metrics
+
+    content {
+      category = entry.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = 30
+      }
+    }
+  }
+}
