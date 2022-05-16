@@ -2,7 +2,7 @@
 jobs:
 
 - job: importsampledata
-  displayName: 'Import sample data'
+  displayName: 'Import Sample Data'
   steps:
 
     - checkout: self # checkout github repository
@@ -10,7 +10,7 @@ jobs:
     - download: current # download pipeline artifacts
 
     - task: PowerShell@2
-      displayName: 'Import sample data'
+      displayName: 'Import Sample Data'
       retryCountOnTaskFailure: 1
       inputs:
         targetType: inline
@@ -36,7 +36,7 @@ jobs:
           # $url = "https://$($stamp.buildagent_pe_ingress_fqdn)/api/1.0/CatalogItem"
           # TODO REMOVE. JUST FOR TESTING
           # Import through APIM
-          $url = "https://$($stamp.apim_fqdn)/api/1.0/CatalogItem"
+          $url = "https://$($stamp.apim_fqdn)/catalogservice/api/1.0/CatalogItem"
 
           Write-Host "*** Using URL $url"
 

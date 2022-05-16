@@ -39,6 +39,8 @@ jobs:
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
 
+          $ingressNamespace = "ingress-nginx"
+
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
           $ingressNamespace = "ingress-nginx"
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
@@ -124,7 +126,7 @@ jobs:
           helm repo update
           helm upgrade --install cert-manager jetstack/cert-manager `
                        --values src/config/cert-manager/values.helm.yaml `
-                       --namespace $certManagerNamespace `
+                       --namespace $certManagerNamespace --create-namespace `
                        --version "$(certManagerVersion)"
         }
 
