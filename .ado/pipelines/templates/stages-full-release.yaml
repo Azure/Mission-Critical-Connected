@@ -102,11 +102,18 @@ stages:
                       $afdBackendsInput += $backendConfig
                     }
 
-                    $flatJsonApis = $afdBackendsInput | ConvertTo-Json -Compress -Depth 100 -AsArray
-                    echo "*** Current backends in pool $($pool): " $flatJsonApis
-                    $contentBackends = "-var='backends_$pool=$flatJsonApis'"
+                    if($afdBackendsInput.Count -gt 0)
+                    {
+                      $flatJsonApis = $afdBackendsInput | ConvertTo-Json -Compress -Depth 100 -AsArray
+                      echo "*** Current backends in pool $($pool): " $flatJsonApis
+                      $contentBackends = "-var='backends_$pool=$flatJsonApis'"
 
-                    echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]$contentBackends"
+                      echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]$contentBackends"
+                    }
+                    else
+                    {
+                      echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]"
+                    }
                   }
                 }
                 else
