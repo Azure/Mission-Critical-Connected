@@ -139,6 +139,7 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
 
   supported_protocols = [
+    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
@@ -182,12 +183,12 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
 
   patterns_to_match = [
-    "/api/*",
-    "/health/*",
-    "/swagger/*"
+    "/catalogservice/*",
+    "/healthservice/*"
   ]
 
   supported_protocols = [
+    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
@@ -223,6 +224,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   ]
 
   supported_protocols = [
+    "Http",   # HTTP needs to be enabled explicity, so that https_redirect_enabled = true (default) works
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
