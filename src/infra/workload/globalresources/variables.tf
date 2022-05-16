@@ -101,13 +101,14 @@ variable "backends_BackendApis" {
     weight                 = number
     enabled                = bool
   }))
-  default = [{
-    address                = "changeme-api.example.com"
-    privatelink_service_id = "" # Optional. Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
-    privatelink_location   = "" # Optional. Example: "westus2"
-    weight                 = 1
-    enabled                = true
-  }]
+  default = []
+  # default = [{
+  #   address                = "changeme-api.example.com"
+  #   privatelink_service_id = "" # Optional. Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
+  #   privatelink_location   = "" # Optional. Example: "westus2"
+  #   weight                 = 1
+  #   enabled                = true
+  # }]
 }
 
 # We use example.com for the very first creation of Front Door when we have no backends yet
@@ -117,9 +118,10 @@ variable "backends_StaticStorage" {
     weight  = number
     enabled = bool
   }))
-  default = [{
-    address = "changeme-storage.example.com"
-    weight  = 1
-    enabled = true
-  }]
+  default = []
+  # default = [{
+  #   address = "changeme-storage.example.com"
+  #   weight  = 1
+  #   enabled = true
+  # }]
 }
