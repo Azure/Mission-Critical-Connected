@@ -276,6 +276,7 @@ stages:
 
     - task: AzureCLI@2
       displayName: 'Fetch Private Link service configuration inputs'
+      retryCountOnTaskFailure: 1
       inputs:
         azureSubscription: '$(azureServiceConnection)'
         scriptType: pscore
