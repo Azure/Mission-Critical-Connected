@@ -203,7 +203,7 @@ steps:
       foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value)
       {
         $plServiceId = $stamp.private_link_service_resource_id
-        echo "*** Looking up Pending Private Endpoint connections on Private Link $plServiceId"
+        echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
 
         $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
 
