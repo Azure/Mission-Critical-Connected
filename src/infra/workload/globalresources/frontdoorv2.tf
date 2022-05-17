@@ -144,9 +144,6 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
   forwarding_protocol = "HttpsOnly"
 
-  cache {
-    query_string_caching_behavior = "IgnoreQueryString"
-  }
 
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
@@ -198,10 +195,6 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   ]
   forwarding_protocol = "HttpsOnly"
 
-  cache {
-    query_string_caching_behavior = "IgnoreQueryString"
-  }
-
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
@@ -238,10 +231,6 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
-
-  cache {
-    query_string_caching_behavior = "IgnoreQueryString"
-  }
 
   link_to_default_domain_enabled  = true
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
