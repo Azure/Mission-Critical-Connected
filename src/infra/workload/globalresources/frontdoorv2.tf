@@ -242,23 +242,43 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.staticstorage : b.id]
 }
 
-# resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
-#   name                     = "${local.prefix}globalfdfp"
-#   resource_group_name      = azurerm_resource_group.global.name
-#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
-#   sku_name                 = "Premium_AzureFrontDoor"
-#   enabled                  = true
-#   mode                     = "Prevention"
+#### WAF
 
-#   managed_rule {
-#     type    = "Microsoft_DefaultRuleSet"
-#     version = "2.0"
-#   }
-#   managed_rule {
-#     type    = "Microsoft_BotManagerRuleSet"
-#     version = "1.0"
-#   }
-# }
+resource "azurerm_cdn_frontdoor_firewall_policy" "global" {
+  name                = "${local.prefix}globalfdfp"
+  resource_group_name = azurerm_resource_group.global.name
+  sku_name            = azurerm_cdn_frontdoor_profile.main.sku_name
+  enabled             = true
+  mode                = "Prevention"
+
+  managed_rule {
+    type    = "Microsoft_DefaultRuleSet"
+    version = "2.0"
+    action  = "Block"
+  }
+  managed_rule {
+    type    = "Microsoft_BotManagerRuleSet"
+    version = "1.0"
+    action  = "Block"
+  }
+}
+
+resource "azurerm_cdn_frontdoor_security_policy" "global" {
+  name                     = "Global-Security-Policy"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  security_policies {
+    firewall {
+      cdn_frontdoor_firewall_policy_id = azurerm_cdn_frontdoor_firewall_policy.global.id
+      association {
+        patterns_to_match = ["/*"]
+        domain {
+          cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.global.id
+        }
+      }
+    }
+  }
+}
 
 ####################################### DIAGNOSTIC SETTINGS #######################################
 
