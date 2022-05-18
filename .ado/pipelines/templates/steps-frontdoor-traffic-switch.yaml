@@ -246,7 +246,7 @@ steps:
     inlineScript: |
 
       echo "*** Purging Front Door cache with path /*"
-      az afd endpoint purge -g $rgName --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
+      az afd endpoint purge -g $(global_resource_group_name) --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
 
       if($LastExitCode -ne 0)
       {
