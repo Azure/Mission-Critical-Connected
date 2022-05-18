@@ -275,9 +275,6 @@ resource "azurerm_cdn_frontdoor_security_policy" "global" {
         domain {
           cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.global.id
         }
-        domain {
-          cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_endpoint.default.id
-        }
       }
     }
   }
