@@ -20,11 +20,6 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
 
-      $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
-
-      $rgName = $globalInfraDeployOutput.global_resource_group_name.value
-      $fdName = $globalInfraDeployOutput.frontdoor_name.value
-
       $newBackendsWeight = ${{ parameters.trafficWeightNewBackends }}
       $oldBackendsWeight = 100 - $newBackendsWeight # since the weight for the new backends is a percentage, we substract from 100 to get the remaining weights for the old backends
 
@@ -108,7 +103,7 @@ steps:
 
         if($LastExitCode -ne 0)
         {
-            throw "*** Error on fetching existing backends from Front Door $fdName for pool $pool"
+            throw "*** Error on fetching existing backends from Front Door $(frontdoor_name) for pool $pool"
         }
 
         foreach($backend in $backends)
@@ -246,15 +241,10 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
 
-      $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
-
-      $rgName = $globalInfraDeployOutput.global_resource_group_name.value
-      $fdName = $globalInfraDeployOutput.frontdoor_name.value
-
       echo "*** Purging Front Door cache with path /*"
       az afd endpoint purge -g $rgName --profile-name $fdName --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
 
       if($LastExitCode -ne 0)
       {
-          throw "*** Error on purging cache in Front Door $fdName"
+          throw "*** Error on purging cache in Front Door $(frontdoor_name)"
       }
