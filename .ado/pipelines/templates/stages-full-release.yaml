@@ -402,14 +402,9 @@ stages:
                   scriptLocation: inlineScript
                   inlineScript: |
 
-                    $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
-
-                    $rgName = $(global_resource_group_name)
-                    $fdName = $(frontdoor_name)
-
                     $disabledBackendAddress = az afd origin list `
-                                --profile-name $fdName `
-                                --origin-group-name BackendApis -g $rgName `
+                                --profile-name $(frontdoor_name) `
+                                --origin-group-name BackendApis -g $(global_resource_group_name) `
                                 --query "[?enabledState=='Disabled'].{hostName:hostName}[0]" -o tsv
 
                     if($LastExitCode -ne 0)
