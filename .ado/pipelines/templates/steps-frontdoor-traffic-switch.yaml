@@ -11,6 +11,10 @@ parameters:
 # Once we need the deployment job to have approvals and once we call it from inside another deployment job
 steps:
 
+- template: steps-parse-terraform-output.yaml # parse global configuration settings from terraform deployment output
+  parameters:
+    workingDirectory: '$(Pipeline.Workspace)/terraformOutputGlobalInfra'  # Global infra deploy output directory
+
 - task: AzureCLI@2
   displayName: 'Create updated Front Door backend list'
   retryCountOnTaskFailure: 1
@@ -97,8 +101,8 @@ steps:
 
         # Fetch existing backends in the pool from Front Door
         $backends = az afd origin list `
-                    --profile-name $fdName `
-                    --origin-group-name $pool -g $rgName `
+                    --profile-name $(frontdoor_name) `
+                    --origin-group-name $pool -g $(global_resource_group_name) `
                     --query "[$queryOptionEnabledOnly]" | ConvertFrom-Json -NoEnumerate
 
         if($LastExitCode -ne 0)
@@ -242,7 +246,7 @@ steps:
     inlineScript: |
 
       echo "*** Purging Front Door cache with path /*"
-      az afd endpoint purge -g $rgName --profile-name $fdName --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
+      az afd endpoint purge -g $rgName --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
 
       if($LastExitCode -ne 0)
       {
