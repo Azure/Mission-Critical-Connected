@@ -8,14 +8,21 @@ jobs:
   displayName: 'Build UI app'
   steps:
 
+  - task: NodeTool@0
+    displayName: 'Use Node v$(uiAppNodeVersion) for UI app'
+    inputs:
+      versionSpec: '$(uiAppNodeVersion)'
+
   - task: Npm@1
     displayName: 'NPM install'
+    retryCountOnTaskFailure: 1
     inputs:
       command: 'install'
       workingDir: ${{ parameters.workingDirectory }}
 
   - task: Npm@1
     displayName: 'Build the static UI app for deployment'
+    retryCountOnTaskFailure: 1
     inputs:
       command: 'custom'
       customCommand: 'run build'

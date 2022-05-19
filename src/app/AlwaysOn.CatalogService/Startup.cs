@@ -3,6 +3,7 @@ using AlwaysOn.CatalogService.SwaggerHelpers;
 using AlwaysOn.Shared;
 using AlwaysOn.Shared.Interfaces;
 using AlwaysOn.Shared.Services;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
@@ -38,8 +39,12 @@ namespace AlwaysOn.CatalogService
             services.AddSingleton<SysConfiguration>();
 
             services.AddSingleton(typeof(ITelemetryChannel),
-                                new ServerTelemetryChannel() { StorageFolder = "/tmp/appinsightschannel"});
-            services.AddApplicationInsightsTelemetry(Configuration[SysConfiguration.ApplicationInsightsKeyName]);
+                                new ServerTelemetryChannel() { StorageFolder = "/tmp"});
+            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions()
+            {
+                ConnectionString = Configuration[SysConfiguration.ApplicationInsightsConnStringKeyName],
+                EnableAdaptiveSampling = bool.TryParse(Configuration[SysConfiguration.ApplicationInsightsAdaptiveSamplingName], out bool result) ? result : true
+            });
 
             services.AddHealthChecks();// Adds a simple liveness probe HTTP endpoint, path mapping happens further below
 
@@ -84,6 +89,8 @@ namespace AlwaysOn.CatalogService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UsePathBase("/catalogservice");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -103,7 +110,7 @@ namespace AlwaysOn.CatalogService
                 // specifying the Swagger JSON endpoint.
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlwaysOn CatalogService");
+                    c.SwaggerEndpoint("v1/swagger.json", "AlwaysOn CatalogService");
                 });
             }
 

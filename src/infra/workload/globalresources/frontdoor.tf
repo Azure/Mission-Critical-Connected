@@ -1,7 +1,6 @@
 resource "azurerm_frontdoor" "main" {
   name                                         = local.frontdoor_name
   resource_group_name                          = azurerm_resource_group.global.name
-  enforce_backend_pools_certificate_name_check = true
 
   tags = local.default_tags
 
@@ -12,7 +11,7 @@ resource "azurerm_frontdoor" "main" {
   routing_rule {
     name               = "API-rule"
     accepted_protocols = ["Https"]
-    patterns_to_match  = ["/api/*", "/health/*", "/swagger/*"]
+    patterns_to_match  = ["/catalogservice/*", "/healthservice/*"]
     frontend_endpoints = [(var.custom_fqdn != "" ? local.frontdoor_custom_frontend_name : local.frontdoor_default_frontend_name)]
     forwarding_configuration {
       forwarding_protocol = "HttpsOnly"
@@ -43,8 +42,7 @@ resource "azurerm_frontdoor" "main" {
       forwarding_protocol = "HttpsOnly"
       backend_pool_name   = "GlobalStorage"
 
-      # Cache the images
-      cache_enabled = true
+      cache_enabled = true # Cache the images
     }
   }
 
@@ -69,7 +67,7 @@ resource "azurerm_frontdoor" "main" {
     name                = "ApiHealthProbeSetting"
     protocol            = "Https"
     probe_method        = "HEAD"
-    path                = "/health/stamp"
+    path                = "/healthservice/health/stamp"
     interval_in_seconds = 30
   }
 
@@ -85,8 +83,13 @@ resource "azurerm_frontdoor" "main" {
     name                = "GlobalStorageHealthProbeSetting"
     protocol            = "Https"
     probe_method        = "HEAD"
-    path                = "/images/health.check"
+    path                = "/health.check"
     interval_in_seconds = 30
+  }
+
+  backend_pool_settings {
+    enforce_backend_pools_certificate_name_check = true
+    backend_pools_send_receive_timeout_seconds   = 60
   }
 
   backend_pool {
@@ -154,8 +157,6 @@ resource "azurerm_frontdoor" "main" {
     load_balancing_name = "LoadBalancingSettings"
     health_probe_name   = "GlobalStorageHealthProbeSetting"
   }
-
-  backend_pools_send_receive_timeout_seconds = 60
 
   frontend_endpoint {
     name                     = local.frontdoor_default_frontend_name
