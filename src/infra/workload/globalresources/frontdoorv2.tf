@@ -274,11 +274,11 @@ resource "azurerm_cdn_frontdoor_security_policy" "global" {
         patterns_to_match = ["/*"]
 
         domain {
-          cdn_frontdoor_resource_id = azurerm_cdn_frontdoor_endpoint.default.id
+          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.default.id
         }
 
         domain {
-          cdn_frontdoor_resource_id = azurerm_cdn_frontdoor_custom_domain.global.id
+          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_custom_domain.global.id
         }
       }
     }
