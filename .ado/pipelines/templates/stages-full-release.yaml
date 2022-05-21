@@ -360,6 +360,7 @@ stages:
   - template: stages-configure-frontdoor.yaml
     parameters:
       trafficWeightNewBackends: ${{ step }}
+      removeDisabledBackends: true
 
 - stage: testingGlobalEndpoints # smoke-testing global endpoint only after the switchover has happened
   displayName: 'Test Global Endpoint'
