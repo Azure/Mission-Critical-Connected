@@ -56,7 +56,6 @@ resource "azurerm_private_endpoint" "buildagent_keyvault" {
 
 ### Storage Account ###
 resource "azurerm_private_endpoint" "buildagent_storage_blob" {
-  depends_on          = [azurerm_private_endpoint.table_storage] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${var.location}-built-agent-storage-blob-pe"
   location            = data.azurerm_resource_group.buildagent.location
   resource_group_name = data.azurerm_resource_group.buildagent.name
