@@ -50,6 +50,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmosdb" {
 }
 
 resource "azurerm_private_endpoint" "cosmosdb" {
+  depends_on          = [azurerm_private_endpoint.acr] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${var.location}-cosmosdb-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
@@ -86,6 +87,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "servicebus" {
 }
 
 resource "azurerm_private_endpoint" "eventhub_namespace" {
+  depends_on          = [azurerm_private_endpoint.cosmosdb] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${var.location}-evhns-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
@@ -129,6 +131,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
 }
 
 resource "azurerm_private_endpoint" "keyvault" {
+  depends_on          = [azurerm_private_endpoint.eventhub_namespace] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${var.location}-keyvault-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
@@ -172,6 +175,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage" {
 }
 
 resource "azurerm_private_endpoint" "blob_storage" {
+  depends_on          = [azurerm_private_endpoint.keyvault] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${var.location}-storage-blob-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
