@@ -360,7 +360,6 @@ stages:
   - template: stages-configure-frontdoor.yaml
     parameters:
       trafficWeightNewBackends: ${{ step }}
-      removeDisabledBackends: true
 
 - stage: testingGlobalEndpoints # smoke-testing global endpoint only after the switchover has happened
   displayName: 'Test Global Endpoint'
@@ -395,7 +394,7 @@ stages:
 
             - ${{ if ne(parameters.environment, 'e2e') }}: # Only in int/prod
               - task: AzureCLI@2
-                displayName: 'Fetch previous release prefix through disabled Front Door backends'
+                displayName: 'Fetch previous release prefix through disabled Front Door origins'
                 retryCountOnTaskFailure: 1
                 inputs:
                   azureSubscription: '$(azureServiceConnection)'
@@ -403,31 +402,29 @@ stages:
                   scriptLocation: inlineScript
                   inlineScript: |
 
-                    $disabledBackendAddress = az afd origin list `
+                    $disabledBackend = az afd origin list `
                                 --profile-name $(frontdoor_name) `
                                 --origin-group-name BackendApis -g $(global_resource_group_name) `
-                                --query "[?enabledState=='Disabled'].{hostName:hostName}[0]" -o tsv
+                                --query "[?enabledState=='Disabled'].{hostName:hostName,privateLinkId:sharedPrivateLinkResource.privateLink.id}[0]" | ConvertFrom-Json
 
                     if($LastExitCode -ne 0)
                     {
-                        throw "*** Error on fetching existing backends from Front Door $(frontdoor_name) for pool 'BackendApis'. Make sure the backend pool exists!"
+                        throw "*** Error on fetching existing disabled origns from Front Door $(frontdoor_name) for origin group 'BackendApis'. Make sure the origin group exists!"
                     }
 
                     $prefix = "$(prefix)"
 
-                    # Only valid if we found any disabled backend (=an old release unit)
-                    if($disabledBackendAddress)
+                    # Only valid if we found any disabled origin (=an old release unit)
+                    if($disabledBackend)
                     {
-                      echo "*** Found disabled backend $disabledBackendAddress"
+                      echo "*** Found disabled origin $($disabledBackend.hostName)"
 
-                      # TODO move away from Public IP
-
-                      # Lookup the Public IP resource for this FQDN and fetch the Prefix tag from it
-                      $prefixSuffix = az network public-ip list --query "[?dnsSettings.fqdn == '$disabledBackendAddress'].{prefix:tags.Prefix}" -o tsv
+                      # Lookup the Private Link Service for this origin and fetch the Prefix tag from it
+                      $prefixSuffix = az resource show --ids $disabledBackend.privateLinkId --query "tags.Prefix" -o tsv
 
                       if(-not $prefixSuffix)
                       {
-                        throw "*** No Public IP found (or not Prefix tag) for FQDN $disabledBackendAddress"
+                        throw "*** No Private Link Serivce found for resource id $($disabledBackend.privateLinkId)"
                       }
 
                       echo "*** Found prefix-suffix $prefixSuffix"
@@ -435,10 +432,10 @@ stages:
                       $suffix = $prefixSuffix -creplace "$prefix","" # get suffix by removing the prefix from the prefixSuffix
                     }
 
-                    if((-not $disabledBackendAddress) -or (-not $suffix))
+                    if((-not $disabledBackend) -or (-not $suffix))
                     {
                       # This can happen on the very first run of the INT or PROD pipeline. We'll set the prefix to some dummy. Terraform destroy will be happy but has nothing to really destroy
-                      Write-Warning "*** No disabled backends found or prefix empty. Nothing to destroy."
+                      Write-Warning "*** No disabled origins found or prefix empty. Nothing to destroy."
 
                       $suffix = "SUFF" # using some dummy value
                     }
