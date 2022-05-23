@@ -5,6 +5,9 @@ parameters:
   - name: removeDisabledBackends # if set to true, any backends in Front Door that are in a Disabled state (from a previous run of this script), will be now removed
     type: boolean
     default: false
+  - name: purgeAfdCache # whether to purge the Edge cache of Front Door
+    type: boolean
+    default: false
 
 # We have this as both a stage-template and a steps-template.
 # Reason for this is that we use it in two different places:
@@ -228,20 +231,21 @@ steps:
         }
       }
 
-# After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
-- task: AzureCLI@2
-  displayName: 'Purge Front Door cache'
-  retryCountOnTaskFailure: 1
-  inputs:
-    azureSubscription: $(azureServiceConnection)
-    scriptType: pscore
-    scriptLocation: inlineScript
-    inlineScript: |
+- ${{ if eq(parameters.purgeAfdCache, 'true') }}:
+  # After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
+  - task: AzureCLI@2
+    displayName: 'Purge Front Door cache'
+    retryCountOnTaskFailure: 1
+    inputs:
+      azureSubscription: $(azureServiceConnection)
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
 
-      echo "*** Purging Front Door cache with path /*"
-      az afd endpoint purge -g $(global_resource_group_name) --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
+        echo "*** Purging Front Door cache with path /*"
+        az afd endpoint purge -g $(global_resource_group_name) --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
 
-      if($LastExitCode -ne 0)
-      {
-          throw "*** Error on purging cache in Front Door $(frontdoor_name)"
-      }
+        if($LastExitCode -ne 0)
+        {
+            throw "*** Error on purging cache in Front Door $(frontdoor_name)"
+        }
