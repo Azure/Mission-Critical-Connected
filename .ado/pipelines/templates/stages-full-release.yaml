@@ -299,11 +299,24 @@ stages:
 
             echo "*** Fetching internal AKS load balancer properties for stamp in region $location"
 
-            # Fetch the "kubernetes-internal" load balancer from the managed resource group
-            $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
+            # Sometimes the creation of the internal LB seems to take a couple of minutes. So we wait and retry
+            $retrycount = 0;
+            $maxretrycount = 10
+            do
+            {
+              # Fetch the "kubernetes-internal" load balancer from the managed resource group
+              $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
 
-            # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
-            $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+              # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
+              $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+
+              if(-not $ipConfig)
+              {
+                $retrycount++
+                echo "*** No IP configuration found for IP address $internalLbIp Waiting for 60s and retrying... $retrycount/$maxretrycount"
+                Start-Sleep 60
+              }
+            } while ( ($retrycount -lt $maxretrycount) )
 
             if(-not $ipConfig)
             {
