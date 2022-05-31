@@ -23,7 +23,6 @@ networkPolicy:
 
 azure:
   region: "East US 2"
-  baseurl: "OVERWRITE.myalwaysonapp.net" # FQDN used by the Azure Front Door endpoint
 
 healthservice:
   name: "healthservice-service" # name of the healthservice service in k8s
