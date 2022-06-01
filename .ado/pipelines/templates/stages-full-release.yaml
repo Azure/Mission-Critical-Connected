@@ -254,12 +254,13 @@ stages:
   jobs:
   - template: jobs-workload-deploy.yaml
 
-- stage: createIngressPrivateLink
-  displayName: 'Create Private Link for AKS Ingress'
+# In order for the build agents to be able to test the stamps directly, they need a Private Endpoint on the internal ingress Private Link service
+- stage: createIngressPrivateEndpoints
+  displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
   dependsOn: deployworkload
   jobs:
-  - job: createIngressPrivateLinkJob
-    displayName: 'Create Private Link for AKS Ingress'
+  - job: createIngressPrivateEndpointsJob
+    displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
     steps:
 
     - download: current # download pipeline artifacts
@@ -352,7 +353,7 @@ stages:
 
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
-  dependsOn: createIngressPrivateLink
+  dependsOn: createIngressPrivateEndpoints
   jobs:
   - template: jobs-init-sampledata.yaml
 
