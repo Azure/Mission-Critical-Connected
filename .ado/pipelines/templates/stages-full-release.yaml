@@ -317,6 +317,7 @@ stages:
               {
                 # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
                 $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
+                break
               }
             } while ( ($retrycount -lt $maxretrycount) )
 
