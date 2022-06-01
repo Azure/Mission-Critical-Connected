@@ -15,7 +15,7 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.workload.domainname }}
+    - {{ .Values.workload.domainname | quote }}
     secretName: {{ .Values.workload.tlsSecret }} # shouldn't be changed as this might be used by other services
   rules:
   - host: {{ .Values.workload.domainname | quote }}
