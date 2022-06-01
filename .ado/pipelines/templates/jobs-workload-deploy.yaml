@@ -38,11 +38,16 @@ jobs: # using jobs so they each run in parallel
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/healthservice-containerImageName/healthservice.txt"
-            echo "*** Retrieved container image name from artifact - $fullContainerImageName"
-
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
+
+            # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
+            # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
+            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            echo "*** Using wildcard domain name $wildcardDomain"
+
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/healthservice-containerImageName/healthservice.txt"
+            echo "*** Retrieved container image name from artifact - $fullContainerImageName"
 
             # Apply workload worker helm chart
             echo  "*** Deploy healthservice to $aksClusterName (in $aksClusterResourceGroup) via helm chart"
@@ -52,7 +57,7 @@ jobs: # using jobs so they each run in parallel
                          --set azure.frontdoorid="$(frontdoor_id_header)" `
                          --set azure.region="$region" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$fqdn" `
+                         --set workload.domainname="$wildcardDomain" `
                          --wait
 
             # Wait for the ingress certificate to be provisioned by cert-manager
