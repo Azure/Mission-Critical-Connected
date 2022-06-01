@@ -50,7 +50,7 @@ jobs:
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="aks-lb-snet" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-create"="true" `
-                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="aks-ingress-auto-pls" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="aks-ingress-pls" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-ip-configuration-subnet"="aks-pl-snet" `
                 --version "$(ingressNginxVersion)"
         }
