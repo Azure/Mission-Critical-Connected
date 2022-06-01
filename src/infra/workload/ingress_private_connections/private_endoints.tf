@@ -11,7 +11,7 @@ resource "azurerm_private_endpoint" "buildagent_aks" {
 
   private_service_connection {
     name                           = "${local.prefix}-${each.key}-aks-buildagent-ingress-privateserviceconnection"
-    private_connection_resource_id = azurerm_private_link_service.aks_ingress[each.key].id
+    private_connection_resource_id = each.value.private_link_service_id
     is_manual_connection           = false
   }
 

@@ -275,7 +275,7 @@ stages:
         terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
 
     - task: AzureCLI@2
-      displayName: 'Fetch Private Link service configuration inputs'
+      displayName: 'Fetch Private Link service configuration'
       retryCountOnTaskFailure: 1
       inputs:
         azureSubscription: '$(azureServiceConnection)'
@@ -292,45 +292,38 @@ stages:
           foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
 
             $location = $stamp.location
-            $stampResourceGroup = $stamp.resource_group_name
             $nodeResourceGroup = $stamp.aks_node_resourcegroup_name
-            $internalLbIp = $stamp.aks_internal_lb_ip_address
-            $privateLinkSubnetId = $stamp.aks_ingress_privatelink_subnetid
 
-            echo "*** Fetching internal AKS load balancer properties for stamp in region $location"
+            echo "*** Fetching AKS ingress Private Link Service properties for stamp in region $location"
 
             # Sometimes the creation of the internal LB seems to take a couple of minutes. So we wait and retry
             $retrycount = 0;
             $maxretrycount = 10
             do
             {
-              # Fetch the "kubernetes-internal" load balancer from the managed resource group
-              $lb = az network lb list -g $nodeResourceGroup --query "[?name == 'kubernetes-internal']" | ConvertFrom-Json
+              # Fetch the "aks-ingress-pls" Private Link Service from the managed resource group
+              $pls = $privateLinkServices = az network private-link-service show -g $nodeResourceGroup -n aks-ingress-pls | ConvertFrom-Json
 
-              if(-not $lb)
+              if(-not $pls)
               {
                 $retrycount++
-                echo "*** No load balancer 'kubernetes-internal' found. Waiting for 60s and retrying... $retrycount/$maxretrycount"
+                echo "*** No Private Link service 'aks-ingress-pls' found. Waiting for 60s and retrying... $retrycount/$maxretrycount"
                 Start-Sleep 60
               }
               else
               {
-                # Fetch the frontend IP config for our internal ingress IP. There should be exactly one
-                $ipConfig = $lb.frontendIpConfigurations | Where-Object { $_.privateIpAddress -eq $internalLbIp }
                 break
               }
             } while ( ($retrycount -lt $maxretrycount) )
 
-            if(-not $ipConfig)
+            if(-not $pls)
             {
-              throw "*** No IP configuration found for IP address $internalLbIp"
+              throw "*** No Private Link service 'aks-ingress-pls'"
             }
 
-            $frontendIpConfigId = $ipConfig.id
+            echo "*** Fetched Private Link service $($pls.id)"
 
-            echo "*** Fetched frontend IP configuration $frontendIpConfigId"
-
-            $stampProperties = @{resource_group_name=$stampResourceGroup; lb_IpConfiguration_Id=$frontendIpConfigId; subnet_Id=$privateLinkSubnetId}
+            $stampProperties = @{private_link_service_id=$pls.id}
             $stampConfig = New-Object PSObject –Property $stampProperties
 
             $stampConfigurations[$location] = $stampConfig
