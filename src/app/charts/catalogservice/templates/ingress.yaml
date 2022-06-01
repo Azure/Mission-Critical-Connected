@@ -8,9 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"   #  Set timeout to read from the backend pods to 120s. Cosmos DB retries can go up to 60s
-    nginx.ingress.kubernetes.io/use-regex: "true"
+
   {{- if .Values.ingress.annotations }}
   {{ toYaml .Values.ingress.annotations | nindent 4 }}
   {{- end }}
@@ -18,23 +16,16 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.workload.domainname | quote }}
-    secretName: {{ .Chart.Name }}-ingress-secret
+    - {{ .Values.workload.domainname }}
+    secretName: {{ .Values.workload.tlsSecret }} # shouldn't be changed as this might be used by other services
   rules:
   - host: {{ .Values.workload.domainname | quote }}
     http:
       paths:
-      - path: /catalogservice/ # exposing the 'catalogservice'
+      - path: /catalogservice/
         pathType: Prefix
         backend:
           service:
             name: {{ .Chart.Name }}-service
             port:
               number: {{ .Values.workload.service.port | default 80 }}
-      - path: /healthservice/ # exposing the 'healthservice'
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Values.healthservice.name | quote }}
-            port:
-              number: {{ .Values.healthservice.port | default 80 }}
