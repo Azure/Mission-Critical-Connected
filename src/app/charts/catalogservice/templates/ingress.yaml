@@ -8,7 +8,6 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
   annotations:
-
   {{- if .Values.ingress.annotations }}
   {{ toYaml .Values.ingress.annotations | nindent 4 }}
   {{- end }}
