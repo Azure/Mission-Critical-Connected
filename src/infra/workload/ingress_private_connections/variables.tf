@@ -44,7 +44,7 @@ variable "contact_email" {
 variable "private_link_service_targets" {
   description = "Map of resource IDs for which to create the Private Link service per stamp (key: stamp/region, value: object with resource IDs for the load balancer IP config and the subnet)"
   type = map(object({
-    private_link_service_id   = string # resource id of the private link service of the stamp's AKS cluster ingress
+    private_link_service_id = string # resource id of the private link service of the stamp's AKS cluster ingress
   }))
 }
 
