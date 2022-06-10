@@ -52,6 +52,49 @@ jobs:
         }
 
   - task: AzureCLI@2
+    displayName: 'Install k8gb-io $(k8gbVersion) on AKS clusters'
+    retryCountOnTaskFailure: 1
+    inputs:
+      azureSubscription: $(azureServiceConnection)
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+
+        # load json data from downloaded pipeline artifact json
+        $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+
+        # loop through stamps from pipeline artifact json
+        foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+
+          echo "*** Configuring stamp in region $($stamp.location)"
+
+          $aksClusterName = $stamp.aks_cluster_name
+          $aksClusterResourceGroup = $stamp.resource_group_name
+          echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
+
+          # Load AKS credentials
+          az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
+
+          # Gather Ingress Load Balancer IP from pipeline artifact json
+          $aksIngressIp = $stamp.aks_cluster_ingress_ip_address
+
+          # Deploy ingress-nginx (helm) configuration
+          echo "*** Installing k8gb on $aksClusterName in $aksClusterResourceGroup"
+          helm repo add k8gb https://www.k8gb.io
+          helm repo update
+
+          $k8gbNamespace = "k8gb"
+
+          # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
+          helm upgrade --install k8gb k8gb/k8gb `
+                --namespace $k8gbNamespace --create-namespace `
+                --values src/config/ingress-nginx/values.helm.yaml `
+                --set controller.service.loadBalancerIP="$aksIngressIp" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"="$aksClusterResourceGroup" `
+                --version "$(ingressNginxVersion)"
+        }
+
+  - task: AzureCLI@2
     displayName: 'Configure OMSAgent (Container Insights) on AKS clusters'
     retryCountOnTaskFailure: 1
     inputs:

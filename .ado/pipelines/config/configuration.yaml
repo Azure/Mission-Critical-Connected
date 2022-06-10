@@ -18,6 +18,8 @@ variables:
   value: '6.0.200'
 - name: 'uiAppNodeVersion'    # nodejs version for the UI app
   value: '16.x'
+- name: 'k8gbVersion'
+  value: 'v0.9.0' 
 
 - name: 'workloadNamespace'   # K8s namespace for workload deployment
   value: 'workload'
