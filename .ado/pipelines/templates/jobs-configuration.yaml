@@ -42,7 +42,6 @@ jobs:
           $ingressNamespace = "ingress-nginx"
 
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
-          $ingressNamespace = "ingress-nginx"
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
                 --namespace $ingressNamespace --create-namespace `
                 --values src/config/ingress-nginx/values.helm.yaml `
