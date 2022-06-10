@@ -13,3 +13,8 @@ resource "azurerm_dns_cname_record" "app_subdomain" {
   ttl                 = 3600
   record              = local.frontdoor_default_dns_name
 }
+
+resource "azurerm_dns_zone" "global_dns_zone" {
+  name                = "mydomain.com"
+  resource_group_name = var.custom_dns_zone_resourcegroup_name
+}

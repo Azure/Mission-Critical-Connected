@@ -78,6 +78,10 @@ jobs:
           # Gather Ingress Load Balancer IP from pipeline artifact json
           $aksIngressIp = $stamp.aks_cluster_ingress_ip_address
 
+          # We are using the Region of the EH namespace as a workaround since this has the right format for the Cosmos SDK ("East US 2" instead of "eastus2")
+          $region = $(az eventhubs namespace list --resource-group $aksClusterResourceGroup --query "[0].location" --output tsv)
+          echo "*** Use Azure Region $region from Event Hub namespace"
+
           # Deploy ingress-nginx (helm) configuration
           echo "*** Installing k8gb on $aksClusterName in $aksClusterResourceGroup"
           helm repo add k8gb https://www.k8gb.io
@@ -88,10 +92,13 @@ jobs:
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
           helm upgrade --install k8gb k8gb/k8gb `
                 --namespace $k8gbNamespace --create-namespace `
-                --values src/config/ingress-nginx/values.helm.yaml `
-                --set controller.service.loadBalancerIP="$aksIngressIp" `
-                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"="$aksClusterResourceGroup" `
-                --version "$(ingressNginxVersion)"
+                --values src/config/k8gb/values.helm.yaml `
+                --version "$(k8gbVersion)" `
+                --set k8gb.dnsZone="$(azure_global_dns_zone)" ` # dnsZone controlled by gslb
+                --set k8gb.edgeDNSZone="$(azure_stamp_dns_zone)" ` # main zone which would contain gslb zone to delegate
+                --set k8gb.edgeDNSServer="" ` # use this DNS server as a main resolver to enable cross k8gb DNS based communication
+                --set k8gb.clusterGeoTag="$region" ` # used for places where we need to distinguish between differnet Gslb instances
+                --set k8gb.extGslbClustersGeoTags="" # comma-separated list of external gslb geo tags to pair with
         }
 
   - task: AzureCLI@2

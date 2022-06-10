@@ -48,3 +48,7 @@ output "app_insights_name" {
 output "eventhub_id" {
   value = azurerm_eventhub_namespace.stamp.id
 }
+
+output "azure_stamp_dns_zone" {
+  value = azurerm_dns_zone.stamp_dns_zone.name
+}

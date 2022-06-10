@@ -49,3 +49,7 @@ output "global_storage_account_name" {
 output "azure_monitor_action_group_resource_id" {
   value = azurerm_monitor_action_group.main.id
 }
+
+output "azure_global_dns_zone" {
+  value = azurerm_dns_zone.global_dns_zone.name
+}

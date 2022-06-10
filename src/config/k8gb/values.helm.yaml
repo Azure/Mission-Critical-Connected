@@ -1,0 +1,4 @@
+coredns:
+  serviceType: LoadBalancer
+  service:
+    annotations:
