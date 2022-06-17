@@ -137,6 +137,14 @@ resource "azurerm_subnet" "apim" {
   resource_group_name  = local.vnet_resource_group_name
   virtual_network_name = data.azurerm_virtual_network.stamp.name
   address_prefixes     = [module.subnet_addrs.network_cidr_blocks["apim"]]
+  # The following service endpoints are required by APIM control plane
+  service_endpoints = [
+    "Microsoft.Storage",
+    "Microsoft.KeyVault",
+    "Microsoft.Sql",
+    "Microsoft.EventHub",
+    "Microsoft.ServiceBus"
+  ]
 }
 
 # Default Network Security Group (nsg) definition
