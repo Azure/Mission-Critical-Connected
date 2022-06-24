@@ -1,27 +1,15 @@
 <policies>
     <inbound>
+        <!-- Check that the request is coming from our Front Door instance -->
+        <check-header name="X-Azure-FDID" failed-check-httpcode="401" failed-check-error-message="Not authorized" ignore-case="true">
+            <value>{{azure-frontdoor-id-header}}</value>
+        </check-header>
+        <!-- send all requests to our AKS backend -->
+        <set-backend-service backend-id="aks-cluster" />
     </inbound>
     <backend>
         <forward-request />
     </backend>
-    <outbound>
-        <set-header name="location" exists-action="override">
-            <value>@{
-                var location = context.Response.Headers.GetValueOrDefault("Location", "");
-                if(string.IsNullOrEmpty(location))
-                {
-                    return null;
-                }
-                var scheme = context.Request.Headers.GetValueOrDefault("X-Forwarded-Proto", context.Request.OriginalUrl.Scheme);
-                var host = context.Request.Headers.GetValueOrDefault("X-Forwarded-Host", context.Request.OriginalUrl.Host);
-                var baseUrl = context.Api.ServiceUrl.ToString().Replace(context.Api.ServiceUrl.Path, "");
-                return location.Replace(baseUrl, $"{scheme}://{host}");
-            }</value>
-        </set-header>
-        <!-- <set-header name="Cache-Control" exists-action="override">
-            <value>no-cache</value>
-        </set-header> -->
-    </outbound>
-    <on-error>
-    </on-error>
+    <outbound />
+    <on-error />
 </policies>

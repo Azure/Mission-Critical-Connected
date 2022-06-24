@@ -2,7 +2,9 @@ resource "azurerm_api_management" "stamp" {
 
   depends_on = [
     # APIM requires that an NSG is attached to the subnet
-    azurerm_subnet_network_security_group_association.apim_nsg
+    azurerm_subnet_network_security_group_association.apim_nsg,
+    # The apim control plane NSG rule must exist and must not be deleted before APIM is deleted
+    azurerm_network_security_rule.apim_allow_inbound_apim_control
   ]
 
   name                = "${local.prefix}-${local.location_short}-apim"
@@ -21,8 +23,26 @@ resource "azurerm_api_management" "stamp" {
 
   sku_name = var.apim_sku
 
+  # Availability Zones are only supported in Premium tier. For Premium at least 2 units (= 2 AZs) should be deployed, if 3 or more, we can use all three AZs
+  zones = local.apim_tier == "Premium" ? (local.apim_units < 3 ? ["1", "2"] : ["1", "2", "3"]) : null
+
   protocols {
     enable_http2 = true
+  }
+
+  tags = var.default_tags
+}
+
+resource "azurerm_api_management_backend" "aks_cluster" {
+  name                = "aks-cluster"
+  resource_group_name = azurerm_resource_group.stamp.name
+  api_management_name = azurerm_api_management.stamp.name
+  protocol            = "http"
+  url                 = "https://${local.aks_ingress_fqdn}/"
+
+  tls {
+    validate_certificate_chain = true
+    validate_certificate_name  = true
   }
 }
 
@@ -44,7 +64,6 @@ resource "azurerm_api_management_api" "catalogservice" {
   display_name        = "AlwaysOn CatalogService API"
   path                = ""
   protocols           = ["https"]
-  service_url         = "https://${local.aks_ingress_fqdn}/"
 
   subscription_required = false
 
@@ -71,7 +90,6 @@ resource "azurerm_api_management_api" "healthservice" {
   display_name        = "AlwaysOn HealthService API"
   path                = "healthservice"
   protocols           = ["https"]
-  service_url         = "https://${local.aks_ingress_fqdn}/"
 
   subscription_required = false
 
@@ -101,8 +119,8 @@ resource "azurerm_api_management_named_value" "front_door_id_header" {
 # Base bolicy which gets applied to all APIs. Contains the frontdoor id check
 resource "azurerm_api_management_policy" "all_apis_policy" {
   depends_on = [
-    # The named value is referenced in the policy, so it needs to exist first
-    azurerm_api_management_named_value.front_door_id_header
+    azurerm_api_management_named_value.front_door_id_header, # The named value is referenced in the policy, so it needs to exist first
+    azurerm_api_management_backend.aks_cluster               # The backend is referenced in the policy, so it needs to exist first
   ]
   api_management_id = azurerm_api_management.stamp.id
   xml_content       = file("./apim/apim-api-policy.xml")
