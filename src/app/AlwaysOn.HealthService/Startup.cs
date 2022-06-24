@@ -1,6 +1,7 @@
 using AlwaysOn.Shared;
 using AlwaysOn.Shared.Interfaces;
 using AlwaysOn.Shared.Services;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
@@ -34,8 +35,11 @@ namespace AlwaysOn.HealthService
             services.AddMemoryCache();
 
             services.AddSingleton(typeof(ITelemetryChannel),
-                                new ServerTelemetryChannel() { StorageFolder = "/tmp/appinsightschannel" });
-            services.AddApplicationInsightsTelemetry(Configuration[SysConfiguration.ApplicationInsightsKeyName]);
+                                new ServerTelemetryChannel() { StorageFolder = "/tmp" });
+            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions()
+            {
+                ConnectionString = Configuration[SysConfiguration.ApplicationInsightsConnStringKeyName]
+            });
 
             services.AddSingleton<IDatabaseService, CosmosDbService>();
 
@@ -68,6 +72,8 @@ namespace AlwaysOn.HealthService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UsePathBase("/healthservice");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -83,7 +89,7 @@ namespace AlwaysOn.HealthService
                 // specifying the Swagger JSON endpoint.
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlwaysOn HealthService");
+                    c.SwaggerEndpoint("v1/swagger.json", "AlwaysOn HealthService");
                 });
             }
 

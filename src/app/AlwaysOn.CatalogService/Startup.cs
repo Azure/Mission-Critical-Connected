@@ -1,8 +1,8 @@
-using AlwaysOn.CatalogService.Auth;
 using AlwaysOn.CatalogService.SwaggerHelpers;
 using AlwaysOn.Shared;
 using AlwaysOn.Shared.Interfaces;
 using AlwaysOn.Shared.Services;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
@@ -38,8 +38,12 @@ namespace AlwaysOn.CatalogService
             services.AddSingleton<SysConfiguration>();
 
             services.AddSingleton(typeof(ITelemetryChannel),
-                                new ServerTelemetryChannel() { StorageFolder = "/tmp/appinsightschannel"});
-            services.AddApplicationInsightsTelemetry(Configuration[SysConfiguration.ApplicationInsightsKeyName]);
+                                new ServerTelemetryChannel() { StorageFolder = "/tmp" });
+            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions()
+            {
+                ConnectionString = Configuration[SysConfiguration.ApplicationInsightsConnStringKeyName],
+                EnableAdaptiveSampling = bool.TryParse(Configuration[SysConfiguration.ApplicationInsightsAdaptiveSamplingName], out bool result) ? result : true
+            });
 
             services.AddHealthChecks();// Adds a simple liveness probe HTTP endpoint, path mapping happens further below
 
@@ -84,6 +88,8 @@ namespace AlwaysOn.CatalogService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UsePathBase("/catalogservice");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -103,7 +109,7 @@ namespace AlwaysOn.CatalogService
                 // specifying the Swagger JSON endpoint.
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlwaysOn CatalogService");
+                    c.SwaggerEndpoint("v1/swagger.json", "AlwaysOn CatalogService");
                 });
             }
 
@@ -134,6 +140,20 @@ namespace AlwaysOn.CatalogService
                 {
                     if (o is HttpContext ctx)
                     {
+                        // In order to get relative location headers (without the host part), we modify any location header here
+                        // This is to simplify the reverse-proxy setup in front of the application
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(context.Response.Headers.Location))
+                            {
+                                var locationUrl = new Uri(context.Response.Headers.Location);
+                                context.Response.Headers.Location = locationUrl.PathAndQuery;
+                            }
+                        }
+                        catch (Exception) { }
+
+                        // Add tracing headers to each response
+                        // Source: https://khalidabuhakmeh.com/add-headers-to-a-response-in-aspnet-5
                         context.Response.Headers.Add("X-Server-Name", Environment.MachineName);
                         context.Response.Headers.Add("X-Server-Location", sysConfig.AzureRegion);
                         context.Response.Headers.Add("X-Correlation-ID", Activity.Current?.RootId);

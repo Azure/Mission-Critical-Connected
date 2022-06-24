@@ -19,8 +19,13 @@ steps:
     terraformStateFilename:     '$(terraformStateFileGlobal)'
     terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
 
+- template: steps-parse-terraform-output.yaml # parse global configuration settings from terraform deployment output
+  parameters:
+    workingDirectory: '$(Pipeline.Workspace)/terraformOutputGlobalInfra'  # Global infra deploy output directory
+
 - task: AzureCLI@2
   displayName: 'Create updated Front Door backend list'
+  retryCountOnTaskFailure: 1
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: pscore
@@ -28,11 +33,6 @@ steps:
     inlineScript: |
       # We need the az CLI Front Door extension
       az extension add --name front-door
-
-      $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
-
-      $rgName = $globalInfraDeployOutput.global_resource_group_name.value
-      $fdName = $globalInfraDeployOutput.frontdoor_name.value
 
       $newBackendsWeight = ${{ parameters.trafficWeightNewBackends }}
       $oldBackendsWeight = 100 - $newBackendsWeight # since the weight for the new backends is a percentage, we substract from 100 to get the remaining weights for the old backends
@@ -97,14 +97,14 @@ steps:
 
         # Fetch existing backends in the pool from Front Door. We need the attributes "address", "weight" and "enabledState"
         $backends = $(az network front-door backend-pool backend list `
-                        --front-door-name $fdName `
+                        --front-door-name $(frontdoor_name) `
                         --pool-name $pool `
-                        --resource-group $rgName `
+                        --resource-group $(global_resource_group_name) `
                         --query "[$queryOptionEnabledOnly].{address:address,weight:weight,enabled:enabledState}")
 
         if($LastExitCode -ne 0)
         {
-            throw "*** Error on fetching existing backends from Front Door $fdName for pool $pool"
+            throw "*** Error on fetching existing backends from Front Door $(frontdoor_name) for pool $pool"
         }
 
         $jsonBackends = $backends | ConvertFrom-Json -NoEnumerate
@@ -165,6 +165,7 @@ steps:
 # After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
 - task: AzureCLI@2
   displayName: 'Purge Front Door cache'
+  retryCountOnTaskFailure: 1
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: pscore
@@ -173,15 +174,10 @@ steps:
       # We need the az CLI Front Door extension
       az extension add --name front-door
 
-      $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
-
-      $rgName = $globalInfraDeployOutput.global_resource_group_name.value
-      $fdName = $globalInfraDeployOutput.frontdoor_name.value
-
       echo "*** Purging Front Door cache with path /*"
-      az network front-door purge-endpoint -g $rgName -n $fdName --content-paths "/*"
+      az network front-door purge-endpoint -g $(global_resource_group_name) -n $(frontdoor_name) --content-paths "/*"
 
       if($LastExitCode -ne 0)
       {
-          throw "*** Error on purging cache in Front Door $fdName"
+          throw "*** Error on purging cache in Front Door $(frontdoor_name)"
       }

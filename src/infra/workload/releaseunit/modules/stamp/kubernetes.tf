@@ -21,9 +21,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   private_dns_zone_id                 = "None"
   private_cluster_public_fqdn_enabled = true
 
-  role_based_access_control {
-    enabled = true
-  }
+  role_based_access_control_enabled = true
 
   default_node_pool {
     name                 = "defaultpool"
@@ -34,7 +32,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
     vnet_subnet_id       = azurerm_subnet.kubernetes.id
     os_disk_type         = "Ephemeral"
     orchestrator_version = var.kubernetes_version
-    availability_zones   = [1, 2, 3]
+    zones                = [1, 2, 3]
 
     upgrade_settings {
       max_surge = "33%"

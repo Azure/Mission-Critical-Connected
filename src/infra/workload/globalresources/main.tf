@@ -2,17 +2,23 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.97.0"
+      version = "3.8.0"
     }
   }
 
-  backend "azurerm" {}
+  backend "azurerm" {
+    application_insights {
+      disable_generated_rule = true
+    }
+  }
 }
 
 provider "azurerm" {
   features {
-    key_vault {
-      purge_soft_delete_on_destroy = false
+    resource_group {
+      # Non-empty resource groups can only be deleted in e2e environments
+      # This will fail in all other envs (like int and prod)
+      prevent_deletion_if_contains_resources = var.environment == "e2e" ? false : true
     }
   }
 }
