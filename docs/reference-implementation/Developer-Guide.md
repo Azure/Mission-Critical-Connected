@@ -56,7 +56,7 @@ The sample application can be swapped out for your own application. Since the de
 ### Application Structure
 The AlwaysOn Sample Application is split into three domains: [BackgroundProcessor](/src/app/AlwaysOn.BackgroundProcessor/), [CatalogService](/src/app/AlwaysOn.CatalogService/), and [HealthService](/src/app/AlwaysOn.HealthService/). The Background Processor handles connecting to the Cosmos DB. The Catalog Service gets and inserts catalog items into the Cosmos DB database. The Health Service monitors the health of the underlying services (Catalog Service and Background Processor).
 
-Let's say we want to add another service to our application.
+#### Adding a new service to the application
 
 We need the following items to create and integrate our new service:
 1. A [.NET project](/src/app/AlwaysOn.CatalogService/) that contains API definitions
@@ -72,10 +72,13 @@ We need the following items to create and integrate our new service:
 11. To access data from Cosmos DB, there is a [service](/src/app/AlwaysOn.Shared/Services/CosmosDbService.cs) created in the [Shared project](/src/app/AlwaysOn.Shared/) that is injected into the services. It contains calls to CRUD on the database. If you add a new container or database, you will need to update the [Shared project](/src/app/AlwaysOn.Shared/) with any [models](/src/app/AlwaysOn.Shared/Models/) for your new container and support for accessing your new container in the [database service](/src/app/AlwaysOn.Shared/Services/CosmosDbService.cs) itself.
 12. If you have integrated Azure API Management, you will also need to update the [Azure API Management Terraform Template](/docs/example-code/apim.tf) to include a definition for the new API. See below for further instructions.
 
-Adding a new API with Azure API Management
-1. Go to the [Azure API Management Terraform template](/docs/example-code/apim.tf) and copy the api definition. Replace the resource name of `azurerm_api_management_api` as well as the name and display_name within the definition to the name of your api (e.g. inventoryservice-api and AlwaysOn InventoryService API). If you are replacing the Catalog Service API, you do not need to change the path for the API. If you are adding your API in addition to the Catalog Service, you will need to update the path in the API definition in the Terraform template, the swagger file, [the ingress controller](/src/app/charts/catalogservice/templates/ingress.yaml), and the .NET project containing your API definition. 
+#### Adding a new API with Azure API Management
+
+In case you are also using API Management in your solution (see [API Management](Api-Management.md) developer guide), you will also need to wire up your new service there.
+
+1. Go to the [Azure API Management Terraform template](/docs/example-code/apim.tf) and copy the API definition. Replace the resource name of `azurerm_api_management_api` as well as the name and display_name within the definition to the name of your API (e.g. inventoryservice-api and AlwaysOn InventoryService API). If you are replacing the Catalog Service API, you do not need to change the path for the API. If you are adding your API in addition to the Catalog Service, you will need to update the path in the API definition in the Terraform template, the swagger file, [the ingress controller](/src/app/charts/catalogservice/templates/ingress.yaml), and the .NET project containing your API definition.
 2. Under `azurerm_api_management_api` content_value, you need to include a reference to your [API swagger file](/docs/example-code/catalogservice-api-swagger.json) similar to the example linked here. Change the existing file reference to your new json file.
-3. Copy the definition for `azurerm_api_management_api_diagnostic` for the CatalogService and change the name and`api_name` to reference your new api (e.g. azurerm_api_management_api.inventoryservice.name).
+3. Copy the definition for `azurerm_api_management_api_diagnostic` for the CatalogService and change the name and`api_name` to reference your new API (e.g. azurerm_api_management_api.inventoryservice.name).
 
 ### Smoke Testing
 If you have integrated Mission-Critical-Connected with Azure API Management, you will need to add additional Smoke Tests for your new APIs. You will add your tests to the [Smoke Test PowerShell script](/.ado/scripts/SmokeTest.ps1).
