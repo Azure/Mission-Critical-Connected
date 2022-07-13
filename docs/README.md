@@ -12,6 +12,7 @@
 
 - [Overview](./reference-implementation/README.md)
 - [Getting Started](./reference-implementation/Getting-Started.md)
+  - [Getting Started using CLI](./reference-implementation/Getting-Started-CLI.md)
   - [Set up private build agents](./reference-implementation/Private-Agents-Setup.md)
 - [Frequently Asked Questions (FAQs)](./reference-implementation/FAQ.md)
 - [Critical Design Areas](./reference-implementation/README.md#Critical-Design-Areas)
