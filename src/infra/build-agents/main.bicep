@@ -21,14 +21,14 @@ var default_tags = {
   Prefix: prefixsuffix
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   name: '${prefixsuffix}-default-nsg'
   location: location
   tags: default_tags
   properties: {}
 }
 
-resource bastionNsg 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
+resource bastionNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   name: '${prefixsuffix}-bastion-nsg'
   location: location
   tags: default_tags
@@ -93,7 +93,7 @@ resource bastionNsg 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: '${prefixsuffix}-vnet'
   location: location
   tags: default_tags
@@ -225,7 +225,7 @@ resource tablePeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@
   }
 }
 
-resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' = {
+resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   name: '${prefixsuffix}-buildagents-vmss'
   location: location
   sku: {
@@ -293,7 +293,7 @@ resource buildagentsVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' 
   }
 }
 
-resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' = {
+resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   name: '${prefixsuffix}-jumpboxes-vmss'
   location: location
   tags: default_tags
@@ -359,7 +359,7 @@ resource jumpboxesVmss 'Microsoft.Compute/virtualMachineScaleSets@2021-11-01' = 
   }
 }
 
-resource bastionPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+resource bastionPip 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   name: '${prefixsuffix}-bastion-pip'
   location: location
   tags: default_tags
@@ -371,7 +371,7 @@ resource bastionPip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   }
 }
 
-resource bastionHost 'Microsoft.Network/bastionHosts@2021-05-01' = {
+resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' = {
   name: '${prefixsuffix}-bastionhost'
   location: location
   tags: default_tags
