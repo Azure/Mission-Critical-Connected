@@ -67,7 +67,7 @@ resource "azurerm_route_table" "kubernetes" {
     name                   = "kubenetfw_fw_r"
     address_prefix         = "0.0.0.0/0"
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = azurerm_firewall.stamp.ip_configuration.private_ip_address
+    next_hop_in_ip_address = azurerm_firewall.stamp.ip_configuration[0].private_ip_address
   }
 }
 
