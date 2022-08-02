@@ -45,6 +45,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
     network_plugin = "azure"
     network_mode   = "transparent"
     network_policy = "azure"
+    outbound_type  = "userDefinedRouting"
   }
 
   identity {
@@ -65,9 +66,9 @@ resource "azurerm_kubernetes_cluster" "stamp" {
     secret_rotation_interval = "5m"
   }
 
-  # depends_on = [
-  #   azurerm_public_ip.aks_ingress
-  # ]
+  depends_on = [
+    azurerm_subnet_route_table_association.kubernetes_subnet_association
+  ]
 
   tags = var.default_tags
 }

@@ -23,6 +23,10 @@ module "subnet_addrs" {
       new_bits = 27 - local.netmask # For the private endpoints we want a /27 sized subnet. So we calculate based on the provided input address space
     },
     {
+      name     = "firewall"
+      new_bits = 27 - local.netmask # For the firewall we want a /27 sized subnet. So we calculate based on the provided input address space
+    },
+    {
       name     = "aks-lb"
       new_bits = 29 - local.netmask # Subnet for internal AKS load balancer
     },
@@ -87,6 +91,15 @@ resource "azurerm_subnet" "private_endpoints" {
   resource_group_name  = local.vnet_resource_group_name
   virtual_network_name = data.azurerm_virtual_network.stamp.name
   address_prefixes     = [module.subnet_addrs.network_cidr_blocks["private-endpoints"]]
+
+  enforce_private_link_endpoint_network_policies = true
+}
+
+resource "azurerm_subnet" "firewall" {
+  name                 = "firewall-snet"
+  resource_group_name  = local.vnet_resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.stamp.name
+  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["firewall"]]
 
   enforce_private_link_endpoint_network_policies = true
 }
