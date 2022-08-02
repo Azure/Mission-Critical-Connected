@@ -54,8 +54,8 @@ stages:
                 # We need the az CLI Front Door extension
                 az extension add --name front-door
 
-                $rgName = "$(prefix)$(globalSuffix)-global-rg"
-                $fdName = "$(prefix)$(globalSuffix)-global-fd"
+                $rgName = "$(prefix)$(globalResourceSuffix)-global-rg"
+                $fdName = "$(prefix)$(globalResourceSuffix)-global-fd"
 
                 # check if Front Door exists
                 $frontDoor = $(az network front-door list --query "[?name=='$fdName']" -o tsv)
@@ -119,7 +119,7 @@ stages:
               jobName:                    'GlobalInfra'
               terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
               customPrefix:               '$(prefix)'      # custom resource prefix
-              customSuffix:               '$(globalSuffix)'
+              customSuffix:               '$(globalResourceSuffix)'
               customAttributes:           '-var=branch="$(sourceBranch)"
                                           -var=queued_by="$(Build.QueuedBy)"
                                           -var=contact_email="$(contactEmail)"
@@ -187,7 +187,7 @@ stages:
   displayName: 'Deploy Configuration' # Apply configuration to Azure Infrastructure
   dependsOn: deployreleaseinfrastructure
   jobs:
-  - template: jobs-configuration.yaml
+  - template: jobs-deploy-configuration.yaml
 
 - stage: testcode
   displayName: 'Test Application Code'
@@ -235,7 +235,7 @@ stages:
   - testcode
   - buildapplication
   jobs:
-  - template: jobs-workload-deploy.yaml
+  - template: jobs-deploy-workload.yaml
 
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
@@ -506,6 +506,6 @@ stages:
                   terraformWorkingDirectory:          '$(workingDirectory)/globalresources'
                   customAttributes:           '-var=prefix="$(prefix)"
                                                -var=environment="${{ parameters.environment }}"
-                                               -var=suffix="$(globalSuffix)"
+                                               -var=suffix="$(globalResourceSuffix)"
                                                -var=''stamps=$(stampLocations)''
                                                $(terraformAdditionalParametersCustomDomains)'
