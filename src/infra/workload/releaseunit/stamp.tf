@@ -6,7 +6,7 @@ module "stamp" {
 
   vnet_resource_id = var.vnet_resource_ids[each.value]
 
-  kubernetes_version = var.kubernetes_version # kubernetes version
+  aks_kubernetes_version = var.aks_kubernetes_version # kubernetes version
 
   prefix       = var.prefix         # handing over the resource prefix
   suffix       = var.suffix         # handing over the resource suffix
@@ -26,9 +26,13 @@ module "stamp" {
   custom_dns_zone                    = var.custom_dns_zone
   custom_dns_zone_resourcegroup_name = var.custom_dns_zone_resourcegroup_name
 
-  aks_node_size                   = var.aks_node_size
-  aks_node_pool_autoscale_minimum = var.aks_node_pool_autoscale_minimum
-  aks_node_pool_autoscale_maximum = var.aks_node_pool_autoscale_maximum
+  aks_system_node_pool_sku_size          = var.aks_system_node_pool_sku_size
+  aks_system_node_pool_autoscale_minimum = var.aks_system_node_pool_autoscale_minimum
+  aks_system_node_pool_autoscale_maximum = var.aks_system_node_pool_autoscale_maximum
+
+  aks_user_node_pool_sku_size          = var.aks_user_node_pool_sku_size
+  aks_user_node_pool_autoscale_minimum = var.aks_user_node_pool_autoscale_minimum
+  aks_user_node_pool_autoscale_maximum = var.aks_user_node_pool_autoscale_maximum
 
   event_hub_thoughput_units         = var.event_hub_thoughput_units
   event_hub_enable_auto_inflate     = var.event_hub_enable_auto_inflate

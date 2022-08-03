@@ -7,7 +7,7 @@ param(
 # -----------
 # Load helper functions.
 # -----------
-. $env:SYSTEM_DEFAULTWORKINGDIRECTORY/.ado/scripts/Invoke-WebRequestWithRetry.ps1
+. $env:SYSTEM_DEFAULTWORKINGDIRECTORY/.ado/pipelines/scripts/Invoke-WebRequestWithRetry.ps1
 
 # -----------
 # Execute smoke tests.
@@ -33,7 +33,7 @@ Write-Output "*******************"
 # request body needs to be a valid object expected by the API - keep up to date when the contract changes
 $post_comment_body = @{
   "authorName" = "Smoke Test Author"
-  "text" = "Just a smoke test"
+  "text"       = "Just a smoke test"
 } | ConvertTo-JSON
 
 
@@ -48,8 +48,8 @@ if ($mode -eq "stamp") {
 
   # setting header with X-Azure-FDID for HTTP-based smoke tests (required to access the individual stamps directly, bypassing Front Door)
   $header = @{
-    "X-Azure-FDID"="$frontdoorHeaderId"
-    "X-TEST-DATA"="true" # Header to indicate that posted comments and rating are just for test and can be deleted again by the app
+    "X-Azure-FDID" = "$frontdoorHeaderId"
+    "X-TEST-DATA"  = "true" # Header to indicate that posted comments and rating are just for test and can be deleted again by the app
   }
 
   # loop through stamps from pipeline artifact json
@@ -70,7 +70,7 @@ if ($mode -eq "stamp") {
 }
 else {
   $header = @{
-    "X-TEST-DATA"="true"
+    "X-TEST-DATA" = "true"
   }
 
   $props = @{
@@ -85,7 +85,7 @@ else {
 Write-Output "*** Testing $($targets.Count) targets"
 
 # loop through targets - either multiple stamps or one front door (global)
-foreach($target in $targets) {
+foreach ($target in $targets) {
 
   # shorthand for easier manipulation in strings
   $targetFqdn = $target.ApiEndpointFqdn

@@ -171,7 +171,7 @@ steps:
     jobName:                    'GlobalInfra'
     terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
     customPrefix:               '$(prefix)'      # custom resource prefix
-    customSuffix:               '$(globalSuffix)'
+    customSuffix:               '$(globalResourceSuffix)'
     customAttributes: '-var=branch="$(sourceBranch)"
                        -var=queued_by="$(Build.QueuedBy)"
                        -var=contact_email="$(contactEmail)"
@@ -203,7 +203,7 @@ steps:
         $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
 
         # Get pending connections which were made by our Front Door
-        $afdConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix $(prefix)$(globalSuffix)" }
+        $afdConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix $(prefix)$(globalResourceSuffix)" }
         if(-not $afdConnections)
         {
           # If there are no connections from Front Door, that indicates a problem as we would expect at least a pending connection at this point
@@ -243,7 +243,7 @@ steps:
       inlineScript: |
 
         echo "*** Purging Front Door cache with path /*"
-        az afd endpoint purge -g $(global_resource_group_name) --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalSuffix)-primaryendpoint"
+        az afd endpoint purge -g $(global_resource_group_name) --profile-name $(frontdoor_name) --content-paths "/*" --endpoint-name "$(prefix)$(globalResourceSuffix)-primaryendpoint"
 
         if($LastExitCode -ne 0)
         {

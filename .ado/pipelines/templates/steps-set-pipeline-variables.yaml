@@ -12,7 +12,7 @@ steps:
       # The branch name is used as an Azure Resource Tag for all resources deployed, as well as to generate a unique identifier used for resource names to avoid naming conflicts
       echo "*** Build.SourceBranch: $(Build.SourceBranch)"
       $sourceBranch = $("$(Build.SourceBranch)" -replace "refs/heads/", "")
-      echo "*** Strip branch name from SourceBranch: $sourceBranch"
+      echo "*** Strip branch prefix from SourceBranch: $sourceBranch"
       $branchName = $("$sourceBranch" -replace "/", "-")
 
       $hashInput = $branchName
@@ -63,27 +63,27 @@ steps:
       # For INT and PROD we are using www.ourdomain.com as the domain prefix
       $domainSuffix = "www"
 
-      $globalSuffix = ""
+      $globalResourceSuffix = ""
       if("$(environment)" -eq "e2e")
       {
-        echo "*** Running e2e environment. Setting globalSuffix to '$(customSuffix)'"
-        $globalSuffix = "$(customSuffix)"
+        echo "*** Running e2e environment. Setting globalResourceSuffix to '$(customSuffix)'"
+        $globalResourceSuffix = "$(customSuffix)"
 
         # For e2e, we are using prefix-suffix as a unique domain domain suffix
         $domainSuffix = "$(prefix)$(customSuffix)"
       }
 
-      $terraformStateFileGlobal = "terraform-global-$(prefix)$globalSuffix.state"
+      $terraformStateFileGlobal = "terraform-global-$(prefix)$globalResourceSuffix.state"
       $terraformStateFileReleaseUnit = "terraform-$(prefix)$(customSuffix).state"
       $terraformStateFileReleaseUnitPrivateLink = "terraform-$(prefix)$(customSuffix)-privatelink.state"
 
-      echo "*** DEBUG: Setting globalSuffix to '$globalSuffix'"
+      echo "*** DEBUG: Setting globalResourceSuffix to '$globalResourceSuffix'"
       echo "*** DEBUG: Setting domainSuffix to '$domainSuffix'"
       echo "*** DEBUG: Setting terraformStateFileGlobal to '$terraformStateFileGlobal'"
       echo "*** DEBUG: Setting terraformStateFileReleaseUnit to '$terraformStateFileReleaseUnit'"
       echo "*** DEBUG: Setting terraformStateFileReleaseUnitPrivateLink to '$terraformStateFileReleaseUnitPrivateLink'"
 
-      echo "##vso[task.setvariable variable=globalSuffix]$globalSuffix"
+      echo "##vso[task.setvariable variable=globalResourceSuffix]$globalResourceSuffix"
       echo "##vso[task.setvariable variable=domainSuffix]$domainSuffix"
       echo "##vso[task.setvariable variable=terraformStateFileGlobal]$terraformStateFileGlobal"
       echo "##vso[task.setvariable variable=terraformStateFileReleaseUnit]$terraformStateFileReleaseUnit"

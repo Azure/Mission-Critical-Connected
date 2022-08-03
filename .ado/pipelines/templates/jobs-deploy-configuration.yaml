@@ -21,9 +21,9 @@ jobs:
 
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+          echo "**************************** REGION: $($stamp.location) ****************************"
 
           echo "*** Configuring stamp in region $($stamp.location)"
-
           $aksClusterName = $stamp.aks_cluster_name
           $aksClusterResourceGroup = $stamp.resource_group_name
           echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
@@ -41,8 +41,7 @@ jobs:
 
           $ingressNamespace = "ingress-nginx"
 
-          # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group
-          $ingressNamespace = "ingress-nginx"
+          # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group (RG in which the Public IP sits in)
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
                 --namespace $ingressNamespace --create-namespace `
                 --values src/config/ingress-nginx/values.helm.yaml `
@@ -52,7 +51,12 @@ jobs:
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-create"="true" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="aks-ingress-pls" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-ip-configuration-subnet"="aks-pl-snet" `
-                --version "$(ingressNginxVersion)"
+                --version "$(ingressNginxVersion)" `
+                --wait
+
+          if ($LastExitCode -ne 0) {
+            throw "*** Error on installing nginx helm chart!"
+          }
         }
 
   - task: AzureCLI@2
@@ -69,6 +73,7 @@ jobs:
 
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+          echo "**************************** REGION: $($stamp.location) ****************************"
 
           $aksClusterName = $stamp.aks_cluster_name
           $aksClusterResourceGroup = $stamp.resource_group_name
@@ -80,6 +85,10 @@ jobs:
           # Apply ConfigMap which configures OMS Agent's log and metric collection. Take a look at the reference file to understand what is being collected/excluded
           echo "*** Apply configmap for OMSAgent (Container Insights) on $aksClusterName"
           kubectl apply -f src/config/monitoring/container-azm-ms-agentconfig.yaml
+
+          if ($LastExitCode -ne 0) {
+            throw "*** Error on installing OMSAgent configmap!"
+          }
         }
 
   - task: AzureCLI@2
@@ -99,6 +108,7 @@ jobs:
 
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+          echo "**************************** REGION: $($stamp.location) ****************************"
 
           $aksClusterName = $stamp.aks_cluster_name
           $aksClusterResourceGroup = $stamp.resource_group_name
@@ -122,7 +132,12 @@ jobs:
                         --set azure.dnsZoneName="$(envDomainName)" `
                         --set azure.dnsZoneResourceGroupName="$(envDnsZoneRG)" `
                         --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
-                        --set letsencrypt.contactEmail="$(contactEmail)"
+                        --set letsencrypt.contactEmail="$(contactEmail)" `
+                        --wait
+
+          if ($LastExitCode -ne 0) {
+            throw "*** Error on installing ClusterIssuer helm chart!"
+          }
 
           echo "*** Installing cert-manager via helm on $aksClusterName"
           helm repo add jetstack https://charts.jetstack.io
@@ -130,7 +145,13 @@ jobs:
           helm upgrade --install cert-manager jetstack/cert-manager `
                        --values src/config/cert-manager/values.helm.yaml `
                        --namespace $certManagerNamespace --create-namespace `
-                       --version "$(certManagerVersion)"
+                       --version "$(certManagerVersion)" `
+                       --wait
+
+          if ($LastExitCode -ne 0) {
+            throw "*** Error on installing cert-manager helm chart!"
+          }
+
         }
 
   - task: AzureCLI@2
@@ -150,6 +171,7 @@ jobs:
 
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+          echo "**************************** REGION: $($stamp.location) ****************************"
 
           $aksClusterName = $stamp.aks_cluster_name
           $aksClusterResourceGroup = $stamp.resource_group_name
@@ -170,9 +192,15 @@ jobs:
           echo "*** Retrieved Kubelet clientId $kubeletIdentityClientId for cluster $clusterName"
           echo "*** Configuring CSI secret driver on $aksClusterName via helm"
           helm upgrade --install csi-secrets-driver src/config/csi-secrets-driver/chart/csi-secrets-driver-config `
-                        --namespace "$(workloadNamespace)" --create-namespace `
-                        --set azure.tenantId=$tenantId `
-                        --set azure.keyVaultName="$keyVaultName" `
-                        --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
-                        --set kvSecrets="{$allSecretNames}"
+                       --namespace "$(workloadNamespace)" --create-namespace `
+                       --set azure.tenantId=$tenantId `
+                       --set azure.keyVaultName="$keyVaultName" `
+                       --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
+                       --set kvSecrets="{$allSecretNames}" `
+                       --wait
+
+          if ($LastExitCode -ne 0) {
+            throw "*** Error on installing CSI secret driver helm chart!"
+          }
+
         }

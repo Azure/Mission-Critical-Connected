@@ -4,7 +4,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   dns_prefix          = "${local.prefix}${var.location}aks"
-  kubernetes_version  = var.kubernetes_version
+  kubernetes_version  = var.aks_kubernetes_version
   node_resource_group = "MC_${local.prefix}-stamp-${var.location}-aks-rg" # we manually specify the naming of the managed resource group to have it controlled and consistent
   sku_tier            = "Paid"                                            # Opt-in for AKS Uptime SLA
 
@@ -24,14 +24,15 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   role_based_access_control_enabled = true
 
   default_node_pool {
-    name                 = "defaultpool"
-    vm_size              = var.aks_node_size
+    name                 = "systempool"
+    vm_size              = var.aks_system_node_pool_sku_size
     enable_auto_scaling  = true
-    min_count            = var.aks_node_pool_autoscale_minimum
-    max_count            = var.aks_node_pool_autoscale_maximum
+    min_count            = var.aks_system_node_pool_autoscale_minimum
+    max_count            = var.aks_system_node_pool_autoscale_maximum
     vnet_subnet_id       = azurerm_subnet.kubernetes.id
     os_disk_type         = "Ephemeral"
-    orchestrator_version = var.kubernetes_version
+    os_disk_size_gb      = 30
+    orchestrator_version = var.aks_kubernetes_version
     zones                = [1, 2, 3]
 
     upgrade_settings {
@@ -67,6 +68,35 @@ resource "azurerm_kubernetes_cluster" "stamp" {
 
   depends_on = [
     azurerm_subnet.aks_lb # explicit dependency on the subnet that the "kubernetes-internal" load balancer will be put into, so we don't have a race condition on deletion
+  ]
+
+  tags = var.default_tags
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "workload" {
+  name                  = "workloadpool"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.stamp.id
+  vm_size               = var.aks_user_node_pool_sku_size
+  enable_auto_scaling   = true
+  min_count             = var.aks_user_node_pool_autoscale_minimum
+  max_count             = var.aks_user_node_pool_autoscale_maximum
+  vnet_subnet_id        = azurerm_subnet.kubernetes.id
+  os_disk_type          = "Ephemeral"
+  orchestrator_version  = var.aks_kubernetes_version
+
+  mode  = "User" # Define this node pool as a "user" aka workload node pool
+  zones = [1, 2, 3]
+
+  upgrade_settings {
+    max_surge = "33%"
+  }
+
+  node_labels = {
+    "role" = "workload"
+  }
+
+  node_taints = [              # this prevents pods from accidentially being scheduled on the workload node pool
+    "workload=true:NoSchedule" # each pod / deployments needs a toleration for this taint
   ]
 
   tags = var.default_tags
