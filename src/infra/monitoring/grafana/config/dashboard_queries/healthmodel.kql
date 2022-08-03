@@ -1,10 +1,11 @@
 WebsiteHealthScore
 | union AddCommentUserFlowHealthScore
-| union GetPlayerStatsUserFlowHealthScore
+| union ListCatalogItemsUserFlowHealthScore
 | union ShowStaticContentUserFlowHealthScore
 | union PublicBlobStorageHealthScore
 | union KeyvaultHealthScore
 | union CatalogServiceHealthScore
+| union EventHubHealthScore
 | union CheckpointStorageHealthScore
 | union BackgroundProcessorHealthScore
 | union ClusterHealthScore

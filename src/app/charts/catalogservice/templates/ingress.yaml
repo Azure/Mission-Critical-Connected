@@ -30,24 +30,10 @@ spec:
   - host: {{ .Values.workload.domainname | quote }}
     http:
       paths:
-      - path: /(api|swagger).*
+      - path: /catalogservice/
         pathType: Prefix
         backend:
           service:
             name: {{ .Chart.Name }}-service
             port:
               number: {{ .Values.workload.service.port | default 80 }}
-      - path: /swagger # exposing the swagger endpoint
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Chart.Name }}-service
-            port:
-              number: {{ .Values.workload.service.port | default 80 }}
-      - path: /health # exposing the 'healthservice'
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Values.healthservice.name | quote }}
-            port:
-              number: {{ .Values.healthservice.port | default 80 }}

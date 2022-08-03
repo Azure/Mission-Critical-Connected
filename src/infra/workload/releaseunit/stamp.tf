@@ -6,7 +6,7 @@ module "stamp" {
 
   vnet_resource_id = var.vnet_resource_ids[each.value]
 
-  kubernetes_version = var.kubernetes_version # kubernetes version
+  aks_kubernetes_version = var.aks_kubernetes_version # kubernetes version
 
   prefix       = var.prefix         # handing over the resource prefix
   suffix       = var.suffix         # handing over the resource suffix

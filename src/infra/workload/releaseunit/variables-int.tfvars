@@ -1,7 +1,11 @@
 # Variable file for INT env
-aks_node_size                   = "Standard_F8s_v2" # be aware of the disk size requirement for emphemral disks. Thus we currently cannot use a smaller SKU
-aks_node_pool_autoscale_minimum = 2                 # 2 Nodes (of this SKU) is the minimum we need in order to run our workload
-aks_node_pool_autoscale_maximum = 6
+aks_system_node_pool_sku_size          = "Standard_D2s_v3" # Adjust as needed for your workload
+aks_system_node_pool_autoscale_minimum = 2
+aks_system_node_pool_autoscale_maximum = 6
+
+aks_user_node_pool_sku_size          = "Standard_F8s_v2" # Adjust as needed for your workload
+aks_user_node_pool_autoscale_minimum = 2
+aks_user_node_pool_autoscale_maximum = 6
 
 event_hub_thoughput_units     = 1
 event_hub_enable_auto_inflate = false

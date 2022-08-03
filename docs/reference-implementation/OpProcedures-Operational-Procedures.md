@@ -8,7 +8,6 @@ While the reference implementation of Azure Mission-Critical only serves as a de
 - [INT Deployment pipeline watch](#int-deployment-pipeline-watch)
 - [Key and Secret Rotation](#key-and-secret-rotation)
 
-
 ## General debugging / issue investigation
 
 The reference implementation contains various dashboards, monitoring points and logging/metrics sinks which are useful for monitoring operations as well as for troubleshooting.
@@ -40,14 +39,7 @@ This will surface any traces, metrics and dependency calls that were made as par
 
 ## Transient Pipeline Failures
 
-There are some points in the deployment pipeline which tend to create transient failures. For most of them, a simple **re-run of the failed job fixes the issue.** No need to re-run the entire pipeline. When the failed job succeeds in a retry, all subsequent steps will also be executed.
-A couple of examples which were observed so far:
-
-- Terraform `init` failing after 1 second with no apparent error message
-- Terraform `init` failing with an authorization error against the backend storage account
-- Deployment of one of the workloads on AKS failing after many retry attempts (mostly the CatalogService)
-- Terraform deployment of Azure Monitor saved queries failing with a Bad Request error
-- Download of some dependency, e.g. Terraform CLI or Helm
+See [Troubleshooting](Troubleshooting.md) for more details about known, transient pipeline issues.
 
 ## Package / Dependency updates
 

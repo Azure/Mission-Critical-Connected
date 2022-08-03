@@ -76,7 +76,7 @@ Each SU is deployed into an Azure region and is therefore primarily handling tra
 
 The reference implementation of Azure Mission-Critical deploys a set of Azure services. These services are not available across all Azure regions. In addition, only regions which offer **[Availability Zones](https://docs.microsoft.com/azure/availability-zones/az-region)** (AZs) are considered for a stamp. AZs are gradually being rolled-out and are not yet available across all regions. Due to these constraints, the reference implementation cannot be deployed to all Azure regions.
 
-As of March 2022, following regions have been successfully tested with the reference implementation of Azure Mission-Critical:
+As of May 2022, following regions have been successfully tested with the reference implementation of Azure Mission-Critical:
 
 **Europe/Africa**
 
@@ -87,6 +87,7 @@ As of March 2022, following regions have been successfully tested with the refer
 - uksouth
 - norwayeast
 - swedencentral
+- switzerlandnorth
 - southafricanorth
 
 **Americas**
@@ -183,11 +184,13 @@ The Azure Mission-Critical reference implementation uses Linux-only clusters as 
   - `azure_policy` is set to `true` to enable the use of [Azure Policies in Azure Kubernetes Service](https://docs.microsoft.com/azure/aks/use-azure-policy). The policy configured in the reference implementation is in "audit-only" mode. It is mostly integrated to demonstrate how to set this up through Terraform.
   - `oms_agent` is configured to enable the Container Insights addon and ship AKS monitoring data to Azure Log Analytics via an in-cluster OMS Agent (DaemonSet).
 - Diagnostic settings are configured to store all log and metric data in Log Analytics.
-- `default_node_pool` settings
+- `default_node_pool` (used as [system node pool](https://docs.microsoft.com/azure/aks/use-system-pools)) settings
   - `availability_zones` is set to `3` to leverage all three AZs in a given region.
-  - `enable_auto_scaling` is configured to let the default node pool automatically scale out if needed.
+  - `enable_auto_scaling` is configured to let the all node pools automatically scale out if needed.
   - `os_disk_type` is set to `Ephemeral` to leverage [Ephemeral OS disks](https://docs.microsoft.com/azure/aks/cluster-configuration#ephemeral-os) for performance reasons.
   - `upgrade_settings` `max_surge` is set to `33%` which is the [recommended value for production workloads](https://docs.microsoft.com/azure/aks/upgrade-cluster#customize-node-surge-upgrade).
+- Separate "workload" (aka user) node pool with same settings as "system" node pool but different VM SKUs and auto-scale settings.
+  - The user node pool is configured with a taint `workload=true:NoSchedule` to prevent non-workload pods from being scheduled. The `node_label` set to `role=workload` can be used to target this node pool when deploying a workload (see [charts/catalogservice](/src/app/charts/catalogservice/) for an example).
 
 Individual stamps are considered ephemeral and stateless. Updates to the infrastructure and application are following a [Zero-downtime Update Strategy](/docs/reference-implementation/DeployAndTest-DevOps-Zero-Downtime-Update-Strategy.md) and do not touch existing stamps. Updates to Kubernetes are therefore primarily rolled out by releasing new versions and replacing existing stamps. To update node images between two releases, the `automatic_channel_upgrade` in combination with `maintenance_window` is used:
 

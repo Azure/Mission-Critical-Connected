@@ -11,6 +11,9 @@ variables:
 - name: 'stampLocations'
   value: '["westeurope","northeurope"]' # Check which regions are valid. There is a list in /src/infra/README.md
 
+- name: 'stampLocationsGrafana'
+  value: '["eastus", "brazilsouth"]' # Check which regions are valid. There is a list in /src/infra/README.md
+
 # Other settings
 - name:  'contactEmail'
   value: 'noreply@microsoft.com'  # <===== CHANGE THIS VALUE TO ONE OF YOUR REAL EMAIL ADDRESSES (OR A GROUP)!
