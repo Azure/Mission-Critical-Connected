@@ -3,13 +3,13 @@
 
 ### AKS ###
 resource "azurerm_private_endpoint" "buildagent_aks" {
-  name                = "${local.prefix}-${local.location_short}-built-agent-aks-pe"
+  name                = "${local.prefix}-${var.location}-built-agent-aks-pe"
   location            = data.azurerm_resource_group.buildagent.location
   resource_group_name = data.azurerm_resource_group.buildagent.name
   subnet_id           = "${data.azurerm_virtual_network.buildagent.id}/subnets/private-endpoints-snet"
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-aks-buildagent-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-aks-buildagent-privateserviceconnection"
     private_connection_resource_id = azurerm_kubernetes_cluster.stamp.id
     is_manual_connection           = false
     subresource_names              = ["management"]
@@ -32,7 +32,7 @@ resource "azurerm_private_dns_a_record" "aks" {
 
 ### Key Vault ###
 resource "azurerm_private_endpoint" "buildagent_keyvault" {
-  name                = "${local.prefix}-${local.location_short}-built-agent-keyvault-pe"
+  name                = "${local.prefix}-${var.location}-built-agent-keyvault-pe"
   location            = data.azurerm_resource_group.buildagent.location
   resource_group_name = data.azurerm_resource_group.buildagent.name
   subnet_id           = "${data.azurerm_virtual_network.buildagent.id}/subnets/private-endpoints-snet"
@@ -43,7 +43,7 @@ resource "azurerm_private_endpoint" "buildagent_keyvault" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-keyvault-buildagent-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-keyvault-buildagent-privateserviceconnection"
     private_connection_resource_id = azurerm_key_vault.stamp.id
     is_manual_connection           = false
     subresource_names              = ["vault"]
@@ -57,7 +57,7 @@ resource "azurerm_private_endpoint" "buildagent_keyvault" {
 ### Storage Account ###
 resource "azurerm_private_endpoint" "buildagent_storage_blob" {
   depends_on          = [azurerm_private_endpoint.table_storage] # to avoid a race condition, we deploy the private endpoints one after another
-  name                = "${local.prefix}-${local.location_short}-built-agent-storage-blob-pe"
+  name                = "${local.prefix}-${var.location}-built-agent-storage-blob-pe"
   location            = data.azurerm_resource_group.buildagent.location
   resource_group_name = data.azurerm_resource_group.buildagent.name
   subnet_id           = "${data.azurerm_virtual_network.buildagent.id}/subnets/private-endpoints-snet"
@@ -68,7 +68,7 @@ resource "azurerm_private_endpoint" "buildagent_storage_blob" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-storage-blob-buildagent-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-storage-blob-buildagent-privateserviceconnection"
     private_connection_resource_id = azurerm_storage_account.private.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
@@ -79,7 +79,7 @@ resource "azurerm_private_endpoint" "buildagent_storage_blob" {
 
 resource "azurerm_private_endpoint" "buildagent_storage_table" {
   depends_on          = [azurerm_private_endpoint.buildagent_storage_blob] # to avoid a race condition, we deploy the private endpoints one after another
-  name                = "${local.prefix}-${local.location_short}-built-agent-storage-table-pe"
+  name                = "${local.prefix}-${var.location}-built-agent-storage-table-pe"
   location            = data.azurerm_resource_group.buildagent.location
   resource_group_name = data.azurerm_resource_group.buildagent.name
   subnet_id           = "${data.azurerm_virtual_network.buildagent.id}/subnets/private-endpoints-snet"
@@ -90,7 +90,7 @@ resource "azurerm_private_endpoint" "buildagent_storage_table" {
   }
 
   private_service_connection {
-    name                           = "${local.prefix}-${local.location_short}-storage-table-buildagent-privateserviceconnection"
+    name                           = "${local.prefix}-${var.location}-storage-table-buildagent-privateserviceconnection"
     private_connection_resource_id = azurerm_storage_account.private.id
     is_manual_connection           = false
     subresource_names              = ["table"]

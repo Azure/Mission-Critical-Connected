@@ -58,7 +58,12 @@ jobs: # using jobs so they each run in parallel
                          --set workload.domainname="$fqdn" `
                          --wait
 
-            # Wait for the ingress certificate to be provisioned by cert-manager
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of healthservice"
+            }
+
+            # Wait for healthservice-deploy k8s deployment to come up
             $retrycount = 0;
             $maxretrycount = 30
             $sleepSeconds = 60
@@ -116,6 +121,11 @@ jobs: # using jobs so they each run in parallel
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
+          $globalInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputGlobalInfra/*.json | Get-Content | ConvertFrom-JSON
+
+          $frontDoorFqdn = $globalInfraDeployOutput.frontdoor_fqdn.value
+          echo "*** Retrieved Azure Front Door FQDN $frontDoorFqdn"
+
           # loop through stamps from pipeline artifact json
           foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
             echo "**************************** REGION: $($stamp.location) ****************************"
@@ -134,6 +144,11 @@ jobs: # using jobs so they each run in parallel
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
+            # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
+            # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
+            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            echo "*** Using wildcard domain name $wildcardDomain"
+
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/catalogservice-containerImageName/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
@@ -142,13 +157,38 @@ jobs: # using jobs so they each run in parallel
             echo "*** Using container image $fullContainerImageName"
 
             helm upgrade --install workload-catalogservice src/app/charts/catalogservice `
-                         --namespace "$(workloadNamespace)" `
-                         --create-namespace `
-                         --set azure.frontdoorid="$(frontdoor_id_header)" `
+                         --namespace "$(workloadNamespace)" --create-namespace `
                          --set azure.region="$region" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$fqdn" `
-                         --wait
+                         --set workload.domainname="$wildcardDomain" `
+                         ${{ parameters.additionalHelmArguments }}
+
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of catalogservice"
+            }
+
+            # Wait for CatalogService-deploy k8s deployment to come up
+            $retrycount = 0;
+            $maxretrycount = 5
+            do {
+              kubectl rollout status deployment/catalogservice-deploy -n $(workloadNamespace)
+
+              # checking if certificate for CatalogService-ingress-secret was issued
+              if ($(kubectl get certificates/catalogservice-ingress-secret -n $(workloadNamespace) -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') -ne "True")
+              {
+                $LastExitCode=1
+                echo "certificate for catalogservice-ingress-secret pending.. "
+              }
+
+              if ($LastExitCode -ne 0) {
+                $retrycount++;
+                echo "Deployment not ready. Retrying... $retrycount/$maxretrycount";
+                start-sleep $(60*$retrycount) # sleep for <retry> * 60 seconds
+              } else {
+                $retrycount = $maxretrycount
+              }
+            } while ( ($retrycount -lt $maxretrycount) )
           }
 
 - job: deploycontainerBackgroundProcessor
@@ -199,7 +239,27 @@ jobs: # using jobs so they each run in parallel
                          --create-namespace `
                          --set containerimage="$fullContainerImageName" `
                          --set azure.region="$region" `
-                         --wait
+                         ${{ parameters.additionalHelmArguments }}
+
+            if ($LastExitCode -ne 0)
+            {
+              throw "*** Error on helm deployment of backgroundprocessor"
+            }
+
+            # Wait for BackgroundProcessor-deploy k8s deployment to come up
+            $retrycount = 0;
+            $maxretrycount = 5
+            do {
+              kubectl rollout status deployment/backgroundprocessor-deploy -n $(workloadNamespace)
+              if ($LastExitCode -ne 0) {
+                $retrycount++;
+                echo "Deployment not ready. Retrying... $retrycount/$maxretrycount";
+                start-sleep $(60*$retrycount) # sleep for <retry> * 60 seconds
+              } else {
+                $retrycount = $maxretrycount
+              }
+            } while ( ($retrycount -lt $maxretrycount) )
+
           }
 
 - job: deployuiapp

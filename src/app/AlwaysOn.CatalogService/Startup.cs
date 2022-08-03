@@ -68,7 +68,7 @@ namespace AlwaysOn.CatalogService
                 c.OperationFilter<ApiKeyFilter>(); // Custom parameter in Swagger for API Key-protected operations
                 c.OperationFilter<VersionParameterFilter>(); // Custom add default value for version parameter in Swagger
             });
-
+            
             services.AddCors();
 
             services.AddSingleton<ITelemetryInitializer>(sp =>

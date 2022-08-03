@@ -16,6 +16,24 @@ steps:
       sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
       sudo apt-get update && sudo apt install terraform=$(terraformVersion)
 
+
+- task: Bash@3
+  displayName: 'Use custom-built Terraform azurerm provider'
+  inputs:
+    targetType: 'inline'
+    script: |
+
+      cd $(System.DefaultWorkingDirectory)/tf_custom_build
+      unzip -o terraform-provider-azurerm.zip
+      chmod 777 terraform-provider-azurerm
+
+      echo "provider_installation {
+      dev_overrides {
+      \"hashicorp/azurerm\" = \"$(System.DefaultWorkingDirectory)/tf_custom_build\"
+      }
+      direct {}
+      }" > ~/.terraformrc
+
 # Setting env vars for Terraform Backend configuration
 # Using Terraform CLI instead of Terraform Tasks
 # https://cloudarchitected.com/2021/02/using-terraform-in-azure-pipelines-without-extensions/
