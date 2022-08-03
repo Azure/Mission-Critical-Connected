@@ -502,38 +502,38 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
-            # # Before the Private Link services can be destroyed, all Private Endpoint connections need to be deleted
-            # - task: AzureCLI@2
-            #   displayName: 'Delete AKS Ingress Private Link Endpoint Connections'
-            #   retryCountOnTaskFailure: 1
-            #   inputs:
-            #     azureSubscription: $(azureServiceConnection)
-            #     scriptType: pscore
-            #     scriptLocation: inlineScript
-            #     inlineScript: |
+            # Before the Private Link services can be destroyed, all Private Endpoint connections need to be deleted
+            - task: AzureCLI@2
+              displayName: 'Delete AKS Ingress Private Link Endpoint Connections'
+              retryCountOnTaskFailure: 1
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
 
-            #       $privateLinkServices = az network private-link-service list --query "[?tags.Prefix == '$(oldReleasePrefix)$(oldReleaseSuffix)']" | ConvertFrom-JSON
+                  $privateLinkServices = az network private-link-service list --query "[?tags.Prefix == '$(oldReleasePrefix)$(oldReleaseSuffix)']" | ConvertFrom-JSON
 
-            #       echo "*** Found $($privateLinkServices.Count) Private Link service(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
+                  echo "*** Found $($privateLinkServices.Count) Private Link service(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
 
-            #       foreach($plService in $privateLinkServices)
-            #       {
-            #         $plServiceId = $plService.id
-            #         echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
+                  foreach($plService in $privateLinkServices)
+                  {
+                    $plServiceId = $plService.id
+                    echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
 
-            #         $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
+                    $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
 
-            #         foreach($peConnection in $peConnections)
-            #         {
-            #           echo "*** Deleting private endpoint connection: $($peConnection.name)"
-            #           az network private-endpoint-connection delete --id $peConnection.id --yes
+                    foreach($peConnection in $peConnections)
+                    {
+                      echo "*** Deleting private endpoint connection: $($peConnection.name)"
+                      az network private-endpoint-connection delete --id $peConnection.id --yes
 
-            #           if($LastExitCode -ne 0)
-            #           {
-            #               throw "*** Error on deleting private endpoint connection $($peConnection.name)"
-            #           }
-            #         }
-            #       }
+                      if($LastExitCode -ne 0)
+                      {
+                          throw "*** Error on deleting private endpoint connection $($peConnection.name)"
+                      }
+                    }
+                  }
 
             # Terraform destroy the build agent private endpoints for ingress
             - template: steps-terraform-destroy.yaml
