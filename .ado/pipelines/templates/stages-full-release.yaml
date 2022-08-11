@@ -366,8 +366,8 @@ stages:
                 scriptLocation: inlineScript
                 inlineScript: |
 
-                  # Find AKS clusters with the prefix $(oldReleasePrefix)
-                  $aksClusters = az resource list --tag prefix="$(oldReleasePrefix)$(oldReleaseSuffix)" --query "[?type == 'Microsoft.ContainerService/managedClusters']" | ConvertFrom-Json
+                  # Find AKS clusters with the prefix $(oldReleasePrefix)$(oldReleaseSuffix)
+                  $aksClusters = az aks list --query "[?tags.Prefix=='$(oldReleasePrefix)$(oldReleaseSuffix)']" | ConvertFrom-Json
 
                   echo "*** Found $($aksClusters.Count) AKS cluster(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
 
@@ -380,6 +380,13 @@ stages:
                     echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
                     az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
+                    $ingressNamespace = "ingress-nginx"
+
+                    # First delete the ingress controllers
+                    echo "*** Deleting all deployments in namespace $ingressNamespace"
+                    kubectl delete --all deployments --namespace=$ingressNamespace
+
+                    # Now delete all the workload deployments
                     echo "*** Deleting all deployments in namespace $(workloadNamespace)"
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
