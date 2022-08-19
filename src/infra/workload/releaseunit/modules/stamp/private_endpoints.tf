@@ -214,7 +214,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "table_storage" {
 }
 
 resource "azurerm_private_endpoint" "table_storage" {
-  depends_on          = [azurerm_private_endpoint.blob_storage] # to avoid a race condition, we deploy the private endpoints one after another
   name                = "${local.prefix}-${local.location_short}-storage-table-pe"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
