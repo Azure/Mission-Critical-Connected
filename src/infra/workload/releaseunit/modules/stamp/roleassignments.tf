@@ -25,5 +25,11 @@ resource "azurerm_role_assignment" "acrpull_role" {
 resource "azurerm_role_assignment" "dns_contributor" {
   scope                = data.azurerm_dns_zone.customdomain.id
   role_definition_name = "DNS Zone Contributor"
+}
+
+# Permission for the kubelet as used by the Health Service to query the regional LA workspace
+resource "azurerm_role_assignment" "loganalyticsreader_role" {
+  scope                = data.azurerm_log_analytics_workspace.stamp.id
+  role_definition_name = "Log Analytics Reader"
   principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
 }
