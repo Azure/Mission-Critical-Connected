@@ -61,8 +61,8 @@ In addition to [stamp independence](#stamp-independence) and [stateless compute 
 | --- | --- | --- |
 | AKS nodes | 3 | 12 |
 | Ingress controller replicas | 3 | 24 |
-| Game Service replicas | 3 | 24 |
-| Result Worker replicas | 3 | 12 |
+| CatalogService replicas | 3 | 24 |
+| BackgroundProcessor replicas | 3 | 12 |
 | Event Hub throughput units | 1 | 10 |
 | Cosmos DB RUs | 4000 | 40000 |
 
@@ -107,6 +107,7 @@ As of May 2022, following regions have been successfully tested with the referen
 - eastasia
 - japaneast
 - koreacentral
+- centralindia
 
 >Note: Depending on which regions you select, you might need to first request quota with Azure Support for some of the services (mostly for AKS VMs and Cosmos DB).
 
@@ -127,7 +128,7 @@ As regional availability of services used in reference implementation and AZs ra
 #### Azure Cosmos DB
 
 - SQL-API (Cosmos DB API) is being used
-- `Multi-master write` is enabled
+- `Multi-region write` is enabled
 - The account is replicated to every region in which there is a stamp deployed.
 - `zone_redundancy` is enabled for each replicated region.
 - Request Unit `autoscaling` is enabled on container-level.

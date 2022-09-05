@@ -72,7 +72,7 @@ resource "azurerm_subnet" "kubernetes" {
     "Microsoft.Storage"
   ]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = false
 }
 
 # NSG - Assign default nsg to kubernetes-snet subnet
@@ -88,7 +88,7 @@ resource "azurerm_subnet" "private_endpoints" {
   virtual_network_name = data.azurerm_virtual_network.stamp.name
   address_prefixes     = [module.subnet_addrs.network_cidr_blocks["private-endpoints"]]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = false
 }
 
 # NSG - Assign default nsg to private-endpoints-snet subnet
