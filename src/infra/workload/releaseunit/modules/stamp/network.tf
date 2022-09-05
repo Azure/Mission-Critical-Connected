@@ -118,7 +118,7 @@ resource "azurerm_subnet" "aks_pl" {
   virtual_network_name = data.azurerm_virtual_network.stamp.name
   address_prefixes     = [module.subnet_addrs.network_cidr_blocks["aks-pl"]]
 
-  enforce_private_link_service_network_policies = true
+  private_endpoint_network_policies_enabled = false
 }
 
 # NSG - Assign default nsg to aks-lb-snet subnet
