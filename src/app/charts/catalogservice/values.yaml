@@ -27,12 +27,12 @@ scale: # Horizontal Pod Autoscaler (HPA) configuration
   minReplicas: 3 # Min. number of replicas used for HPA
   maxReplicas: 20 # Max. number of replicas used for HPA
 
-ingress:
-  annotations: # this can be empty but has to exist
-
 networkPolicy:
   enabled: true # Enable Network Policy (contains a default-deny policy)
   egressRange: "0.0.0.0/0" # CIDR range for allowed egress traffic
+
+ingress:
+  annotations: # this can be empty but has to exist
 
 azure:
   frontdoorid: "" # Azure Front Door Header ID

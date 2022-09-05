@@ -19,12 +19,12 @@ resources:
     cpu: "0.5"
     memory: "512Mi"
 
+azure:
+  region: "East US 2"
+
 # Note! When disabling Network Policy for this helm chart,
 # make sure to disable Network Policy for the CatalogService as well
 # as it contains a default-deny policy.
 networkPolicy:
   enabled: true # Enable Network Policy
   egressRange: "0.0.0.0/0" # CIDR range for allowed egress traffic
-
-azure:
-  region: "East US 2"
