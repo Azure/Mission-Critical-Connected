@@ -107,7 +107,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-primary" {
   weight     = 1
   priority   = 1
 
-  health_probes_enabled          = true
+  enabled                        = true
   certificate_name_check_enabled = true
 
   origin_host_header = azurerm_storage_account.global.primary_web_host
@@ -124,7 +124,7 @@ resource "azurerm_cdn_frontdoor_origin" "globalstorage-secondary" {
   weight     = 1
   priority   = 2
 
-  health_probes_enabled          = true
+  enabled                        = true
   certificate_name_check_enabled = true
 
   origin_host_header = azurerm_storage_account.global.secondary_web_host
@@ -166,7 +166,7 @@ resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   origin_host_header = each.value.address
   weight             = each.value.weight
 
-  health_probes_enabled          = each.value.enabled
+  enabled                        = each.value.enabled
   certificate_name_check_enabled = true
 
   dynamic "private_link" {
@@ -217,7 +217,7 @@ resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   origin_host_header = each.value.address
   weight             = each.value.weight
 
-  health_probes_enabled          = each.value.enabled
+  enabled                        = each.value.enabled
   certificate_name_check_enabled = true
 
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
