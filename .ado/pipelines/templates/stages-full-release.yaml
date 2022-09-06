@@ -545,7 +545,7 @@ stages:
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
                 terraformStorageResourceGroupName: '$(terraformResourceGroup)'
-                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix)-privatelink.state'
+                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix)-privateendpoint.state'
                 terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
                 customAttributes:        '-var=prefix="$(oldReleasePrefix)"
                                           -var=suffix="$(oldReleaseSuffix)"

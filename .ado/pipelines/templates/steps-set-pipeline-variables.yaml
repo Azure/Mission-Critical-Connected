@@ -75,16 +75,16 @@ steps:
 
       $terraformStateFileGlobal = "terraform-global-$(prefix)$globalResourceSuffix.state"
       $terraformStateFileReleaseUnit = "terraform-$(prefix)$(customSuffix).state"
-      $terraformStateFileReleaseUnitPrivateLink = "terraform-$(prefix)$(customSuffix)-privatelink.state"
+      $terraformStateFileReleaseUnitPrivateEndpoint = "terraform-$(prefix)$(customSuffix)-privateendpoint.state"
 
       echo "*** DEBUG: Setting globalResourceSuffix to '$globalResourceSuffix'"
       echo "*** DEBUG: Setting domainSuffix to '$domainSuffix'"
       echo "*** DEBUG: Setting terraformStateFileGlobal to '$terraformStateFileGlobal'"
       echo "*** DEBUG: Setting terraformStateFileReleaseUnit to '$terraformStateFileReleaseUnit'"
-      echo "*** DEBUG: Setting terraformStateFileReleaseUnitPrivateLink to '$terraformStateFileReleaseUnitPrivateLink'"
+      echo "*** DEBUG: Setting terraformStateFileReleaseUnitPrivateEndpoint to '$terraformStateFileReleaseUnitPrivateEndpoint'"
 
       echo "##vso[task.setvariable variable=globalResourceSuffix]$globalResourceSuffix"
       echo "##vso[task.setvariable variable=domainSuffix]$domainSuffix"
       echo "##vso[task.setvariable variable=terraformStateFileGlobal]$terraformStateFileGlobal"
       echo "##vso[task.setvariable variable=terraformStateFileReleaseUnit]$terraformStateFileReleaseUnit"
-      echo "##vso[task.setvariable variable=terraformStateFileReleaseUnitPrivateLink]$terraformStateFileReleaseUnitPrivateLink"
+      echo "##vso[task.setvariable variable=terraformStateFileReleaseUnitPrivateEndpoint]$terraformStateFileReleaseUnitPrivateEndpoint"
