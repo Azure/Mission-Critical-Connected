@@ -92,7 +92,6 @@ variable "cosmosdb_collection_itemratings_max_autoscale_throughputunits" {
   default     = 4000 # 4000 is the minimum possible value
 }
 
-# We use example.com for the very first creation of Front Door when we have no backends yet
 variable "backends_BackendApis" {
   type = list(object({
     address                = string
@@ -111,7 +110,6 @@ variable "backends_BackendApis" {
   # }]
 }
 
-# We use example.com for the very first creation of Front Door when we have no backends yet
 variable "backends_StaticStorage" {
   type = list(object({
     address = string
