@@ -26,6 +26,8 @@ resource "azurerm_cdn_frontdoor_custom_domain" "global" {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
   }
+
+  associate_with_cdn_frontdoor_route_id = azurerm_cdn_frontdoor_route.globalstorage.id
 }
 
 # Front Door Origin Group used for Backend APIs hosted on AKS
