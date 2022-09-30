@@ -152,10 +152,10 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
 }
 
-resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "globalstorage" {
-  cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.globalstorage.id
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-}
+# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "globalstorage" {
+#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.globalstorage.id
+#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
+# }
 
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = { for index, backend in var.backends_BackendApis : backend.address => backend }
@@ -205,11 +205,11 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.backendapi : b.id]
 }
 
-resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "backendapi" {
-  count                           = length(azurerm_cdn_frontdoor_route.backendapi) == 1 ? 1 : 0 # only create this association if the route exists
-  cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.backendapi.0.id
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-}
+# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "backendapi" {
+#   count                           = length(azurerm_cdn_frontdoor_route.backendapi) == 1 ? 1 : 0 # only create this association if the route exists
+#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.backendapi.0.id
+#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
+# }
 
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
@@ -249,11 +249,11 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.staticstorage : b.id]
 }
 
-resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "staticstorage" {
-  count                           = length(azurerm_cdn_frontdoor_route.staticstorage) == 1 ? 1 : 0 # only create this association if the route exists
-  cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.staticstorage.0.id
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-}
+# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "staticstorage" {
+#   count                           = length(azurerm_cdn_frontdoor_route.staticstorage) == 1 ? 1 : 0 # only create this association if the route exists
+#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.staticstorage.0.id
+#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
+# }
 
 #### WAF
 
