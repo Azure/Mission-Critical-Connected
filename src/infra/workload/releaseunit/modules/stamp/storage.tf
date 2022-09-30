@@ -88,7 +88,7 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.storage_public.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.storage_public.log_category_types
 
     content {
       category = entry.value
@@ -128,7 +128,7 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public_blob" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.storage_public_blob.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.storage_public_blob.log_category_types
 
     content {
       category = entry.value
@@ -171,7 +171,7 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.storage_private.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.storage_private.log_category_types
 
     content {
       category = entry.value
@@ -211,7 +211,7 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private_blob" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.storage_private_blob.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.storage_private_blob.log_category_types
 
     content {
       category = entry.value

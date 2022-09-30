@@ -28,10 +28,6 @@ resource "azurerm_cdn_frontdoor_custom_domain" "global" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain_txt_validator" "global" {
-  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.global.id
-}
-
 # Front Door Origin Group used for Backend APIs hosted on AKS
 resource "azurerm_cdn_frontdoor_origin_group" "backendapis" {
   name = "BackendApis"
@@ -148,10 +144,6 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   ]
   forwarding_protocol = "HttpsOnly"
 
-
-  link_to_default_domain_enabled  = true
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-
   cdn_frontdoor_origin_ids = [
     azurerm_cdn_frontdoor_origin.globalstorage-primary.id,
     azurerm_cdn_frontdoor_origin.globalstorage-secondary.id
@@ -203,9 +195,6 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   ]
   forwarding_protocol = "HttpsOnly"
 
-  link_to_default_domain_enabled  = true
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.backendapi : b.id]
 }
 
@@ -243,9 +232,6 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
     "Https"
   ]
   forwarding_protocol = "HttpsOnly"
-
-  link_to_default_domain_enabled  = true
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.staticstorage : b.id]
 }
@@ -307,7 +293,7 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.frontdoor.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.frontdoor.log_category_types
 
     content {
       category = entry.value
