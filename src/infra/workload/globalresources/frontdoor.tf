@@ -204,7 +204,7 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
 }
 
 resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "backendapi" {
-  count                           = length(var.backends_BackendApis) > 0 ? 1 : 0 # only create this route if there are already backends
+  count                           = length(azurerm_cdn_frontdoor_route.backendapi) == 1 ? 1 : 0 # only create this association if the route exists
   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.backendapi.0.id
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 }
@@ -248,7 +248,7 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
 }
 
 resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "staticstorage" {
-  count                           = length(var.backends_StaticStorage) > 0 ? 1 : 0 # only create this route if there are already backends
+  count                           = length(azurerm_cdn_frontdoor_route.staticstorage) == 1 ? 1 : 0 # only create this association if the route exists
   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.staticstorage.0.id
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
 }
