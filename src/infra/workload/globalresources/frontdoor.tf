@@ -26,8 +26,15 @@ resource "azurerm_cdn_frontdoor_custom_domain" "global" {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
   }
+}
 
-  associate_with_cdn_frontdoor_route_id = azurerm_cdn_frontdoor_route.globalstorage.id
+resource "azurerm_cdn_frontdoor_custom_domain_association" "global" {
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.global.id
+  cdn_frontdoor_route_ids = [
+    azurerm_cdn_frontdoor_route.globalstorage.id,
+    azurerm_cdn_frontdoor_route.staticstorage.*.id,
+    azurerm_cdn_frontdoor_route.backendapi.*.id
+  ]
 }
 
 # Front Door Origin Group used for Backend APIs hosted on AKS
@@ -136,6 +143,10 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.globalstorage.id
 
+  cdn_frontdoor_custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.global.id,
+  ]
+
   patterns_to_match = [
     "/images/*"
   ]
@@ -151,11 +162,6 @@ resource "azurerm_cdn_frontdoor_route" "globalstorage" {
     azurerm_cdn_frontdoor_origin.globalstorage-secondary.id
   ]
 }
-
-# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "globalstorage" {
-#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.globalstorage.id
-#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-# }
 
 resource "azurerm_cdn_frontdoor_origin" "backendapi" {
   for_each = { for index, backend in var.backends_BackendApis : backend.address => backend }
@@ -191,6 +197,10 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backendapis.id
 
+  cdn_frontdoor_custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.global.id,
+  ]
+
   patterns_to_match = [
     "/catalogservice/*",
     "/healthservice/*"
@@ -204,12 +214,6 @@ resource "azurerm_cdn_frontdoor_route" "backendapi" {
 
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.backendapi : b.id]
 }
-
-# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "backendapi" {
-#   count                           = length(azurerm_cdn_frontdoor_route.backendapi) == 1 ? 1 : 0 # only create this association if the route exists
-#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.backendapi.0.id
-#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-# }
 
 resource "azurerm_cdn_frontdoor_origin" "staticstorage" {
   for_each = { for index, backend in var.backends_StaticStorage : backend.address => backend }
@@ -236,6 +240,10 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
   enabled                       = true
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.staticstorage.id
 
+  cdn_frontdoor_custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.global.id,
+  ]
+
   patterns_to_match = [
     "/*"
   ]
@@ -248,12 +256,6 @@ resource "azurerm_cdn_frontdoor_route" "staticstorage" {
 
   cdn_frontdoor_origin_ids = [for i, b in azurerm_cdn_frontdoor_origin.staticstorage : b.id]
 }
-
-# resource "azurerm_cdn_frontdoor_route_disable_link_to_default_domain" "staticstorage" {
-#   count                           = length(azurerm_cdn_frontdoor_route.staticstorage) == 1 ? 1 : 0 # only create this association if the route exists
-#   cdn_frontdoor_route_id          = azurerm_cdn_frontdoor_route.staticstorage.0.id
-#   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.global.id]
-# }
 
 #### WAF
 
