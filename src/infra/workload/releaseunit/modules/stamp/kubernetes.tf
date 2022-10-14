@@ -45,7 +45,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   network_profile {
     network_plugin = "azure"
     network_mode   = "transparent"
-    network_policy = "azure"
+    network_policy = "calico"
   }
 
   identity {
@@ -116,7 +116,7 @@ resource "azurerm_monitor_diagnostic_setting" "aks" {
 
   dynamic "log" {
     iterator = entry
-    for_each = data.azurerm_monitor_diagnostic_categories.aks.logs
+    for_each = data.azurerm_monitor_diagnostic_categories.aks.log_category_types
 
     content {
       category = entry.value

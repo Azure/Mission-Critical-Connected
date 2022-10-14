@@ -137,8 +137,6 @@ namespace AlwaysOn.CatalogService
 
             app.Use(async (context, next) =>
             {
-                // Add tracing headers to each response
-                // Source: https://khalidabuhakmeh.com/add-headers-to-a-response-in-aspnet-5
                 context.Response.OnStarting(o =>
                 {
                     if (o is HttpContext ctx)
