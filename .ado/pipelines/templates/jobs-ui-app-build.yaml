@@ -17,7 +17,8 @@ jobs:
     displayName: 'NPM install'
     retryCountOnTaskFailure: 1
     inputs:
-      command: 'install'
+      command: 'custom'
+      customCommand: 'install --prefix .'
       workingDir: '${{ parameters.workingDirectory }}'
 
   - task: Npm@1
