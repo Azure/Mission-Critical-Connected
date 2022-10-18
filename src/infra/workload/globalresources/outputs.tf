@@ -32,11 +32,6 @@ output "frontdoor_name" {
   value = azurerm_cdn_frontdoor_profile.main.name
 }
 
-# Azure Front Door Header ID
-output "frontdoor_id_header" {
-  value = azurerm_cdn_frontdoor_profile.main.resource_guid
-}
-
 # Azure Front Door FQDN
 output "frontdoor_fqdn" {
   value = local.frontdoor_fqdn

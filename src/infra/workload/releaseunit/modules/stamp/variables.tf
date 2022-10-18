@@ -67,11 +67,6 @@ variable "cosmosdb_database_name" {
   type        = string
 }
 
-variable "frontdoor_id_header" {
-  description = "Front Door ID to be used in the header check"
-  type        = string
-}
-
 variable "aks_kubernetes_version" {
   description = "Kubernetes Version"
   type        = string

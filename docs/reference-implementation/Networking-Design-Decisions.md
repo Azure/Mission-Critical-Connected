@@ -27,7 +27,7 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 
 ## Network security
 
-- Traffic to the cluster entry points must only come through the global load balancer (Azure Front Door). To ensure this, HTTP header inspection [based on the `X-Azure-FDID` header](https://docs.microsoft.com/azure/frontdoor/front-door-faq#how-do-i-lock-down-the-access-to-my-backend-to-only-azure-front-door-) is implemented on the Nginx ingress controller.
+- Traffic to the cluster can only flow through Private Endpoints, the clusters do not have any public endpoints.
 - There is no additional firewall in place (such as Azure Firewall) as it provides no added benefits for reliability but instead would introduce another component adding further management overhead and failure risk.
 - Network Service Endpoints are used to lock down traffic to all services which support them.
 - In accordance with [Azure Networking Best Practices](https://docs.microsoft.com/azure/security/fundamentals/network-best-practices), all subnets have Network Security Groups (NSGs) assigned.

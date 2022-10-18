@@ -63,7 +63,6 @@ jobs: # using jobs so they each run in parallel
             helm upgrade --install healthservice-workload src/app/charts/healthservice `
                          --namespace $(workloadNamespace) `
                          --create-namespace `
-                         --set azure.frontdoorid="$(frontdoor_id_header)" `
                          --set azure.region="$region" `
                          --set containerimage="$fullContainerImageName" `
                          --set workload.domainname="$wildcardDomain" `

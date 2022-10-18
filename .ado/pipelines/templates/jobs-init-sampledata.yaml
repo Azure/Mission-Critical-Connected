@@ -22,9 +22,7 @@ jobs:
 
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
-
           $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
-
 
           $apiKey = $releaseUnitInfraDeployOutput.api_key.value
 
@@ -39,7 +37,6 @@ jobs:
           $testData =  Get-Content -Path "src/app/sampledata.json" | ConvertFrom-JSON
 
           $header = @{
-            "X-Azure-FDID" = "$(frontdoor_id_header)"
             "X-API-KEY" = "$apiKey"
           }
 

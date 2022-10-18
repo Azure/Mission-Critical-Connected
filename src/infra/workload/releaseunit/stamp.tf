@@ -20,7 +20,6 @@ module "stamp" {
   global_storage_account_name    = var.global_storage_account_name
 
   azure_monitor_action_group_resource_id = var.azure_monitor_action_group_resource_id
-  frontdoor_id_header                    = var.frontdoor_id_header
   acr_name                               = var.acr_name
 
   custom_dns_zone                    = var.custom_dns_zone

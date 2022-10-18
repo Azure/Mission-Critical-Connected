@@ -23,9 +23,6 @@ $globalInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutput
 # Azure Front Door Endpoint URI
 $frontdoorFqdn = $globalInfraDeployOutput.frontdoor_fqdn.value
 
-# Azure Front Door Header ID
-$frontdoorHeaderId = $globalInfraDeployOutput.frontdoor_id_header.value
-
 Write-Output "*******************"
 Write-Output "*** SMOKE TESTS ***"
 Write-Output "*******************"
@@ -46,9 +43,7 @@ if ($mode -eq "stamp") {
   $releaseUnitInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
   $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
-  # setting header with X-Azure-FDID for HTTP-based smoke tests (required to access the individual stamps directly, bypassing Front Door)
   $header = @{
-    "X-Azure-FDID" = "$frontdoorHeaderId"
     "X-TEST-DATA"  = "true" # Header to indicate that posted comments and rating are just for test and can be deleted again by the app
   }
 
@@ -139,7 +134,7 @@ foreach ($target in $targets) {
   Write-Output "*** Call - Get newly created comment ($mode)"
   Invoke-WebRequestWithRetry -Uri $getCommentUrl -Method 'GET' -Headers $header -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
 
-  # Write-Output "*** Call - UI app for $mode"
+  Write-Output "*** Call - UI app for $mode"
   $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
   $responseUi
 
