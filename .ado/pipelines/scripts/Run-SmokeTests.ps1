@@ -58,10 +58,12 @@ if ($mode -eq "stamp") {
     # - buildagent_pe_ingress_fqdn = endpoint to be called from the build agent
     # - storage_web_host = ui host
 
+    $releaseUnitOutput = $releaseUnitInfraDeployOutput.stamp_properties.value | Where-Object {$_.location -eq $stamp.location}
+
     $props = @{
       # Individual Cluster Endpoint FQDN (from pipeline artifact json)
       ApiEndpointFqdn = $stamp.buildagent_pe_ingress_fqdn
-      #UiEndpointFqdn = $stamp.storage_web_host
+      UiEndpointFqdn = $releaseUnitOutput.storage_web_host
     }
 
     $obj = New-Object PSObject -Property $props
@@ -75,7 +77,7 @@ else {
 
   $props = @{
     ApiEndpointFqdn = $frontdoorFqdn
-    #UiEndpointFqdn = $frontdoorFqdn
+    UiEndpointFqdn = $frontdoorFqdn
   }
 
   $obj = New-Object PSObject -Property $props
@@ -89,7 +91,7 @@ foreach ($target in $targets) {
 
   # shorthand for easier manipulation in strings
   $targetFqdn = $target.ApiEndpointFqdn
-  #$targetUiFqdn = $target.UiEndpointFqdn
+  $targetUiFqdn = $target.UiEndpointFqdn
 
   Write-Output "*** Testing $mode availability using $targetFqdn"
 
@@ -138,11 +140,11 @@ foreach ($target in $targets) {
   Invoke-WebRequestWithRetry -Uri $getCommentUrl -Method 'GET' -Headers $header -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
 
   # Write-Output "*** Call - UI app for $mode"
-  # $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
-  # $responseUi
+  $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
+  $responseUi
 
-  # if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) # Check in the HTML content of the response for a known string (the page title in this case)
-  # {
-  #   throw "*** Web UI for $targetUiFqdn doesn't contain the expected site title."
-  # }
+  if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) # Check in the HTML content of the response for a known string (the page title in this case)
+  {
+    throw "*** Web UI for $targetUiFqdn doesn't contain the expected site title."
+  }
 }

@@ -46,22 +46,6 @@ resource "azurerm_network_security_group" "default" {
   tags = var.default_tags
 }
 
-# Adding an explicit inbound rule for the AKS ingress controller TCP/80 and TCP/443
-# This is done as a separate security rule resource to not override the defaults
-# resource "azurerm_network_security_rule" "allow_inbound_https" {
-#   name                        = "Allow_Inbound_HTTPS"
-#   priority                    = 100
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_ranges     = ["80", "443"]
-#   source_address_prefix       = "*"
-#   destination_address_prefix  = azurerm_public_ip.aks_ingress.ip_address
-#   resource_group_name         = azurerm_resource_group.stamp.name
-#   network_security_group_name = azurerm_network_security_group.default.name
-# }
-
 # Subnet for Kubernetes nodes and pods
 resource "azurerm_subnet" "kubernetes" {
   name                 = "kubernetes-snet"
