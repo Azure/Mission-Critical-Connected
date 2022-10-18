@@ -53,17 +53,17 @@ if ($mode -eq "stamp") {
   }
 
   # loop through stamps from pipeline artifact json
-  foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+  foreach ($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
     # from stamp we need:
     # - buildagent_pe_ingress_fqdn = endpoint to be called from the build agent
     # - storage_web_host = ui host
 
-    $privateEndpoint = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object {$_.location -eq $stamp.location}
+    $privateEndpoint = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object { $_.location -eq $stamp.location }
 
     $props = @{
       # Individual Cluster Endpoint FQDN (from pipeline artifact json)
       ApiEndpointFqdn = $privateEndpoint.buildagent_pe_ingress_fqdn
-      UiEndpointFqdn = $stamp.storage_web_host
+      UiEndpointFqdn  = $stamp.storage_web_host
     }
 
     $obj = New-Object PSObject -Property $props
@@ -77,7 +77,7 @@ else {
 
   $props = @{
     ApiEndpointFqdn = $frontdoorFqdn
-    UiEndpointFqdn = $frontdoorFqdn
+    UiEndpointFqdn  = $frontdoorFqdn
   }
 
   $obj = New-Object PSObject -Property $props
@@ -143,8 +143,7 @@ foreach ($target in $targets) {
   $responseUi = Invoke-WebRequestWithRetry -Uri https://$targetUiFqdn -Method 'GET' -MaximumRetryCount $smokeTestRetryCount -RetryWaitSeconds $smokeTestRetryWaitSeconds
   $responseUi
 
-  if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) # Check in the HTML content of the response for a known string (the page title in this case)
-  {
+  if (!$responseUi.Content.Contains("<title>AlwaysOn Catalog</title>")) { # Check in the HTML content of the response for a known string (the page title in this case)
     throw "*** Web UI for $targetUiFqdn doesn't contain the expected site title."
   }
 }
