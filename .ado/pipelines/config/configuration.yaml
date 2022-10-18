@@ -17,7 +17,7 @@ variables:
 - name: 'dotnetSdkVersion'    # dotnet sdk version
   value: '6.0.400'
 - name: 'uiAppNodeVersion'    # nodejs version for the UI app
-  value: '16.x'
+  value: '18.11'
 - name: 'testsNodeVersion'    # nodejs version used for smoketests / playwright
   value: '14.x'
 
