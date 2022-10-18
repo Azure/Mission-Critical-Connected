@@ -53,17 +53,17 @@ if ($mode -eq "stamp") {
   }
 
   # loop through stamps from pipeline artifact json
-  foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value) {
+  foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
     # from stamp we need:
     # - buildagent_pe_ingress_fqdn = endpoint to be called from the build agent
     # - storage_web_host = ui host
 
-    $releaseUnitOutput = $releaseUnitInfraDeployOutput.stamp_properties.value | Where-Object {$_.location -eq $stamp.location}
+    $privateEndpoint = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object {$_.location -eq $stamp.location}
 
     $props = @{
       # Individual Cluster Endpoint FQDN (from pipeline artifact json)
-      ApiEndpointFqdn = $stamp.buildagent_pe_ingress_fqdn
-      UiEndpointFqdn = $releaseUnitOutput.storage_web_host
+      ApiEndpointFqdn = $privateEndpoint.buildagent_pe_ingress_fqdn
+      UiEndpointFqdn = $stamp.storage_web_host
     }
 
     $obj = New-Object PSObject -Property $props
