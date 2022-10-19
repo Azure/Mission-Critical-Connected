@@ -1,6 +1,6 @@
 # https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
 resource "azurerm_kubernetes_cluster" "stamp" {
-  name                = "${local.prefix}-${local.location_short}-aks"
+  name                = "${local.prefix_with_location}-aks"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   dns_prefix          = "${local.prefix}${var.location}aks"

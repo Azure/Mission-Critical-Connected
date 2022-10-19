@@ -7,6 +7,8 @@ locals {
   prefix         = "${lower(var.prefix)}${lower(var.suffix)}" # prefix used for resource naming
   location_short = substr(var.location, 0, 9)                 # shortened location name used for resource naming
 
+  prefix_with_location = "${local.prefix}-${local.location_short}"
+
   global_resource_prefix = regex("^(.+)-global-rg$", var.global_resource_group_name)[0] # extract global resource prefix from the global resource group name
 
   vnet_name_and_rg = regex("^.+/(?P<rg>.+)/providers/Microsoft.Network/virtualNetworks/(?P<vnet>.+)$", var.vnet_resource_id)

@@ -36,7 +36,7 @@ module "subnet_addrs" {
 # Default Network Security Group (nsg) definition
 # Allows outbound and intra-vnet/cross-subnet communication
 resource "azurerm_network_security_group" "default" {
-  name                = "${local.prefix}-${local.location_short}-nsg"
+  name                = "${local.prefix_with_location}-nsg"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
 

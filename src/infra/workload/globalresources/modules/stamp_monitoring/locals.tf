@@ -4,4 +4,6 @@ locals {
   # resources in stamp deployments are typically named <prefix>-<locationshort>-<service> 
   prefix         = lower(var.prefix)          # prefix used for resource naming
   location_short = substr(var.location, 0, 9) # shortened location name used for resource naming
+
+  prefix_with_location = "${local.prefix}-${local.location_short}"
 }
