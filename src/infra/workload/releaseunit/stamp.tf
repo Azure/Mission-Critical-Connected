@@ -20,8 +20,10 @@ module "stamp" {
   global_storage_account_name    = var.global_storage_account_name
 
   azure_monitor_action_group_resource_id = var.azure_monitor_action_group_resource_id
-  frontdoor_id_header                    = var.frontdoor_id_header
   acr_name                               = var.acr_name
+
+  custom_dns_zone                    = var.custom_dns_zone
+  custom_dns_zone_resourcegroup_name = var.custom_dns_zone_resourcegroup_name
 
   aks_system_node_pool_sku_size          = var.aks_system_node_pool_sku_size
   aks_system_node_pool_autoscale_minimum = var.aks_system_node_pool_autoscale_minimum

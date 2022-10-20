@@ -92,8 +92,13 @@ variable "frontdoor_name" {
   type        = string
 }
 
-variable "frontdoor_id_header" {
-  description = "Front Door ID to be used in the header check"
+variable "custom_dns_zone" {
+  description = "Custom DNS Zone name"
+  type        = string
+}
+
+variable "custom_dns_zone_resourcegroup_name" {
+  description = "Resource Group Name of the Custom DNS Zone"
   type        = string
 }
 

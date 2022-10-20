@@ -23,9 +23,6 @@ $globalInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutput
 # Azure Front Door Endpoint URI
 $frontdoorFqdn = $globalInfraDeployOutput.frontdoor_fqdn.value
 
-# Azure Front Door Header ID
-$frontdoorHeaderId = $globalInfraDeployOutput.frontdoor_id_header.value
-
 Write-Output "*******************"
 Write-Output "*** SMOKE TESTS ***"
 Write-Output "*******************"
@@ -44,22 +41,23 @@ if ($mode -eq "stamp") {
 
   # load json data from downloaded terraform artifacts
   $releaseUnitInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+  $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
-  # setting header with X-Azure-FDID for HTTP-based smoke tests (required to access the individual stamps directly, bypassing Front Door)
   $header = @{
-    "X-Azure-FDID" = "$frontdoorHeaderId"
     "X-TEST-DATA"  = "true" # Header to indicate that posted comments and rating are just for test and can be deleted again by the app
   }
 
   # loop through stamps from pipeline artifact json
   foreach ($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
     # from stamp we need:
-    # - aks_cluster_ingress_fqdn = endpoint to be called
+    # - buildagent_pe_ingress_fqdn = endpoint to be called from the build agent
     # - storage_web_host = ui host
+
+    $privateEndpoint = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object { $_.location -eq $stamp.location }
 
     $props = @{
       # Individual Cluster Endpoint FQDN (from pipeline artifact json)
-      ApiEndpointFqdn = $stamp.aks_cluster_ingress_fqdn
+      ApiEndpointFqdn = $privateEndpoint.buildagent_pe_ingress_fqdn
       UiEndpointFqdn  = $stamp.storage_web_host
     }
 

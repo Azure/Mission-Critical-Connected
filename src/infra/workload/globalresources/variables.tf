@@ -51,16 +51,19 @@ variable "alerts_enabled" {
 
 ########### Global Resource specific variables ###########
 
-variable "custom_fqdn" {
-  description = "(Optional) Custom FQDN to be used with this app. There must exist an Azure DNS Zone for it. Sample value: www.int.myapp.net"
+variable "custom_dns_zone" {
+  description = "Custom DNS Zone name. Sample value: int.myapp.net"
   type        = string
-  default     = ""
 }
 
 variable "custom_dns_zone_resourcegroup_name" {
-  description = "(Optional) Resource group which holds the Azure DNS Zone of the custom domain name to be used with this app. Must already be registered and the deploying service principal must have contributor permissions on the DNS zone. Does not need to be supplied if custom_fqdn is empty"
+  description = "Resource group which holds the Azure DNS Zone of the custom domain name to be used with this app. Must already be registered and the deploying service principal must have contributor permissions on the DNS zone. Does not need to be supplied if custom_fqdn is empty"
   type        = string
-  default     = ""
+}
+
+variable "front_door_subdomain" {
+  description = "Subdomain to be used on Front Door. Sample value: www"
+  type        = string
 }
 
 variable "cosmosdb_database_name" {
@@ -89,30 +92,34 @@ variable "cosmosdb_collection_itemratings_max_autoscale_throughputunits" {
   default     = 4000 # 4000 is the minimum possible value
 }
 
-# We use example.com for the very first creation of Front Door when we have no backends yet
 variable "backends_BackendApis" {
   type = list(object({
-    address = string
-    weight  = number
-    enabled = bool
+    address                = string
+    privatelink_service_id = string
+    privatelink_location   = string
+    weight                 = number
+    enabled                = bool
   }))
-  default = [{
-    address = "changeme-api.example.com"
-    weight  = 1
-    enabled = true
-  }]
+  default = []
+  # sample value = [{
+  #   address                = "changeme-api.example.com"
+  #   privatelink_service_id = "" # Optional. Example: "/subscriptions/111111111-22222/resourceGroups/sample-rg/providers/Microsoft.Network/privateLinkServices/sample-pl"
+  #   privatelink_location   = "" # Optional. Example: "westus2"
+  #   weight                 = 1
+  #   enabled                = true
+  # }]
 }
 
-# We use example.com for the very first creation of Front Door when we have no backends yet
 variable "backends_StaticStorage" {
   type = list(object({
     address = string
     weight  = number
     enabled = bool
   }))
-  default = [{
-    address = "changeme-storage.example.com"
-    weight  = 1
-    enabled = true
-  }]
+  default = []
+  # sample value = [{
+  #   address = "changeme-storage.example.com"
+  #   weight  = 1
+  #   enabled = true
+  # }]
 }

@@ -22,21 +22,21 @@ jobs:
 
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+          $privateLinkInfraDeployOutput = Get-ChildItem $env:PIPELINE_WORKSPACE/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
           $apiKey = $releaseUnitInfraDeployOutput.api_key.value
 
           # Take the first stamp. We only need to upload the test data once as it will be automatically globally distributed
           # We cannot send it through Front Door at this point, since the new stamp might not be wired up yet in AFD
-          $stamp = $releaseUnitInfraDeployOutput.stamp_properties.value[0]
+          $stamp = $privateLinkInfraDeployOutput.stamp_properties.value[0]
 
-          $url = "https://$($stamp.aks_cluster_ingress_fqdn)/catalogservice/api/1.0/CatalogItem"
+          $url = "https://$($stamp.buildagent_pe_ingress_fqdn)/catalogservice/api/1.0/CatalogItem"
 
           Write-Host "*** Using URL $url"
 
           $testData =  Get-Content -Path "src/app/sampledata.json" | ConvertFrom-JSON
 
           $header = @{
-            "X-Azure-FDID" = "$(frontdoor_id_header)"
             "X-API-KEY" = "$apiKey"
           }
 

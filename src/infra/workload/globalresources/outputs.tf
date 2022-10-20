@@ -25,21 +25,16 @@ output "cosmosdb_database_name" {
 }
 
 output "frontdoor_resource_id" {
-  value = azurerm_frontdoor.main.id
+  value = azurerm_cdn_frontdoor_profile.main.id
 }
 
 output "frontdoor_name" {
-  value = azurerm_frontdoor.main.name
-}
-
-# Azure Front Door Header ID
-output "frontdoor_id_header" {
-  value = azurerm_frontdoor.main.header_frontdoor_id
+  value = azurerm_cdn_frontdoor_profile.main.name
 }
 
 # Azure Front Door FQDN
 output "frontdoor_fqdn" {
-  value = var.custom_fqdn != "" ? var.custom_fqdn : azurerm_frontdoor.main.cname
+  value = local.frontdoor_fqdn
 }
 
 output "global_storage_account_name" {

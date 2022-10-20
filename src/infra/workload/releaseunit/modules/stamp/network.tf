@@ -21,6 +21,14 @@ module "subnet_addrs" {
     {
       name     = "private-endpoints"
       new_bits = 27 - local.netmask # For the private endpoints we want a /27 sized subnet. So we calculate based on the provided input address space
+    },
+    {
+      name     = "aks-lb"
+      new_bits = 29 - local.netmask # Subnet for internal AKS load balancer
+    },
+    {
+      name     = "aks-pl"
+      new_bits = 29 - local.netmask # Subnet for Private Link service towards the AKS Load Balancer
     }
   ]
 }
@@ -28,7 +36,7 @@ module "subnet_addrs" {
 # Default Network Security Group (nsg) definition
 # Allows outbound and intra-vnet/cross-subnet communication
 resource "azurerm_network_security_group" "default" {
-  name                = "${local.prefix}-${local.location_short}-nsg"
+  name                = "${local.prefix_with_location}-nsg"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
 
@@ -36,22 +44,6 @@ resource "azurerm_network_security_group" "default" {
   # it allows intra-vnet communication and outbound public internet access
 
   tags = var.default_tags
-}
-
-# Adding an explicit inbound rule for the AKS ingress controller TCP/80 and TCP/443
-# This is done as a separate security rule resource to not override the defaults
-resource "azurerm_network_security_rule" "allow_inbound_https" {
-  name                        = "Allow_Inbound_HTTPS"
-  priority                    = 100
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_ranges     = ["80", "443"]
-  source_address_prefix       = "*"
-  destination_address_prefix  = azurerm_public_ip.aks_ingress.ip_address
-  resource_group_name         = azurerm_resource_group.stamp.name
-  network_security_group_name = azurerm_network_security_group.default.name
 }
 
 # Subnet for Kubernetes nodes and pods
@@ -86,5 +78,35 @@ resource "azurerm_subnet" "private_endpoints" {
 # NSG - Assign default nsg to private-endpoints-snet subnet
 resource "azurerm_subnet_network_security_group_association" "private_endpoints_default_nsg" {
   subnet_id                 = azurerm_subnet.private_endpoints.id
+  network_security_group_id = azurerm_network_security_group.default.id
+}
+
+# Subnet for aks internal lb
+resource "azurerm_subnet" "aks_lb" {
+  name                 = "aks-lb-snet"
+  resource_group_name  = local.vnet_resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.stamp.name
+  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["aks-lb"]]
+}
+
+# NSG - Assign default nsg to aks-lb-snet subnet
+resource "azurerm_subnet_network_security_group_association" "aks_lb_default_nsg" {
+  subnet_id                 = azurerm_subnet.aks_lb.id
+  network_security_group_id = azurerm_network_security_group.default.id
+}
+
+# Subnet for aks private link service
+resource "azurerm_subnet" "aks_pl" {
+  name                 = "aks-pl-snet"
+  resource_group_name  = local.vnet_resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.stamp.name
+  address_prefixes     = [module.subnet_addrs.network_cidr_blocks["aks-pl"]]
+
+  private_endpoint_network_policies_enabled = false
+}
+
+# NSG - Assign default nsg to aks-lb-snet subnet
+resource "azurerm_subnet_network_security_group_association" "aks_pl_default_nsg" {
+  subnet_id                 = azurerm_subnet.aks_pl.id
   network_security_group_id = azurerm_network_security_group.default.id
 }

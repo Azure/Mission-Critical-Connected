@@ -27,6 +27,16 @@ variable "vnet_resource_id" {
   type        = string
 }
 
+variable "custom_dns_zone" {
+  description = "Custom DNS Zone name"
+  type        = string
+}
+
+variable "custom_dns_zone_resourcegroup_name" {
+  description = "Resource Group Name of the Custom DNS Zone"
+  type        = string
+}
+
 variable "acr_name" {
   description = "Azure Container Registry name used for AcrPull role assignment"
   type        = string
@@ -54,11 +64,6 @@ variable "cosmosdb_account_name" {
 
 variable "cosmosdb_database_name" {
   description = "Name of the globally shared cosmos db database"
-  type        = string
-}
-
-variable "frontdoor_id_header" {
-  description = "Front Door ID to be used in the header check"
   type        = string
 }
 

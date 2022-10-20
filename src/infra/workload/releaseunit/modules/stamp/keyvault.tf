@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "stamp" {
-  name                = "${local.prefix}-${local.location_short}-kv"
+  name                = "${local.prefix_with_location}-kv"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   tenant_id           = data.azurerm_client_config.current.tenant_id

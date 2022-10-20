@@ -34,8 +34,8 @@ jobs:
                                  --resource-group $aksClusterResourceGroup `
                                  --overwrite-existing --admin
 
-          # Gather Ingress Load Balancer IP from pipeline artifact json
-          $aksIngressIp = $stamp.aks_cluster_ingress_ip_address
+          # Gather Ingress Internal Load Balancer IP from pipeline artifact json
+          $aksIngressIp = $stamp.aks_internal_lb_ip_address
 
           # Deploy ingress-nginx (helm) configuration
           echo "*** Installing nginx ingress controller ($aksIngressIp) in namespace $(ingressNamespace) on $aksClusterName in $aksClusterResourceGroup"
@@ -44,12 +44,16 @@ jobs:
 
           # Deploy helm chart for ingress-nginx using a custom load balancer ip and resource group (RG in which the Public IP sits in)
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx `
-                       --namespace $(ingressNamespace) --create-namespace `
-                       --values src/config/ingress-nginx/values.helm.yaml `
-                       --set controller.service.loadBalancerIP="$aksIngressIp" `
-                       --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-resource-group"="$aksClusterResourceGroup" `
-                       --version "$(ingressNginxVersion)" `
-                       --wait
+                --namespace $(ingressNamespace) --create-namespace `
+                --values src/config/ingress-nginx/values.helm.yaml `
+                --set controller.service.loadBalancerIP="$aksIngressIp" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="aks-lb-snet" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-create"="true" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="aks-ingress-pls" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-ip-configuration-subnet"="aks-pl-snet" `
+                --version "$(ingressNginxVersion)" `
+                --wait
 
           if ($LastExitCode -ne 0) {
             throw "*** Error on installing nginx helm chart!"
@@ -103,6 +107,9 @@ jobs:
         # load json data from downloaded pipeline artifact json
         $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
+        # Retrieve current subscription id
+        $subscriptionId = $(az account show --query "id" --output tsv)
+
         # loop through stamps from pipeline artifact json
         foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
           echo "**************************** REGION: $($stamp.location) ****************************"
@@ -123,11 +130,17 @@ jobs:
 
           $certManagerNamespace = "cert-manager"
 
-          echo "*** Setting up cert-manager ClusterIssuer with Let's Encrypt in namespace $certManagerNamespace on $aksClusterName"
+          $kubeletIdentityClientId = $stamp.aks_kubelet_clientid
+
+          echo "*** Setting up cert-manager ClusterIssuer for Azure DNS-based Let's Encrypt issuer with domain name $(envDomainName)"
           helm upgrade --install cert-manager-config src/config/cert-manager/chart/cert-manager-config`
-                       --namespace $certManagerNamespace --create-namespace `
-                       --set letsencrypt.contactEmail="$(contactEmail)" `
-                       --wait
+                        --namespace $certManagerNamespace --create-namespace `
+                        --set azure.subscriptionId=$subscriptionId `
+                        --set azure.dnsZoneName="$(envDomainName)" `
+                        --set azure.dnsZoneResourceGroupName="$(envDnsZoneRG)" `
+                        --set azure.managedIdentityClientId="$kubeletIdentityClientId" `
+                        --set letsencrypt.contactEmail="$(contactEmail)" `
+                        --wait
 
           if ($LastExitCode -ne 0) {
             throw "*** Error on installing ClusterIssuer helm chart!"
@@ -184,8 +197,7 @@ jobs:
           $allSecretNames = $(az keyvault secret list --vault-name $keyVaultName --query "join(',',[].name)" --output tsv)
           echo "*** Retrieved the names of $($allSecretNames.Split(',').Count) secrets in Key Vault $keyVaultName"
 
-          $kubeletIdentityClientId = $(az aks show --resource-group $aksClusterResourceGroup --name $aksClusterName `
-                                                   --query "identityProfile.kubeletidentity.clientId" --output tsv)
+          $kubeletIdentityClientId = $stamp.aks_kubelet_clientid
 
           echo "*** Retrieved Kubelet clientId $kubeletIdentityClientId for cluster $clusterName"
           echo "*** Configuring CSI secret driver on $aksClusterName via helm"

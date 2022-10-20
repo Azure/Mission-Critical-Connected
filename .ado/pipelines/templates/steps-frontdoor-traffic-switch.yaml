@@ -5,19 +5,14 @@ parameters:
   - name: removeDisabledBackends # if set to true, any backends in Front Door that are in a Disabled state (from a previous run of this script), will be now removed
     type: boolean
     default: false
+  - name: purgeAfdCache # whether to purge the Edge cache of Front Door
+    type: boolean
+    default: false
 
 # We have this as both a stage-template and a steps-template.
 # Reason for this is that we use it in two different places:
 # Once we need the deployment job to have approvals and once we call it from inside another deployment job
 steps:
-
-# Global Resources terraform init
-- template: steps-terraform-init.yaml
-  parameters:
-    terraformStorageAccountName:       '$(terraformStorageAccount)'
-    terraformStorageResourceGroupName: '$(terraformResourceGroup)'
-    terraformStateFilename:     '$(terraformStateFileGlobal)'
-    terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
 
 - template: steps-parse-terraform-output.yaml # parse global configuration settings from terraform deployment output
   parameters:
@@ -31,8 +26,6 @@ steps:
     scriptType: pscore
     scriptLocation: inlineScript
     inlineScript: |
-      # We need the az CLI Front Door extension
-      az extension add --name front-door
 
       $newBackendsWeight = ${{ parameters.trafficWeightNewBackends }}
       $oldBackendsWeight = 100 - $newBackendsWeight # since the weight for the new backends is a percentage, we substract from 100 to get the remaining weights for the old backends
@@ -61,6 +54,7 @@ steps:
 
       # Load and parse release unit terraform outputs
       $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+      $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
       # loop through stamps from pipeline artifact json
       foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
@@ -68,7 +62,20 @@ steps:
         # Build API backend config object for Front Door
         $clusterFqdn = $stamp.aks_cluster_ingress_fqdn
 
-        $apiProperties = @{address=$clusterFqdn; weight=$newBackendsWeight; enabled="true"}
+        # Fetch corresponsing private link properties for this stamp
+        $privateLinkProperties = $privateLinkInfraDeployOutput.stamp_properties.value | Where-Object { $_.location -eq $stamp.location }
+
+        if(-not $privateLinkProperties)
+        {
+          throw "*** No private link properties for stamp $($stamp.location)"
+        }
+
+        $apiProperties = @{ address = $clusterFqdn; `
+                            weight = $newBackendsWeight; `
+                            enabled = "true"; `
+                            privatelink_service_id = $privateLinkProperties.private_link_service_resource_id; `
+                            privatelink_location = $stamp.location }
+
         $apiBackend = New-Object PSObject –Property $apiProperties
 
         echo "*** Adding API backend $apiBackend"
@@ -95,47 +102,50 @@ steps:
           $queryOptionEnabledOnly = "?enabledState=='Enabled'" # If the switch to remove disabled backends is true, we only fetch the currently enabled ones and thereby not re-adding the disabled ones
         }
 
-        # Fetch existing backends in the pool from Front Door. We need the attributes "address", "weight" and "enabledState"
-        $backends = $(az network front-door backend-pool backend list `
-                        --front-door-name $(frontdoor_name) `
-                        --pool-name $pool `
-                        --resource-group $(global_resource_group_name) `
-                        --query "[$queryOptionEnabledOnly].{address:address,weight:weight,enabled:enabledState}")
+        # Fetch existing backends in the pool from Front Door
+        $backends = az afd origin list `
+                    --profile-name $(frontdoor_name) `
+                    --origin-group-name $pool `
+                    --resource-group $(global_resource_group_name) `
+                    --query "[$queryOptionEnabledOnly]" | ConvertFrom-Json -NoEnumerate
 
         if($LastExitCode -ne 0)
         {
             throw "*** Error on fetching existing backends from Front Door $(frontdoor_name) for pool $pool"
         }
 
-        $jsonBackends = $backends | ConvertFrom-Json -NoEnumerate
-
-        foreach($backend in $jsonBackends)
+        foreach($backend in $backends)
         {
-          if(($newBackends[$pool] | Select-Object "address") -match $backend.address) # This is the case if the backend was already added from the Terraform output above
+          if(($newBackends[$pool] | Select-Object "address") -match $backend.hostName) # This is the case if the backend was already added from the Terraform output above
           {
-            echo "*** Skipping backend $($backend.address) since it is already in the list"
+            echo "*** Skipping backend $($backend.hostName) since it is already in the list"
           }
           else
           {
-            if($backend.address -like "*.example.com") # In the Front Door Terraform template we use example.com for the very first creation of Front Door when we have no backends yet
+            $backendProperties = @{ address = $backend.hostName; `
+                      weight = $oldBackendsWeight; `
+                      enabled = ""; `
+                      privatelink_service_id = ""; `
+                      privatelink_location = "" }
+
+            # Rewrite EnabledState into bool (true/false) for terraform input
+            if($backend.enabledState -eq "Enabled")
             {
-              echo "*** Ignoring dummy backend $($backend.address)"
+              $backendProperties.enabled = $oldBackendsEnabled
             }
             else
             {
-              $backend.weight = $oldBackendsWeight # set weight of existing (previous release) to what was calculated above
-
-              # Rewrite EnabledState into bool (true/false) for terraform input
-              if($backend.enabled -eq "Enabled")
-              {
-                $backend.enabled = $oldBackendsEnabled
-              }
-              else
-              {
-                $backend.enabled = "false"
-              }
-              $newBackends[$pool] += $backend
+              $backendProperties.enabled = "false"
             }
+
+            if($backend.sharedPrivateLinkResource) # This is a privatelink backend
+            {
+              $backendProperties.privatelink_service_id = $backend.sharedPrivateLinkResource.privateLink.id
+              $backendProperties.privatelink_location = $backend.sharedPrivateLinkResource.privateLinkLocation
+            }
+
+            $backendConfig = New-Object PSObject –Property $backendProperties
+            $newBackends[$pool] += $backendConfig
           }
         }
         # Convert the list back to JSON (in a one-liner) so we can use it as Terraform input
@@ -146,6 +156,15 @@ steps:
 
         echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]$content"
       }
+
+# Global Resources terraform init
+- template: steps-terraform-init.yaml
+  parameters:
+    terraformStorageAccountName:       '$(terraformStorageAccount)'
+    terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+    terraformStateFilename:     '$(terraformStateFileGlobal)'
+    terraformWorkingDirectory:  '$(workingDirectory)/globalresources'
+
 
 # Global Resources deployment which will apply the new backend config to Front Door
 - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
@@ -158,26 +177,80 @@ steps:
                        -var=queued_by="$(Build.QueuedBy)"
                        -var=contact_email="$(contactEmail)"
                        -var=''stamps=$(stampLocations)''
+                       -var=custom_dns_zone=$(envDomainName)
+                       -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                       -var=front_door_subdomain=$(domainSuffix)
                        $(tfParameterFrontDoorBackendApis)
-                       $(tfParameterFrontDoorStaticStorage)
-                       $(terraformAdditionalParametersCustomDomains)'
+                       $(tfParameterFrontDoorStaticStorage)'
 
-# After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
+# After new backends have been added to Front Door, we might have to approve new Private Endpoint connections for Front Door
 - task: AzureCLI@2
-  displayName: 'Purge Front Door cache'
+  displayName: 'Approve Front Door Private Endpoint Connections'
   retryCountOnTaskFailure: 1
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: pscore
     scriptLocation: inlineScript
     inlineScript: |
-      # We need the az CLI Front Door extension
-      az extension add --name front-door
 
-      echo "*** Purging Front Door cache with path /*"
-      az network front-door purge-endpoint -g $(global_resource_group_name) -n $(frontdoor_name) --content-paths "/*"
+      $privateLinkInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputPrivateLinkInfra/*.json | Get-Content | ConvertFrom-JSON
 
-      if($LastExitCode -ne 0)
+      # loop through stamps from pipeline artifact json
+      foreach($stamp in $privateLinkInfraDeployOutput.stamp_properties.value)
       {
-          throw "*** Error on purging cache in Front Door $(frontdoor_name)"
+        $plServiceId = $stamp.private_link_service_resource_id
+        echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
+
+        $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
+
+        # Get pending connections which were made by our Front Door
+        $afdConnections = $peConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.description -eq "Request access for CDN Frontdoor Private Link Origin for prefix $(prefix)$(globalResourceSuffix)" }
+        if(-not $afdConnections)
+        {
+          # If there are no connections from Front Door, that indicates a problem as we would expect at least a pending connection at this point
+          throw "*** No Private Endpoint connections from Front Door on Private Link service $plServiceId"
+        }
+
+        # Get connections which are pending approval
+        $pendingConnections = $afdConnections | Where-Object { $_.properties.privateLinkServiceConnectionState.status -eq "Pending" }
+
+        if(-not $pendingConnections)
+        {
+          echo "*** Found $($afdConnections.Count) Private Endpoint connections from Front Door, all of which are already approved"
+        }
+
+        foreach($pendingPe in $pendingConnections)
+        {
+          echo "*** Found pending Private Endpoint Connection from Front Door: $($pendingPe.name). Approving..."
+          az network private-endpoint-connection approve --id $pendingPe.id `
+                                                         --description "$($pendingPe.properties.privateLinkServiceConnectionState.description)" # keep original description
+
+          if($LastExitCode -ne 0)
+          {
+              throw "*** Error on approving private endpoint connection $($pendingPe.name)"
+          }
+        }
       }
+
+- ${{ if eq(parameters.purgeAfdCache, 'true') }}:
+  # After new backends have been added to Front Door, we purge the cache so that content will be retrieved from the new backends as well
+  - task: AzureCLI@2
+    displayName: 'Purge Front Door cache'
+    retryCountOnTaskFailure: 1
+    inputs:
+      azureSubscription: $(azureServiceConnection)
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+
+        echo "*** Purging Front Door cache with path /*"
+        az afd endpoint purge `
+        --resource-group $(global_resource_group_name) `
+        --profile-name $(frontdoor_name) `
+        --content-paths "/*" `
+        --endpoint-name "$(prefix)$(globalResourceSuffix)-primaryendpoint"
+
+        if($LastExitCode -ne 0)
+        {
+            throw "*** Error on purging cache in Front Door $(frontdoor_name)"
+        }

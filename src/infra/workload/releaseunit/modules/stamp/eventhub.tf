@@ -1,5 +1,5 @@
 resource "azurerm_eventhub_namespace" "stamp" {
-  name                 = "${local.prefix}-${local.location_short}-evhns"
+  name                 = "${local.prefix_with_location}-evhns"
   location             = azurerm_resource_group.stamp.location
   resource_group_name  = azurerm_resource_group.stamp.name
   sku                  = "Standard"

@@ -44,6 +44,14 @@ jobs: # using jobs so they each run in parallel
                                    --resource-group $aksClusterResourceGroup `
                                    --overwrite-existing --admin
 
+            $fqdn = $stamp.aks_cluster_ingress_fqdn
+            echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
+
+            # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
+            # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
+            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            echo "*** Using wildcard domain name $wildcardDomain"
+
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/healthservice-containerImageName/healthservice.txt"
             echo "*** Retrieved container image name from artifact - $fullContainerImageName"
 
@@ -55,10 +63,9 @@ jobs: # using jobs so they each run in parallel
             helm upgrade --install healthservice-workload src/app/charts/healthservice `
                          --namespace $(workloadNamespace) `
                          --create-namespace `
-                         --set azure.frontdoorid="$(frontdoor_id_header)" `
                          --set azure.region="$region" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$fqdn" `
+                         --set workload.domainname="$wildcardDomain" `
                          --wait
 
             # Wait for the ingress certificate to be provisioned by cert-manager
@@ -139,6 +146,11 @@ jobs: # using jobs so they each run in parallel
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
+            # We are using a wildcard hostname match for nginx (and thus getting a wildcard cert from Let's Encrypt)
+            # Therefore we replace the first part of the FQDN with a '*': "foo.bar.example.com" --> "*.bar.example.com"
+            $wildcardDomain = $fqdn -replace '^[^.]*','*'
+            echo "*** Using wildcard domain name $wildcardDomain"
+
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/catalogservice-containerImageName/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
@@ -149,10 +161,9 @@ jobs: # using jobs so they each run in parallel
             helm upgrade --install workload-catalogservice src/app/charts/catalogservice `
                          --namespace "$(workloadNamespace)" `
                          --create-namespace `
-                         --set azure.frontdoorid="$(frontdoor_id_header)" `
                          --set azure.region="$region" `
                          --set containerimage="$fullContainerImageName" `
-                         --set workload.domainname="$fqdn" `
+                         --set workload.domainname="$wildcardDomain" `
                          --wait
           }
 
