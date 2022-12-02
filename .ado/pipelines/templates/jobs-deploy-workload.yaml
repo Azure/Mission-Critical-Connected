@@ -78,7 +78,7 @@ jobs: # using jobs so they each run in parallel
               
 
               # checking if certificate for workload-ingress-secret was issued
-              if ($(kubectl get certificates $certificateName -n $(workloadNamespace) -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') -ne "True")
+              if ($(kubectl get certificates $certificateName -n $(workloadNamespace) -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') -ne "True")
               {
                 $certReady = $false
 
