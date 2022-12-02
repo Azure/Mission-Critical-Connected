@@ -75,15 +75,15 @@ jobs: # using jobs so they each run in parallel
             do {
 
               $certificateName = "workload-ingress-secret"
-              $workloadNamespace = $(workloadNamespace)
+              
 
               # checking if certificate for workload-ingress-secret was issued
-              if ($(kubectl get certificates $certificateName -n $workloadNamespace -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') -ne "True")
+              if ($(kubectl get certificates $certificateName -n $(workloadNamespace) -o 'jsonpath={..status.conditions[?(@.type==\"Ready\")].status}') -ne "True")
               {
                 $certReady = $false
 
                 $retrycount++
-                echo "Certificate for $certificateName (in $workloadNamespace) not ready. Waiting for $sleepSeconds seconds and retrying... $retrycount/$maxretrycount";
+                echo "Certificate for $certificateName (in $(workloadNamespace)) not ready. Waiting for $sleepSeconds seconds and retrying... $retrycount/$maxretrycount";
                 Start-Sleep $sleepSeconds
               }
               else
