@@ -25,6 +25,8 @@ variables:
   value: 'workload'
 - name: 'ingressNamespace'
   value: 'ingress-nginx'
+- name: 'aksPrivateLinkServiceName'
+  value: 'aks-ingress-pls'
 
 # Docker image names and paths to the Dockerfiles for the different components
 - name: 'catalogserviceDockerfile'

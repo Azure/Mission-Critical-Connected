@@ -68,7 +68,7 @@ resource "azurerm_kubernetes_cluster" "stamp" {
 
   depends_on = [
     azurerm_subnet.aks_lb, # explicit dependency on the subnet that the "kubernetes-internal" load balancer will be put into, so we don't have a race condition on deletion
-    azurerm_subnet.aks_pl # explicit dependency on the subnet that k8s will put the Private Link service in, so we don't have a race condition on deletion
+    azurerm_subnet.aks_pl  # explicit dependency on the subnet that k8s will put the Private Link service in, so we don't have a race condition on deletion
   ]
 
   tags = var.default_tags

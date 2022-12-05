@@ -34,8 +34,10 @@ jobs:
                                  --resource-group $aksClusterResourceGroup `
                                  --overwrite-existing --admin
 
-          # Gather Ingress Internal Load Balancer IP from pipeline artifact json
+          # Gather Ingress Internal Load Balancer and privatelink properties from pipeline artifact json
           $aksIngressIp = $stamp.aks_internal_lb_ip_address
+          $loadBalancerSubnetName = $stamp.aks_ingress_loadbalancer_subnet_name
+          $privatelinkSubnetName = $stamp.aks_ingress_privatelink_subnet_name
 
           # Deploy ingress-nginx (helm) configuration
           echo "*** Installing nginx ingress controller ($aksIngressIp) in namespace $(ingressNamespace) on $aksClusterName in $aksClusterResourceGroup"
@@ -48,10 +50,10 @@ jobs:
                 --values src/config/ingress-nginx/values.helm.yaml `
                 --set controller.service.loadBalancerIP="$aksIngressIp" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" `
-                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="aks-lb-snet" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="$loadBalancerSubnetName" `
                 --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-create"="true" `
-                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="aks-ingress-pls" `
-                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-ip-configuration-subnet"="aks-pl-snet" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-name"="$(aksPrivateLinkServiceName)" `
+                --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-pls-ip-configuration-subnet"="$privatelinkSubnetName" `
                 --version "$(ingressNginxVersion)" `
                 --wait
 
