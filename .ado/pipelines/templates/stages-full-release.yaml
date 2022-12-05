@@ -51,14 +51,12 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                # We need the az CLI Front Door extension
-                az extension add --name front-door
 
                 $rgName = "$(prefix)$(globalResourceSuffix)-global-rg"
                 $fdName = "$(prefix)$(globalResourceSuffix)-global-fd"
 
                 # check if Front Door exists
-                $frontDoor = $(az network front-door list --query "[?name=='$fdName']" -o tsv)
+                $frontDoor = az afd profile list --query "[?name=='$fdName']" -o tsv
 
                 if($LastExitCode -ne 0)
                 {
@@ -71,35 +69,51 @@ stages:
                 {
                   foreach($pool in $backendPools)
                   {
-                    $backends = $(az network front-door backend-pool backend list `
-                                    --front-door-name $fdName `
-                                    --pool-name $pool -g $rgName `
-                                    --query "[].{address:address,weight:weight,enabled:enabledState}")
+
+                    echo "*** Fetching existing backends from Front Door $fdName for pool $pool"
+
+                    $backends = az afd origin list `
+                                --profile-name $fdName `
+                                --origin-group-name $pool -g $rgName | ConvertFrom-Json -NoEnumerate
 
                     if($LastExitCode -ne 0)
                     {
                         throw "*** Error on fetching existing backends from Front Door $fdName for pool $pool"
                     }
 
-                    $jsonBackends = $backends | ConvertFrom-Json -NoEnumerate
-                    # Rewrite EnabledState into bool (true/false)
-                    foreach($backend in $jsonBackends)
+                    $afdBackendsInput = @()
+
+                    foreach($backend in $backends)
                     {
-                      if($backend.enabled -eq "Enabled")
+                      $backendProperties = @{ address = $backend.hostName; `
+                                              weight = $backend.weight; `
+                                              enabled = $($backend.enabledState -eq "Enabled"); `
+                                              privatelink_location = ""; `
+                                              privatelink_service_id = "" }
+
+                      if($backend.sharedPrivateLinkResource)
                       {
-                        $backend.enabled = "true"
+                        # This is a privatelink backend
+                        $backendProperties.privatelink_location = $backend.sharedPrivateLinkResource.privateLinkLocation
+                        $backendProperties.privatelink_service_id = $backend.sharedPrivateLinkResource.privateLink.id
                       }
-                      else
-                      {
-                        $backend.enabled = "false"
-                      }
+
+                      $backendConfig = New-Object PSObject –Property $backendProperties
+                      $afdBackendsInput += $backendConfig
                     }
 
-                    $flatJsonApis = $jsonBackends | ConvertTo-Json -Compress -Depth 100 -AsArray
-                    echo "*** Current backends in pool $($pool): " $flatJsonApis
-                    $contentBackends = "-var='backends_$pool=$flatJsonApis'"
+                    if($afdBackendsInput.Count -gt 0)
+                    {
+                      $flatJsonApis = $afdBackendsInput | ConvertTo-Json -Compress -Depth 100 -AsArray
+                      echo "*** Current backends in pool $($pool): " $flatJsonApis
+                      $contentBackends = "-var='backends_$pool=$flatJsonApis'"
 
-                    echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]$contentBackends"
+                      echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]$contentBackends"
+                    }
+                    else
+                    {
+                      echo "##vso[task.setvariable variable=tfParameterFrontDoor$pool]"
+                    }
                   }
                 }
                 else
@@ -124,9 +138,11 @@ stages:
                                           -var=queued_by="$(Build.QueuedBy)"
                                           -var=contact_email="$(contactEmail)"
                                           -var=''stamps=$(stampLocations)''
+                                          -var=custom_dns_zone=$(envDomainName)
+                                          -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                          -var=front_door_subdomain=$(domainSuffix)
                                           $(tfParameterFrontDoorBackendApis)
-                                          $(tfParameterFrontDoorStaticStorage)
-                                          $(terraformAdditionalParametersCustomDomains)'
+                                          $(tfParameterFrontDoorStaticStorage)'
 
 - stage: deployreleaseinfrastructure
   displayName: 'Deploy Release Unit Infrastructure' # Deploy Release Unit Azure Infrastructure
@@ -179,9 +195,9 @@ stages:
                                     -var=acr_name="$(acr_name)"
                                     -var=frontdoor_resource_id="$(frontdoor_resource_id)"
                                     -var=frontdoor_name="$(frontdoor_name)"
-                                    -var=frontdoor_id_header="$(frontdoor_id_header)"
                                     -var=global_storage_account_name="$(global_storage_account_name)"
-                                    -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
+                                    -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"
+                                    -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_dns_zone=$(envDomainName)'
 
 - stage: deployconfiguration
   displayName: 'Deploy Configuration' # Apply configuration to Azure Infrastructure
@@ -226,7 +242,7 @@ stages:
   - template: jobs-ui-app-build.yaml
     parameters:
       jobName:          'buildui'
-      workingDirectory: 'src/app/AlwaysOn.UI'
+      workingDirectory: 'src/app/AlwaysOn.UI/'
 
 - stage: deployworkload # Deploy workload to previously created infrastructure
   displayName: 'Deploy Workload'
@@ -237,9 +253,106 @@ stages:
   jobs:
   - template: jobs-deploy-workload.yaml
 
+# In order for the build agents to be able to test the stamps directly, they need a Private Endpoint on the internal ingress Private Link service
+- stage: createIngressPrivateEndpoints
+  displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
+  dependsOn: deployworkload
+  jobs:
+  - job: createIngressPrivateEndpointsJob
+    displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
+    steps:
+
+    - download: current # download pipeline artifacts
+
+    - template: steps-set-pipeline-variables.yaml # load set-pipeline-variables function
+
+    # Global Resources terraform init
+    - template: steps-terraform-init.yaml # Initialize Terraform
+      parameters:
+        terraformStorageAccountName:       '$(terraformStorageAccount)'
+        terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+        terraformStateFilename:            '$(terraformStateFileReleaseUnitPrivateEndpoint)'
+        terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+
+    - task: AzureCLI@2
+      displayName: 'Fetch Private Link service configuration'
+      retryCountOnTaskFailure: 1
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+
+          # load json data from downloaded pipeline artifact json
+          $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
+
+          $stampConfigurations = @{}
+
+          # loop through stamps from pipeline artifact json
+          foreach($stamp in $releaseUnitInfraDeployOutput.stamp_properties.value) {
+
+            $location = $stamp.location
+            $nodeResourceGroup = $stamp.aks_node_resourcegroup_name
+
+            echo "*** Fetching AKS ingress Private Link Service properties for stamp in region $location"
+
+            # Sometimes the creation of the internal LB seems to take a couple of minutes. So we wait and retry
+            $retrycount = 0;
+            $maxretrycount = 10
+            do
+            {
+              # Fetch the "aks-ingress-pls" Private Link Service from the managed resource group
+              $pls = $privateLinkServices = az network private-link-service show -g $nodeResourceGroup -n $(aksPrivateLinkServiceName) | ConvertFrom-Json
+
+              if(-not $pls)
+              {
+                $retrycount++
+                echo "*** No Private Link service '$(aksPrivateLinkServiceName)' found. Waiting for 60s and retrying... $retrycount/$maxretrycount"
+                Start-Sleep 60
+              }
+              else
+              {
+                break
+              }
+            } while ( ($retrycount -lt $maxretrycount) )
+
+            if(-not $pls)
+            {
+              throw "*** No Private Link service '$(aksPrivateLinkServiceName)'"
+            }
+
+            echo "*** Fetched Private Link service $($pls.id)"
+
+            $stampProperties = @{private_link_service_id=$pls.id}
+            $stampConfig = New-Object PSObject –Property $stampProperties
+
+            $stampConfigurations[$location] = $stampConfig
+          }
+
+          $flatJsonConfigs = $stampConfigurations | ConvertTo-Json -Compress -Depth 100
+          echo "*** All private link service configs: " $flatJsonConfigs
+          $contentConfigs = "-var='private_link_service_targets=$flatJsonConfigs'"
+
+          echo "##vso[task.setvariable variable=tfParameterPrivateLinkConfigs]$contentConfigs"
+
+
+    # Global Resources deployment
+    - template: steps-terraform-apply.yaml # terraform validate, plan and apply for global resources
+      parameters:
+        jobName:                    'PrivateLinkInfra'
+        terraformWorkingDirectory:  '$(workingDirectory)/ingress_private_connections'
+        customPrefix:               '$(prefix)'      # custom resource prefix
+        customSuffix:               '$(customSuffix)'
+        customAttributes:           '-var=branch="$(sourceBranch)"
+                                    -var=queued_by="$(Build.QueuedBy)"
+                                    -var=contact_email="$(contactEmail)"
+                                    -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                    -var custom_dns_zone=$(envDomainName)
+                                    $(tfParameterPrivateLinkConfigs)'
+
 - stage: importSampleData # Import sample data
   displayName: 'Import sample data'
-  dependsOn: deployworkload
+  dependsOn: createIngressPrivateEndpoints
   jobs:
   - template: jobs-init-sampledata.yaml
 
@@ -271,6 +384,7 @@ stages:
     jobs:
     - deployment: 'destroyOldReleaseStampsJob' # Using a deployment job so that we can have manual approves, which are configured on the environment specificed below
       displayName: 'Destroy Old Release Unit Deployment'
+      timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
       environment: '$(environment)'
       strategy:
         runOnce:
@@ -289,41 +403,37 @@ stages:
 
             - ${{ if ne(parameters.environment, 'e2e') }}: # Only in int/prod
               - task: AzureCLI@2
-                displayName: 'Fetch previous release prefix through disabled Front Door backends'
+                displayName: 'Fetch previous release prefix through disabled Front Door origins'
                 retryCountOnTaskFailure: 1
                 inputs:
                   azureSubscription: '$(azureServiceConnection)'
                   scriptType: pscore
                   scriptLocation: inlineScript
                   inlineScript: |
-                    # We need the az CLI Front Door extension
-                    az extension add --name front-door
 
-                    # Fetch disabled backends from the BackendApis pool. We only fetch the first one, assuming it represents all the stamps of the previous release unit
-                    $disabledBackendAddress = $(az network front-door backend-pool backend list `
-                                      --front-door-name $(frontdoor_name) `
-                                      --pool-name BackendApis `
-                                      --resource-group $(global_resource_group_name) `
-                                      --query "[?enabledState=='Disabled'].{address:address}[0]" -o tsv)
+                    $disabledBackend = az afd origin list `
+                                --profile-name $(frontdoor_name) `
+                                --origin-group-name BackendApis -g $(global_resource_group_name) `
+                                --query "[?enabledState=='Disabled'].{hostName:hostName,privateLinkId:sharedPrivateLinkResource.privateLink.id}[0]" | ConvertFrom-Json
 
                     if($LastExitCode -ne 0)
                     {
-                        throw "*** Error on fetching existing backends from Front Door $(frontdoor_name) for pool 'BackendApis'. Make sure the backend pool exists!"
+                        throw "*** Error on fetching existing disabled origns from Front Door $(frontdoor_name) for origin group 'BackendApis'. Make sure the origin group exists!"
                     }
 
                     $prefix = "$(prefix)"
 
-                    # Only valid if we found any disabled backend (=an old release unit)
-                    if($disabledBackendAddress)
+                    # Only valid if we found any disabled origin (=an old release unit)
+                    if($disabledBackend)
                     {
-                      echo "*** Found disabled backend $disabledBackendAddress"
+                      echo "*** Found disabled origin $($disabledBackend.hostName)"
 
-                      # Lookup the Public IP resource for this FQDN and fetch the Prefix tag from it
-                      $prefixSuffix = az network public-ip list --query "[?dnsSettings.fqdn == '$disabledBackendAddress'].{prefix:tags.Prefix}" -o tsv
+                      # Lookup the Private Link Service for this origin and fetch the Prefix tag from it
+                      $prefixSuffix = az resource show --ids $disabledBackend.privateLinkId --query "tags.Prefix" -o tsv
 
                       if(-not $prefixSuffix)
                       {
-                        throw "*** No Public IP found (or not Prefix tag) for FQDN $disabledBackendAddress"
+                        throw "*** No Private Link Serivce found for resource id $($disabledBackend.privateLinkId)"
                       }
 
                       echo "*** Found prefix-suffix $prefixSuffix"
@@ -331,10 +441,10 @@ stages:
                       $suffix = $prefixSuffix -creplace "$prefix","" # get suffix by removing the prefix from the prefixSuffix
                     }
 
-                    if((-not $disabledBackendAddress) -or (-not $suffix))
+                    if((-not $disabledBackend) -or (-not $suffix))
                     {
                       # This can happen on the very first run of the INT or PROD pipeline. We'll set the prefix to some dummy. Terraform destroy will be happy but has nothing to really destroy
-                      Write-Warning "*** No disabled backends found or prefix empty. Nothing to destroy."
+                      Write-Warning "*** No disabled origins found or prefix empty. Nothing to destroy."
 
                       $suffix = "SUFF" # using some dummy value
                     }
@@ -354,6 +464,13 @@ stages:
 
                     echo "##vso[task.setvariable variable=oldReleasePrefix]$(prefix)"
                     echo "##vso[task.setvariable variable=oldReleaseSuffix]$(customSuffix)"
+
+            # Remove disabled backends from Front Door and reset weight on current ones to 50. (Not required for E2E since we destroy E2E Front Door anyway below)
+            - ${{ if ne(parameters.environment, 'e2e') }}:
+              - template: steps-frontdoor-traffic-switch.yaml
+                parameters:
+                  trafficWeightNewBackends: 50
+                  removeDisabledBackends: true
 
             # Delete all deployments in the workload namespace. This will make sure the application is not running anymore before we destroy the infrastructure in the next step.
             # This prevents side effects in the logging in which errors might show up which are only related to the destructions of the infra
@@ -392,13 +509,62 @@ stages:
                     kubectl delete --all deployments --namespace=$(workloadNamespace)
                   }
 
+            # Before the Private Link services can be destroyed by AKS, all Private Endpoint connections need to be deleted
+            - task: AzureCLI@2
+              displayName: 'Delete AKS Ingress Private Link Endpoint Connections'
+              retryCountOnTaskFailure: 1
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+
+                  $privateLinkServices = az network private-link-service list --query "[?tags.Prefix == '$(oldReleasePrefix)$(oldReleaseSuffix)']" | ConvertFrom-JSON
+
+                  echo "*** Found $($privateLinkServices.Count) Private Link service(s) for prefix-suffix $(oldReleasePrefix)$(oldReleaseSuffix)"
+
+                  foreach($plService in $privateLinkServices)
+                  {
+                    $plServiceId = $plService.id
+                    echo "*** Looking up Private Endpoint connections on Private Link $plServiceId"
+
+                    $peConnections = az network private-endpoint-connection list --id $plServiceId | ConvertFrom-Json
+
+                    foreach($peConnection in $peConnections)
+                    {
+                      echo "*** Deleting private endpoint connection: $($peConnection.name)"
+                      az network private-endpoint-connection delete --id $peConnection.id --yes
+
+                      if($LastExitCode -ne 0)
+                      {
+                          throw "*** Error on deleting private endpoint connection $($peConnection.name)"
+                      }
+                    }
+                  }
+
+            # Terraform destroy the build agent private endpoints for ingress
+            - template: steps-terraform-destroy.yaml
+              parameters:
+                terraformStorageAccountName:       '$(terraformStorageAccount)'
+                terraformStorageResourceGroupName: '$(terraformResourceGroup)'
+                terraformStateFilename:            'terraform-$(oldReleasePrefix)$(oldReleaseSuffix)-privateendpoint.state'
+                terraformWorkingDirectory:         '$(workingDirectory)/ingress_private_connections'
+                customAttributes:        '-var=prefix="$(oldReleasePrefix)"
+                                          -var=suffix="$(oldReleaseSuffix)"
+                                          -var=branch="$(sourceBranch)"
+                                          -var=queued_by="$(Build.QueuedBy)"
+                                          -var=contact_email="$(contactEmail)"
+                                          -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                          -var=custom_dns_zone=$(envDomainName)
+                                          -var=private_link_service_targets={}'
+
             # Pick a VNet from the list of pre-provided VNets or create news one if needed
             - template: steps-get-or-create-vnet.yaml
               parameters:
                 prefix: $(oldReleasePrefix)
                 suffix: $(oldReleaseSuffix)
 
-            # Initialize Terraform for destroy
+            # Terraform destroy the stamps
             - template: steps-terraform-destroy.yaml
               parameters:
                 terraformStorageAccountName:       '$(terraformStorageAccount)'
@@ -420,9 +586,9 @@ stages:
                                           -var=acr_name="$(acr_name)"
                                           -var=frontdoor_resource_id="$(frontdoor_resource_id)"
                                           -var=frontdoor_name="$(frontdoor_name)"
-                                          -var=frontdoor_id_header="$(frontdoor_id_header)"
                                           -var=global_storage_account_name="$(global_storage_account_name)"
-                                          -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"'
+                                          -var=azure_monitor_action_group_resource_id="$(azure_monitor_action_group_resource_id)"
+                                          -var custom_dns_zone_resourcegroup_name=$(envDnsZoneRG) -var custom_dns_zone=$(envDomainName)'
 
             # We need to clean up the VNets that were either pre-provided or temporarily created
             # In case of pre-provided VNets: We need to remove the earmark tag so that it appears available again for future releases
@@ -482,16 +648,10 @@ stages:
                     }
                   }
 
-            # Remove disabled backends from Front Door and reset weight on current ones to 50. (Not required for E2E since we destroy E2E Front Door anyway below)
-            - ${{ if ne(parameters.environment, 'e2e') }}:
-              - template: steps-frontdoor-traffic-switch.yaml
-                parameters:
-                  trafficWeightNewBackends: 50
-                  removeDisabledBackends: true
-
     - ${{ if eq(parameters.environment, 'e2e') }}: # Only happens in E2E
       - deployment: 'destroyE2EGlobalResourcesJob'  # Destroy globally shared resources for this E2E env
         displayName: 'Destroy E2E Global Resources'
+        timeoutInMinutes: 120 # extend the default timeout of 60min since destroy can take a while
         environment: '$(environment)'
         dependsOn: 'destroyOldReleaseStampsJob'
         strategy:
@@ -515,5 +675,10 @@ stages:
                   customAttributes:           '-var=prefix="$(prefix)"
                                                -var=environment="${{ parameters.environment }}"
                                                -var=suffix="$(globalResourceSuffix)"
+                                               -var=branch="$(sourceBranch)"
+                                               -var=queued_by="$(Build.QueuedBy)"
+                                               -var=contact_email="$(contactEmail)"
                                                -var=''stamps=$(stampLocations)''
-                                               $(terraformAdditionalParametersCustomDomains)'
+                                               -var=custom_dns_zone=$(envDomainName)
+                                               -var=custom_dns_zone_resourcegroup_name=$(envDnsZoneRG)
+                                               -var=front_door_subdomain=$(domainSuffix)'

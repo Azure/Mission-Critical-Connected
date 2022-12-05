@@ -1,5 +1,5 @@
 # Even though we're not building but only installing, we're still doing multi-stage because grafana does not have NPM
-FROM node:18 as builder
+FROM node:19 as builder
 
 # Copy all source files over to our working directory
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN chmod +x insertqueries.sh && ./insertqueries.sh
 WORKDIR /app/healthmodelpanel
 RUN npm install
 
-FROM grafana/grafana:9.2.1
+FROM grafana/grafana:9.3.1
 
 # In order to run unsigned plugins such as our health model panel, we need to explicitly allow them in an env variable. 
 ENV GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="healthmodelpanel"

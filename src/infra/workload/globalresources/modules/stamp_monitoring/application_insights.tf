@@ -1,5 +1,5 @@
 resource "azurerm_application_insights" "stamp" {
-  name                 = "${local.prefix}-${local.location_short}-appi"
+  name                 = "${local.prefix_with_location}-appi"
   location             = var.location
   resource_group_name  = var.resource_group_name
   application_type     = "web"

@@ -6,7 +6,6 @@ terraform {
     }
   }
 
-  // using azure storage for storing backend state for terraform
   backend "azurerm" {}
 }
 

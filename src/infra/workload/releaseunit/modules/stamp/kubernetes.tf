@@ -1,6 +1,6 @@
 # https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
 resource "azurerm_kubernetes_cluster" "stamp" {
-  name                = "${local.prefix}-${local.location_short}-aks"
+  name                = "${local.prefix_with_location}-aks"
   location            = azurerm_resource_group.stamp.location
   resource_group_name = azurerm_resource_group.stamp.name
   dns_prefix          = "${local.prefix}${var.location}aks"
@@ -67,7 +67,8 @@ resource "azurerm_kubernetes_cluster" "stamp" {
   }
 
   depends_on = [
-    azurerm_public_ip.aks_ingress
+    azurerm_subnet.aks_lb, # explicit dependency on the subnet that the "kubernetes-internal" load balancer will be put into, so we don't have a race condition on deletion
+    azurerm_subnet.aks_pl  # explicit dependency on the subnet that k8s will put the Private Link service in, so we don't have a race condition on deletion
   ]
 
   tags = var.default_tags

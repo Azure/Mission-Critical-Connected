@@ -60,25 +60,31 @@ steps:
     targetType: inline
     script: |
 
-      # For long-living environments, there is no additional suffix for the globa resources. The prefix alone is enough to make the resources unique
-      # This only exists for E2E since we will have multiple global resources in parallel for the same E2E-prefix
+      # For INT and PROD we are using www.ourdomain.com as the domain prefix
+      $domainSuffix = "www"
 
+      $globalResourceSuffix = ""
       if("$(environment)" -eq "e2e")
       {
         echo "*** Running e2e environment. Setting globalResourceSuffix to '$(customSuffix)'"
         $globalResourceSuffix = "$(customSuffix)"
-      }
-      else {
-        $globalResourceSuffix = ""
+
+        # For e2e, we are using prefix-suffix as a unique domain domain suffix
+        $domainSuffix = "$(prefix)$(customSuffix)"
       }
 
       $terraformStateFileGlobal = "terraform-global-$(prefix)$globalResourceSuffix.state"
       $terraformStateFileReleaseUnit = "terraform-$(prefix)$(customSuffix).state"
+      $terraformStateFileReleaseUnitPrivateEndpoint = "terraform-$(prefix)$(customSuffix)-privateendpoint.state"
 
       echo "*** DEBUG: Setting globalResourceSuffix to '$globalResourceSuffix'"
+      echo "*** DEBUG: Setting domainSuffix to '$domainSuffix'"
       echo "*** DEBUG: Setting terraformStateFileGlobal to '$terraformStateFileGlobal'"
       echo "*** DEBUG: Setting terraformStateFileReleaseUnit to '$terraformStateFileReleaseUnit'"
+      echo "*** DEBUG: Setting terraformStateFileReleaseUnitPrivateEndpoint to '$terraformStateFileReleaseUnitPrivateEndpoint'"
 
       echo "##vso[task.setvariable variable=globalResourceSuffix]$globalResourceSuffix"
+      echo "##vso[task.setvariable variable=domainSuffix]$domainSuffix"
       echo "##vso[task.setvariable variable=terraformStateFileGlobal]$terraformStateFileGlobal"
       echo "##vso[task.setvariable variable=terraformStateFileReleaseUnit]$terraformStateFileReleaseUnit"
+      echo "##vso[task.setvariable variable=terraformStateFileReleaseUnitPrivateEndpoint]$terraformStateFileReleaseUnitPrivateEndpoint"
