@@ -31,9 +31,14 @@ output "aks_internal_lb_ip_address" {
   value = local.aks_internal_lb_ip_address
 }
 
-# ID of the subnet in which the private link for the ingress will be created
-output "aks_ingress_privatelink_subnetid" {
-  value = azurerm_subnet.aks_pl.id
+# Name of the subnet in which the private load balancer for the ingress will be created
+output "aks_ingress_loadbalancer_subnet_name" {
+  value = azurerm_subnet.aks_lb.name
+}
+
+# Name of the subnet in which the private link for the ingress will be created
+output "aks_ingress_privatelink_subnet_name" {
+  value = azurerm_subnet.aks_pl.name
 }
 
 output "aks_node_resourcegroup_name" {

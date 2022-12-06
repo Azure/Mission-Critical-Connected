@@ -302,12 +302,12 @@ stages:
             do
             {
               # Fetch the "aks-ingress-pls" Private Link Service from the managed resource group
-              $pls = $privateLinkServices = az network private-link-service show -g $nodeResourceGroup -n aks-ingress-pls | ConvertFrom-Json
+              $pls = $privateLinkServices = az network private-link-service show -g $nodeResourceGroup -n $(aksPrivateLinkServiceName) | ConvertFrom-Json
 
               if(-not $pls)
               {
                 $retrycount++
-                echo "*** No Private Link service 'aks-ingress-pls' found. Waiting for 60s and retrying... $retrycount/$maxretrycount"
+                echo "*** No Private Link service '$(aksPrivateLinkServiceName)' found. Waiting for 60s and retrying... $retrycount/$maxretrycount"
                 Start-Sleep 60
               }
               else
@@ -318,7 +318,7 @@ stages:
 
             if(-not $pls)
             {
-              throw "*** No Private Link service 'aks-ingress-pls'"
+              throw "*** No Private Link service '$(aksPrivateLinkServiceName)'"
             }
 
             echo "*** Fetched Private Link service $($pls.id)"

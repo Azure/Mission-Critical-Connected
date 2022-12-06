@@ -14,7 +14,7 @@ All relevant code artifacts and manifest files are stored in this GitHub reposit
 
 This guide describes the end-to-end process for setting up all pre-requisites and dependencies before deploying the Azure Mission-Critical reference implementation into an Azure subscription of your choice.
 
-## Pre-requisites
+## Prerequisites
 
 The Azure Mission-Critical reference implementation gets deployed into an Azure Subscription. For this you will need a **Service Principal (SPN) with Owner permissions on that subscription.**
 
@@ -26,6 +26,8 @@ The following must be installed on the client machine used to deploy the Azure M
 - [Azure CLI](https://docs.microsoft.com/cli/azure/service-page/azure%20cli?view=azure-cli-latest)
 - [Azure DevOps CLI](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops)
 - [PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.1) (on Windows, Linux or macOS)
+
+Also, to deploy the Connected reference implementation, you are required to have an existing **domain name** which is managed in an Azure DNS Zone. This is needed in order to connect Azure Front Door via Private Link to the backends on AKS, as this requires officially validated SSL certificates. The pipeline will take care of the certificate creation and validation using Let's Encrypt, but you need to provision the DNS Zone beforehand. Depending on your scenario, [Azure App Service Domains](https://learn.microsoft.com/azure/app-service/manage-custom-dns-buy-domain) might be an option to easily procure a domain name.
 
 ## Overview
 
@@ -208,8 +210,8 @@ Modify the respective file for the environment which you want to deploy. At leas
 | **YES** | contactEmail | E-mail alias used for alerting. **Be careful which address you put in here as it will potentially receive a lot of notification emails** | alwaysonappnet@example.com |
 | NO | terraformResourceGroup | Resource Group where the Terraform state Storage account will be deployed | terraformstate-rg |
 | NO | stampLocations | List of locations (Azure Regions) where this environment will be deployed into. You can keep the default to start with.  | ["northeurope", "eastus2"] |
-| NO | envDnsZoneRG | OPTIONAL: Name of the Azure Resource group which holds the Azure DNS Zone for your custom domain. Not required if you do not plan to use a custom DNS name | mydns-rg |
-| NO | envDomainName | OPTIONAL: Name of the Azure DNS Zone. Not required if you do not plan to use a custom DNS name | example.com |
+| **YES** | envDnsZoneRG | Name of the Azure Resource group which holds the Azure DNS Zone for your custom domain. | mydns-rg |
+| **YES** | envDomainName | Name of the Azure DNS Zone. | example.com |
 
 **After modifying the file, make sure to commit and push the changes to your Git repository.**
 
