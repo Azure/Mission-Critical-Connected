@@ -37,7 +37,7 @@ To deploy the infrastructure for the self-hosted Agents and all supporting servi
 
 1. If you already know that you have special requirements regarding the software that needs to be present on the Build Agents to build your application code, go modify the [`/src/infra/build-agents/cloudinit.conf`](/src/infra/build-agents/cloudinit.conf)
 
-    > Please note that our self-hosted agents **do not** include the same [pre-installed software](https://docs.microsoft.com/azure/devops/pipelines/agents/hosted) as the Microsoft-hosted agents. Also, our Build Agents are only deployed as Linux VMs. You can technically change to Windows agents, but this is out of scope for this guide.
+    > Please note that our self-hosted agents **do not** include the same [pre-installed software](https://learn.microsoft.com/azure/devops/pipelines/agents/hosted) as the Microsoft-hosted agents. Also, our Build Agents are only deployed as Linux VMs. You can technically change to Windows agents, but this is out of scope for this guide.
 
 
 ## Create Azure DevOps Variable group

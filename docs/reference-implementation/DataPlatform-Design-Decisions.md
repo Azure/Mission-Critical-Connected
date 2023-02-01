@@ -27,7 +27,7 @@ Based on these characteristics, the Azure Mission-critical connected reference i
 - Cosmos DB to serve as the main backend database.
 - Event Hubs for messaging capabilities.
 
-> **Note**: From data platform capabilities perspective, the current reference implementation of Azure Mission-Critical focuses on the operational data store. In future, we plan to update Azure Mission-Critical guidance to include analytics capabilities. In the meantime, we encourage readers to refer to [Enterprise Scale Analytics](https://docs.microsoft.com/azure/cloud-adoption-framework/scenarios/data-management/enterprise-scale-landing-zone) guidance for enabling analytics at scale on Azure.
+> **Note**: From data platform capabilities perspective, the current reference implementation of Azure Mission-Critical focuses on the operational data store. In future, we plan to update Azure Mission-Critical guidance to include analytics capabilities. In the meantime, we encourage readers to refer to [Enterprise Scale Analytics](https://learn.microsoft.com/azure/cloud-adoption-framework/scenarios/data-management/enterprise-scale-landing-zone) guidance for enabling analytics at scale on Azure.
 
 ## Database
 
@@ -74,13 +74,13 @@ indexing_policy {
   - `EnableContentResponseOnWrite` is set to `false` to prevent the Cosmos DB client from returning the resource from Create, Upsert, Patch and Replace operations to reduce network traffic and because this is not needed for further processing on the client.
   - Custom serialization is used to set the JSON property naming policy to `JsonNamingPolicy.CamelCase` (to translate .NET-style properties to standard JSON-style and vice-versa) and the default ignore condition to ignore properties with null values when serializing (`JsonIgnoreCondition.WhenWritingNull`).
 
-The Azure Mission-critical reference implementation leverages the native backup feature of Cosmos DB for data protection. [Cosmos DB's backup feature](https://docs.microsoft.com/azure/cosmos-db/online-backup-and-restore) supports online backups and on-demand data restore.
+The Azure Mission-critical reference implementation leverages the native backup feature of Cosmos DB for data protection. [Cosmos DB's backup feature](https://learn.microsoft.com/azure/cosmos-db/online-backup-and-restore) supports online backups and on-demand data restore.
 
-> **Note**: In practice, most workloads are not purely OLTP. There is an increasing demand for real-time reporting, such as running reports against the operational system. This is also referred to as HTAP (Hybrid Transactional and Analytical Processing). Cosmos DB supports this capability via [Azure Synapse Link for Cosmos DB](https://docs.microsoft.com/azure/cosmos-db/synapse-link-use-cases).
+> **Note**: In practice, most workloads are not purely OLTP. There is an increasing demand for real-time reporting, such as running reports against the operational system. This is also referred to as HTAP (Hybrid Transactional and Analytical Processing). Cosmos DB supports this capability via [Azure Synapse Link for Cosmos DB](https://learn.microsoft.com/azure/cosmos-db/synapse-link-use-cases).
 
 ## Messaging bus
 
-**[Azure Event Hubs](https://docs.microsoft.com/azure/event-hubs/event-hubs-about)** service is used for the asynchronous messaging between the API service (CatalogService) and the background worker (BackgroundProcessor). It was chosen over alternative services like Azure Service Bus because of its high throughput support and because the Azure Mission-critical reference implementation does not require features like Service Bus' in-order delivery.
+**[Azure Event Hubs](https://learn.microsoft.com/azure/event-hubs/event-hubs-about)** service is used for the asynchronous messaging between the API service (CatalogService) and the background worker (BackgroundProcessor). It was chosen over alternative services like Azure Service Bus because of its high throughput support and because the Azure Mission-critical reference implementation does not require features like Service Bus' in-order delivery.
 
 Event Hubs offers zone redundancy in its Standard SKU, whereas Service Bus requires Premium tier for this reliability feature.
 
@@ -120,7 +120,7 @@ If a message isn't a health check and doesn't contain `action`, it's also droppe
 
 See [BackgroundProcessor](/src/app/AlwaysOn.BackgroundProcessor/README.md) for more details about the implementation.
 
-> **Note**: A messaging queue is not intended to be used as a persistent data store for an long periods of time. Event Hubs supports [Capture feature](https://docs.microsoft.com/azure/event-hubs/event-hubs-capture-enable-through-portal) which enables an Event Hub to automatically write a copy of messages to a linked Azure Storage account. This keeps utilization of an Event Hubs queue in-check but it also serves as a mechanism to backup messages.
+> **Note**: A messaging queue is not intended to be used as a persistent data store for an long periods of time. Event Hubs supports [Capture feature](https://learn.microsoft.com/azure/event-hubs/event-hubs-capture-enable-through-portal) which enables an Event Hub to automatically write a copy of messages to a linked Azure Storage account. This keeps utilization of an Event Hubs queue in-check but it also serves as a mechanism to backup messages.
 
 ---
 

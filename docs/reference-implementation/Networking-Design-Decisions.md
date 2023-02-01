@@ -30,7 +30,7 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 - Traffic to the cluster can only flow through Private Endpoints, the clusters do not have any public endpoints.
 - There is no additional firewall in place (such as Azure Firewall) as it provides no added benefits for reliability but instead would introduce another component adding further management overhead and failure risk.
 - Network Service Endpoints are used to lock down traffic to all services which support them.
-- In accordance with [Azure Networking Best Practices](https://docs.microsoft.com/azure/security/fundamentals/network-best-practices), all subnets have Network Security Groups (NSGs) assigned.
+- In accordance with [Azure Networking Best Practices](https://learn.microsoft.com/azure/security/fundamentals/network-best-practices), all subnets have Network Security Groups (NSGs) assigned.
 - TLS termination happens at the ingress controllers. To issue and renew SSL certificates for the cluster ingress controller, the free Let's Encrypt Certificate Authority is used in conjunction with [cert-manager](https://cert-manager.io/docs/) Kubernetes certificate manager.
 - As there is no direct traffic between pods, there is no requirement for mutual TLS to be configured.
 
@@ -39,12 +39,12 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 > The first version of the reference implementation exposes the AKS cluster with a public load balancer that is directly accessible over the internet.
 
 - The current version of Azure Front Door only supports backends (origins) with public endpoints; the same would have been true with Traffic Manager if used as an alternative global load balancer. In order to not have a public endpoint on the compute cluster some additional service would have been required in the middle, such as Azure Application Gateway or Azure API Management. However, these would not add functionality, only complexity - and more potential points of failure.
-- A risk of publicly accessible cluster ingress points is that attackers could attempt [DDoS](https://en.wikipedia.org/wiki/Denial-of-service_attack) attacks against the endpoints. However, [Azure DDoS protection Basic](https://docs.microsoft.com/azure/ddos-protection/ddos-protection-overview) is in place to lower this risk. If required, DDoS Protection Standard could optionally be enabled to get even more tailored protection.
+- A risk of publicly accessible cluster ingress points is that attackers could attempt [DDoS](https://en.wikipedia.org/wiki/Denial-of-service_attack) attacks against the endpoints. However, [Azure DDoS protection Basic](https://learn.microsoft.com/azure/ddos-protection/ddos-protection-overview) is in place to lower this risk. If required, DDoS Protection Standard could optionally be enabled to get even more tailored protection.
 - If attackers successfully acquire the Front Door ID which is used as the filter on the ingress level, they could directly reach the workload's APIs. However, the attacker would only succeed in circumventing the Web Application Firewall of Front Door. This was judged a small enough risk that the benefit of higher reliability through reduced complexity outweighed the minimal added protection of additional components.
 
 ### Requirements to utilize a fully private cluster
 
-As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://docs.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of February 2022).
+As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://learn.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of February 2022).
 
 ---
 [Azure Mission-Critical - Full List of Documentation](/docs/README.md)

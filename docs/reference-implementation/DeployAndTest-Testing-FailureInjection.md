@@ -4,25 +4,25 @@ Based on the [Failure Analysis](./Health-Failure-Analysis.md), the Azure Mission
 
 When the Azure Mission-Critical project started, no automated Failure Injection Testing was implemented and a series of manual testing was performed which provided a lot of valuable insights.
 
-All tests were performed in an E2E validation environment so that fully representative tests could be conducted without any risk of interference from other environments. Most of the failures can be observed directly in the Application Insights [Live metrics](https://docs.microsoft.com/azure/azure-monitor/app/live-stream) view - and a few minutes later in the Failures view and corresponding log tables. Other failures need deeper debugging such as the use of `kubectl` to observe the behavior inside of AKS.
+All tests were performed in an E2E validation environment so that fully representative tests could be conducted without any risk of interference from other environments. Most of the failures can be observed directly in the Application Insights [Live metrics](https://learn.microsoft.com/azure/azure-monitor/app/live-stream) view - and a few minutes later in the Failures view and corresponding log tables. Other failures need deeper debugging such as the use of `kubectl` to observe the behavior inside of AKS.
 
 ## DNS-based failure injection
 
 DNS failure injection is a good test case since it can simulate multiple issues. Firstly it simulates the case when the DNS resolution fails, for instance because Azure DNS experiences an issue ,but it can also help to simulate general connection issues between a client and a service, for example when the BackgroundProcessor cannot connect to the Event Hub.
 
-In single-host scenarios you can simply modify the local `hosts` file to overwrite DNS resolution. In a larger system with multiple dynamic servers like AKS, this is not feasible. However, we can use [Azure Private DNS Zones](https://docs.microsoft.com/azure/dns/private-dns-privatednszone) as an alternative (See the Event Hubs example below for a configuration walk-through). 
+In single-host scenarios you can simply modify the local `hosts` file to overwrite DNS resolution. In a larger system with multiple dynamic servers like AKS, this is not feasible. However, we can use [Azure Private DNS Zones](https://learn.microsoft.com/azure/dns/private-dns-privatednszone) as an alternative (See the Event Hubs example below for a configuration walk-through). 
 
 ### Event Hub
 
-1) [Create a Private DNS Zone](https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-a-private-dns-zone) with the name of the service you want to fail e.g. `servicebus.windows.net`.
-1) [Link](https://docs.microsoft.com/azure/dns/private-dns-virtual-network-links) this Private DNS Zone to the VNet of one of the stamps where you want to perform the test.
+1) [Create a Private DNS Zone](https://learn.microsoft.com/azure/dns/private-dns-getstarted-cli#create-a-private-dns-zone) with the name of the service you want to fail e.g. `servicebus.windows.net`.
+1) [Link](https://learn.microsoft.com/azure/dns/private-dns-virtual-network-links) this Private DNS Zone to the VNet of one of the stamps where you want to perform the test.
 1) Without creating any further records, name resolution to any Event Hub (or Service Bus) namespace will start to fail as the Zone does not contain a record for, e.g. `ao1234-northeurope-evhns.servicebus.windows.net`.
 1) For a slightly different test case, you can also create an "A" record in that zone for `ao1234-northeurope-evhns` to resolve to an arbitrary IP address. This way the DNS resolution itself will still work but the expected connection at the IP address won't.
 1) Note that DNS resolutions might have been cached at different layers, for example in an AKS node, so it might take a few minutes until the first errors occur. Note existing client connections often continue to work for a longer period, however, new connections, should start to fail, for instance when a new pod is started.
 
 ### Cosmos DB
 
-As Cosmos DB is a globally replicated service with specific regional endpoints, manipulating the DNS records for those endpoints is a very valuable exercise as it can simulate the failure of one specific region and test the failover of the clients. To simulate e.g. an outage of the North Europe regional endpoint, we can create a faulty DNS record as described above for the endpoint `ao1234-global-cosmos-northeurope.documents.azure.com`. Again, based on existing connections and their DNS refresh it might take a few minutes until connections to this endpoint start to fail. Then, the Cosmos DB SDK will transparently retry and then failover to the next endpoint in the list of available endpoints which it first gathered on the [Cosmos DB metadata endpoint](https://docs.microsoft.com/azure/cosmos-db/tutorial-global-distribution-sql-api?tabs=dotnetv2%2Capi-async#rest).
+As Cosmos DB is a globally replicated service with specific regional endpoints, manipulating the DNS records for those endpoints is a very valuable exercise as it can simulate the failure of one specific region and test the failover of the clients. To simulate e.g. an outage of the North Europe regional endpoint, we can create a faulty DNS record as described above for the endpoint `ao1234-global-cosmos-northeurope.documents.azure.com`. Again, based on existing connections and their DNS refresh it might take a few minutes until connections to this endpoint start to fail. Then, the Cosmos DB SDK will transparently retry and then failover to the next endpoint in the list of available endpoints which it first gathered on the [Cosmos DB metadata endpoint](https://learn.microsoft.com/azure/cosmos-db/tutorial-global-distribution-sql-api?tabs=dotnetv2%2Capi-async#rest).
 
 As this retry and failover logic in the SDK takes about 2 minutes, the Health Service in its previous configuration would time out before that and thus mark the entire stamp unhealthy. Therefore, as a learning point from the testing, the timeout setting on the Health Service was increased to cater for this.
 
