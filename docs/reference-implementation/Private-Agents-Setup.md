@@ -4,7 +4,7 @@ This guide walks you through the required steps to deploy the Azure Mission-Crit
 
 This deployment mode provides even tighter security but requires the use of self-hosted, VNet-integrated Build Agents. Also, for any debugging etc. users must connect through Azure Bastion and Jump Servers which can have an impact on developer productivity. **Be aware of these impacts before deciding to deploy Azure Mission-Critical in connected mode.**
 
-![Azure Mission-Critical Connected Architecture](/docs/media/AlwaysOn-architecture-foundational-connected.svg)
+![Azure Mission-Critical Connected Architecture](/docs/media/mission-critical-architecture-connected.svg)
 
 ## Overview
 
@@ -15,7 +15,7 @@ On a high level, the following steps will be executed:
 1. Configure the self-hosted Build Agents in Azure DevOps
 1. Set required variables in the variables files to reference the self-hosted Build Agent resources to later be able to create Private Endpoints
 
-## Import pipeline to deploys self-hosted Build Agents
+## Import pipeline to deploy self-hosted Build Agents
 
 To deploy the infrastructure for the self-hosted Agents and all supporting services such as Jump Servers and private DNS zones, a ready-to-use Bicep template plus the corresponding ADO Pipeline is included in this repository. Bicep is being used for this part of the infrastructure instead of Terraform, because using Terraform could create a "chicken-and-egg" problem with the state storage account which requires public access. All further resources are then created using Terraform.
 
