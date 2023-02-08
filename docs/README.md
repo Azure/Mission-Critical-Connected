@@ -6,7 +6,7 @@
 
 ## Introduction to Azure Mission-Critical
 
-- [Introduction](https://docs.microsoft.com/azure/architecture/framework/mission-critical/mission-critical-overview) (➡️ `Azure/Mission-Critical`)
+- [Introduction](https://learn.microsoft.com/azure/architecture/framework/mission-critical/mission-critical-overview) (➡️ `Azure/Mission-Critical`)
 
 ## Azure Mission-Critical Reference Implementation Guide
 

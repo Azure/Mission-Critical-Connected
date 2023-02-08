@@ -9,7 +9,7 @@
 
 ---
 
-The Azure Mission-Critical reference implementation is using [Azure Log Analytics](https://docs.microsoft.com/azure/azure-monitor/logs/log-analytics-overview) as a central store for logs and metrics for all application and infrastructure components and [Azure Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) for all application monitoring data. Each stamp has its own, dedicated Log Analytics Workspace and App Insights instance. Next to those is one Log Analytics Workspace for the globally shared resources such as Front Door and Cosmos DB.
+The Azure Mission-Critical reference implementation is using [Azure Log Analytics](https://learn.microsoft.com/azure/azure-monitor/logs/log-analytics-overview) as a central store for logs and metrics for all application and infrastructure components and [Azure Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) for all application monitoring data. Each stamp has its own, dedicated Log Analytics Workspace and App Insights instance. Next to those is one Log Analytics Workspace for the globally shared resources such as Front Door and Cosmos DB.
 
 ![Monitoring overview](/docs/media/MonitoringOverview.png)
 
@@ -33,7 +33,7 @@ This also enables a rich monitoring experience within the Azure Portal.
 
 ![AKS Container Insights](/docs/media/Monitoring2AKSInsights.png)
 
-To gain even more insights from the various components like ingress-nginx, cert-manager, etc. (see [Configuration layer](/src/config/README.md)) running on top of Kubernetes, next to our workload, it's possible to use [Prometheus scraping](https://docs.microsoft.com/azure/azure-monitor/containers/container-insights-prometheus-integration). This configures the _OMSAgentForLinux_ to scrape Prometheus metrics from various endpoints within the cluster. This is done via a specific ConfigMap stored in `/src/config/monitoring` and provides a variety of additional data points stored in Log Analytics:
+To gain even more insights from the various components like ingress-nginx, cert-manager, etc. (see [Configuration layer](/src/config/README.md)) running on top of Kubernetes, next to our workload, it's possible to use [Prometheus scraping](https://learn.microsoft.com/azure/azure-monitor/containers/container-insights-prometheus-integration). This configures the _OMSAgentForLinux_ to scrape Prometheus metrics from various endpoints within the cluster. This is done via a specific ConfigMap stored in `/src/config/monitoring` and provides a variety of additional data points stored in Log Analytics:
 
 ```kql
 InsightsMetrics
@@ -44,7 +44,7 @@ InsightsMetrics
 
 ### Application Insights Availability Tests
 
-To monitor the availability of the individual stamps and the overall solution from an outside point of view, [Application Insights Availability Tests](https://docs.microsoft.com/azure/azure-monitor/app/availability-overview) are set up in two places:
+To monitor the availability of the individual stamps and the overall solution from an outside point of view, [Application Insights Availability Tests](https://learn.microsoft.com/azure/azure-monitor/app/availability-overview) are set up in two places:
 
 - [Regional Availability Tests](/src/infra/workload/releaseunit/modules/stamp/monitoring_webtests.tf): These are set up in the regional Application Insights instances and are used to monitor the availability of the stamps. These tests target the clusters as well as the static storage accounts of the stamps directly. To call the ingress points of the clusters directly, requests need to carry the correct Front Door ID header, else they would be rejected by the ingress controller.
 - [Global Availability Tests](/src/infra/workload/globalresources/monitoring_webtests.tf): These are set up in the global Application Insights instance and are used to monitor the availability of the overall solution by pinging Front Door. Here as well, two tests are being used: One to test an API call against the CatalogService and one to test the home page of the website.

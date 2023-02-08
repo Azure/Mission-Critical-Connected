@@ -1,5 +1,5 @@
 # Permission for AKS to assign the pre-created PIP to its load balancer
-# https://docs.microsoft.com/azure/aks/static-ip#create-a-service-using-the-static-ip-address
+# https://learn.microsoft.com/azure/aks/static-ip#create-a-service-using-the-static-ip-address
 resource "azurerm_role_assignment" "aks_vnet_contributor" {
   scope                = azurerm_resource_group.stamp.id
   role_definition_name = "Network Contributor"
@@ -7,7 +7,7 @@ resource "azurerm_role_assignment" "aks_vnet_contributor" {
 }
 
 # Permission for AKS to assign the LB in the pre-created VNet
-# https://docs.microsoft.com/en-us/azure/aks/internal-lb#use-private-networks
+# https://learn.microsoft.com/en-us/azure/aks/internal-lb#use-private-networks
 resource "azurerm_role_assignment" "aks_vnet_rg_vnet_contributor" {
   scope                = data.azurerm_virtual_network.stamp.id
   role_definition_name = "Network Contributor"

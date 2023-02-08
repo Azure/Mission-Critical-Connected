@@ -14,11 +14,11 @@ The workload consists of three components:
 
 ## Queue-based asynchronous processing
 
-In order to achieve high responsiveness for all operations, Azure Mission-Critical implements the [Queue-Based Load leveling pattern](https://docs.microsoft.com/azure/architecture/patterns/queue-based-load-leveling) combined with [Competing Consumers pattern](https://docs.microsoft.com/azure/architecture/patterns/competing-consumers) where multiple producer instances (`CatalogService` in our case) generate messages which are then asynchronously processed by consumers (`BackgroundProcessor`). This allows the API to accept the request and return to the caller quickly whilst the more demanding database write operation is processed separately.
+In order to achieve high responsiveness for all operations, Azure Mission-Critical implements the [Queue-Based Load leveling pattern](https://learn.microsoft.com/azure/architecture/patterns/queue-based-load-leveling) combined with [Competing Consumers pattern](https://learn.microsoft.com/azure/architecture/patterns/competing-consumers) where multiple producer instances (`CatalogService` in our case) generate messages which are then asynchronously processed by consumers (`BackgroundProcessor`). This allows the API to accept the request and return to the caller quickly whilst the more demanding database write operation is processed separately.
 
 ![Competing consumers diagram](/docs/media/competing-consumers-diagram.png)
 
-*Image source: [docs.microsoft.com](https://docs.microsoft.com/azure/architecture/patterns/competing-consumers)*
+*Image source: [learn.microsoft.com](https://learn.microsoft.com/azure/architecture/patterns/competing-consumers)*
 
 - The current Azure Mission-Critical reference implementation uses **Azure Event Hub** as the message queue but provides interfaces in code which enable the use of other messaging services if required (Azure Service Bus was successfully tested as an alternative solution).
 - **ASP.NET Core API** is used to implement the producer REST API.
@@ -53,7 +53,7 @@ The `BackgroundProcessor` service has very different requirements and is conside
 
 All workload components as well as supporting services like the `HealthService` and dependencies like `ingress-nginx` are configured with at least 3 or in case of the `HealthService` 2 instances (replicas) per cluster. This is supposed to prevent certain availability issues and to ensure that the service is always available. The instances are automatically spread across nodes and therefore also across Availability Zones.
 
-In addition to that, each component of the workload including dependencies like `ingress-nginx` has [Pod Disruption Budgets (PDBs)](https://docs.microsoft.com/azure/aks/operator-best-practices-scheduler#plan-for-availability-using-pod-disruption-budgets) configured to ensure that a minimum number of instances is always available.
+In addition to that, each component of the workload including dependencies like `ingress-nginx` has [Pod Disruption Budgets (PDBs)](https://learn.microsoft.com/azure/aks/operator-best-practices-scheduler#plan-for-availability-using-pod-disruption-budgets) configured to ensure that a minimum number of instances is always available.
 
 ---
 

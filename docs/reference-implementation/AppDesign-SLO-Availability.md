@@ -65,7 +65,7 @@ The maximum availability (based on the underlying Azure infrastructure) is 99.97
 - Maximum infrastructure SLA = 99.979% = 9.52 minutes of allowed downtime per month
 - Azure Mission-Critical SLO = 99.95% = 21.6 minutes of allowed downtime per month
 
-https://docs.microsoft.com/azure/architecture/framework/resiliency/business-metrics
+https://learn.microsoft.com/azure/architecture/framework/resiliency/business-metrics
 
 ## Observability
 
