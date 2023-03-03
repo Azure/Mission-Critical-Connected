@@ -33,12 +33,12 @@ Each subnet is assigned a Network Security Group (NSG) which basically prohibits
 
 Two VM Scale Sets are deployed:
 
-- `buildagents-vmss`: Scale Set for the build agents. These are to be connected to and controlled by [Azure DevOps as a VMSS build agent pool](https://docs.microsoft.com/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops). ADO will scale this VMSS up and down as needed.
+- `buildagents-vmss`: Scale Set for the build agents. These are to be connected to and controlled by [Azure DevOps as a VMSS build agent pool](https://learn.microsoft.com/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops). ADO will scale this VMSS up and down as needed.
 - `jumpservers-vmss`: These are jump servers which users can manually connect to via Azure Bastion to then connect to the private resources. For instance, to execute Kubernetes commands using `kubectl`, the jump servers are required. This scale set is initially deployed with 1 instance of a B2s VM. It can be manually scaled up and down as needed. Connection to the jump servers happen via SSH.
 
 #### Configuration
 
-The VMs in the scale sets are provisioned using a standard Ubuntu 20.04 image. In order to install required software for the build and deployment tasks, as well as for manual operations through the jump servers, [cloud-init](https://docs.microsoft.com/azure/virtual-machines/linux/using-cloud-init) is used. The [`cloudinit.conf`](./cloudinit.conf) file specifies which packages to install at startup. This way, any time a VM is freshly provisioned, it is based on the latest base image and has all required software in their latest versions installed.
+The VMs in the scale sets are provisioned using a standard Ubuntu 20.04 image. In order to install required software for the build and deployment tasks, as well as for manual operations through the jump servers, [cloud-init](https://learn.microsoft.com/azure/virtual-machines/linux/using-cloud-init) is used. The [`cloudinit.conf`](./cloudinit.conf) file specifies which packages to install at startup. This way, any time a VM is freshly provisioned, it is based on the latest base image and has all required software in their latest versions installed.
 
 ### Private DNS Zones
 
@@ -54,7 +54,7 @@ Additional private DNS zones can be added as needed by the workload that is to b
 
 ### Azure Bastion Service
 
-The [Bastion service](https://docs.microsoft.com/azure/bastion/bastion-overview) is used to securely connect to the jump servers. This way, the jump servers themselves do not need to expose any public IPs.
+The [Bastion service](https://learn.microsoft.com/azure/bastion/bastion-overview) is used to securely connect to the jump servers. This way, the jump servers themselves do not need to expose any public IPs.
 
 ## Connect to Jump Server via Bastion
 

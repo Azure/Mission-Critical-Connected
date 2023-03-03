@@ -21,7 +21,7 @@ The Azure Mission-Critical reference implementation gets deployed into an Azure 
 - Either your user needs to have **Owner** or **User Access Administrator (UAA)** permission and you have **the right to create new Service Principals** on your Azure AD tenant, or
 - You need to have a pre-provisioned Service Principal with Owner permissions on the subscription
 
-If you will create the Service Principal yourself, it is recommended to have either [Azure CLI](https://docs.microsoft.com/cli/azure/service-page/azure%20cli?view=azure-cli-latest) installed on your machine or have access to it through the [Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/).
+If you will create the Service Principal yourself, it is recommended to have either [Azure CLI](https://learn.microsoft.com/cli/azure/service-page/azure%20cli?view=azure-cli-latest) installed on your machine or have access to it through the [Azure Cloud Shell](https://learn.microsoft.com/azure/cloud-shell/).
 
 Also, to deploy the Connected reference implementation, you are required to have an existing **domain name** which is managed in an Azure DNS Zone. This is needed in order to connect Azure Front Door via Private Link to the backends on AKS, as this requires officially validated SSL certificates. The pipeline will take care of the certificate creation and validation using Let's Encrypt, but you need to provision the DNS Zone beforehand. Depending on your scenario, [Azure App Service Domains](https://learn.microsoft.com/azure/app-service/manage-custom-dns-buy-domain) might be an option to easily procure a domain name.
 
@@ -46,7 +46,7 @@ The process to deploy the Azure Mission-Critical reference implementation is com
 
 To deploy the Azure Mission-Critical reference implementation, you need to create a new Azure DevOps organization, or re-use an existing one. In this organization you will then create a new project used to host all pipelines for Azure Mission-Critical.
 
-- [Create an organization or project collection](https://docs.microsoft.com/azure/devops/organizations/accounts/create-organization?view=azure-devops)
+- [Create an organization or project collection](https://learn.microsoft.com/azure/devops/organizations/accounts/create-organization?view=azure-devops)
 
 #### Create a new Azure DevOps project
 
