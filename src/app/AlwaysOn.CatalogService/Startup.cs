@@ -3,6 +3,8 @@ using AlwaysOn.Shared;
 using AlwaysOn.Shared.Interfaces;
 using AlwaysOn.Shared.Services;
 using AlwaysOn.Shared.TelemetryExtensions;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -46,6 +48,19 @@ namespace AlwaysOn.CatalogService
                 EnableAdaptiveSampling = bool.TryParse(Configuration[SysConfiguration.ApplicationInsightsAdaptiveSamplingName], out bool result) ? result : true
             });
 
+            services.AddSingleton<TokenCredential>(builder =>
+            {
+                var managedIdentityClientId = Configuration["AZURE_CLIENT_ID"];
+                if (!string.IsNullOrEmpty(managedIdentityClientId))
+                {
+                    return new ManagedIdentityCredential(managedIdentityClientId);
+                }
+                else
+                {
+                    return new DefaultAzureCredential();
+                }
+            });
+
             services.AddSingleton<AppInsightsCosmosRequestHandler>();
 
             services.AddHealthChecks();// Adds a simple liveness probe HTTP endpoint, path mapping happens further below
@@ -71,7 +86,7 @@ namespace AlwaysOn.CatalogService
                 c.OperationFilter<ApiKeyFilter>(); // Custom parameter in Swagger for API Key-protected operations
                 c.OperationFilter<VersionParameterFilter>(); // Custom add default value for version parameter in Swagger
             });
-            
+
             services.AddCors();
 
             services.AddSingleton<ITelemetryInitializer>(sp =>
