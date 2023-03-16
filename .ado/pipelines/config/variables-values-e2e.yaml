@@ -15,7 +15,7 @@ variables:
 - name:  'terraformResourceGroup'
   value: 'mcconnected-terraformstate-rg'      # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: '$(prefix)tfstatestore'  # Needs to be a globally unique name
+  value: '$(prefix)tfstatestore'              # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
 # Other settings
 - name:  'contactEmail'
@@ -23,6 +23,6 @@ variables:
 
   # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: 'mc-dnszones-rg'                                    # <===== CHANGE THIS VALUE
+  value: 'mc-dnszones-rg'                         # <===== CHANGE THIS VALUE
 - name: 'envDomainName'
-  value: 'e2e.connected.mission-critical.app'                # <===== CHANGE THIS VALUE
+  value: 'e2e.connected.mission-critical.app'     # <===== CHANGE THIS VALUE

@@ -20,12 +20,12 @@ variables:
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
-  value: 'alwayson-terraformstate-rg'         # <===== CHANGE THIS VALUE IF NEEDED
+  value: 'mcconnected-terraformstate-rg'   # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: '$(prefix)terraformstate'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
+  value: '$(prefix)terraformstate'         # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
 # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: 'alwayson-dns-rg'                        # <===== CHANGE THIS VALUE
+  value: 'mc-dnszones-rg'                        # <===== CHANGE THIS VALUE
 - name: 'envDomainName'
-  value: 'int.az-mc-connected.com'                # <===== CHANGE THIS VALUE
+  value: 'int.connected.mission-critical.app'    # <===== CHANGE THIS VALUE
