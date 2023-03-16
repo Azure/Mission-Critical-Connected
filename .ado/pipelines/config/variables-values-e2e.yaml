@@ -4,12 +4,12 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'mcc2e'          # <===== CHANGE THIS! Must not be longer than 6 characters! Needs to be a unique prefix
+  value: 'mcce2e'          # <===== CHANGE THIS! Must not be longer than 6 characters! Needs to be a unique prefix
 
 # The first value in 'stampLocations' is the primary region used for global services.
 # IMPORTANT! Changing the primary region (first value) is a BREAKING change and will destroy CosmosDB and Front Door.
 - name: 'stampLocations'
-  value: '["westeurope"]'    # Check which regions are valid. There is a list in /src/infra/README.md
+  value: '["uksouth"]'    # Check which regions are valid. There is a list in /src/infra/README.md
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
