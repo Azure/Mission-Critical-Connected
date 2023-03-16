@@ -16,7 +16,9 @@ spec:
     metadata:
       labels:
         app: {{ .Chart.Name }}
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: {{ .Chart.Name }}-identity
       containers:
       - image: {{ .Values.containerimage }}
         imagePullPolicy: {{ .Values.container.pullPolicy | default "Always" | quote }}
@@ -72,7 +74,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: azure-kv
+              secretProviderClass: {{ .Chart.Name }}-azure-kv
         - name: tmp-volume
           emptyDir: {}
         - name: var-log-volume

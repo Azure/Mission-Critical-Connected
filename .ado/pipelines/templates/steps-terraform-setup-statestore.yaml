@@ -17,9 +17,9 @@ steps:
     inlineScript: |
       echo "*** Check if Resource Group ${{ parameters.resourceGroupName }} exists"
       $checkRg = az group exists --name ${{ parameters.resourceGroupName }} | ConvertFrom-Json
+      $locations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate # get the stamp locations and use the first one to create the resource group there. The region does not really matter.
       if (!$checkRg) {
         Write-Warning "*** WARN! Resource Group ${{ parameters.resourceGroupName }} does not exist. Creating..."
-        $locations = '$(stampLocations)' | ConvertFrom-Json -NoEnumerate # get the stamp locations and use the first one to create the resource group there. The region does not really matter.
         az group create --name ${{ parameters.resourceGroupName }} --location $locations[0]
 
         if ($LastExitCode -ne 0) {
@@ -63,6 +63,7 @@ steps:
         az network private-endpoint create `
         --name $peName `
         --resource-group $buildAgentResourceGroupName `
+        --location $locations[0] `
         --vnet-name $buildAgentVnetName `
         --subnet "private-endpoints-snet" `
         --private-connection-resource-id $storageAccountId `

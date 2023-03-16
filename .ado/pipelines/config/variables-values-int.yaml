@@ -4,12 +4,12 @@ variables:
 
 # Resource prefix for this environment
 - name:  'prefix'
-  value: 'acint'          # <===== CHANGE THIS! Must not be longer than 6 characters! Needs to be a unique prefix
+  value: 'mccint'          # <===== CHANGE THIS! Must not be longer than 6 characters! Needs to be a unique prefix
 
 # The first value in 'stampLocations' is the primary region used for global services.
 # IMPORTANT! Changing the primary region (first value) is a BREAKING change and will destroy CosmosDB and Front Door.
 - name: 'stampLocations'
-  value: '["westeurope"]' # Check which regions are valid. There is a list in /src/infra/README.md
+  value: '["uksouth"]' # Check which regions are valid. There is a list in /src/infra/README.md
 
 - name: 'stampLocationsGrafana'
   value: '["eastus", "brazilsouth"]' # Check which regions are valid. There is a list in /src/infra/README.md
@@ -20,12 +20,12 @@ variables:
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
-  value: 'alwayson-terraformstate-rg'         # <===== CHANGE THIS VALUE IF NEEDED
+  value: 'mcconnected-terraformstate-rg'   # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
-  value: '$(prefix)terraformstate'      # <===== CHANGE THIS VALUE! Needs to be a globally unique name
+  value: '$(prefix)terraformstate'         # <===== CHANGE THIS VALUE! Needs to be a globally unique name
 
 # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: 'alwayson-dns-rg'                        # <===== CHANGE THIS VALUE
+  value: 'mc-dnszones-rg'                        # <===== CHANGE THIS VALUE
 - name: 'envDomainName'
-  value: 'int.az-mc-connected.com'                # <===== CHANGE THIS VALUE
+  value: 'int.connected.mission-critical.app'    # <===== CHANGE THIS VALUE
