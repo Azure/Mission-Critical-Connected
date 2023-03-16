@@ -23,6 +23,6 @@ variables:
 
   # Custom DNS name settings
 - name: 'envDnsZoneRG'
-  value: 'alwayson-dns-rg'                        # <===== CHANGE THIS VALUE
+  value: 'mc-dnszones-rg'                                    # <===== CHANGE THIS VALUE
 - name: 'envDomainName'
-  value: 'e2e.az-mc-connected.com'                # <===== CHANGE THIS VALUE
+  value: 'e2e.connected.mission-critical.app'                # <===== CHANGE THIS VALUE
