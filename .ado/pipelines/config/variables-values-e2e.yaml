@@ -13,7 +13,7 @@ variables:
 
 # Terraform state variables
 - name:  'terraformResourceGroup'
-  value: 'alwayson-terraformstate-rg'      # <===== CHANGE THIS VALUE IF NEEDED
+  value: 'mcconnected-terraformstate-rg'      # <===== CHANGE THIS VALUE IF NEEDED
 - name:  'terraformStorageAccount'
   value: '$(prefix)tfstatestore'  # Needs to be a globally unique name
 
