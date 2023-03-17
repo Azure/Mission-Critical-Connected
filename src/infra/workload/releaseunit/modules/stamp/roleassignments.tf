@@ -35,6 +35,24 @@ resource "azurerm_role_assignment" "loganalyticsreader_role" {
   principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
 }
 
+# cosmosdb role assignment for catalogservice identity
+resource "azurerm_cosmosdb_sql_role_assignment" "catalogservice_contributor" {
+  resource_group_name = var.global_resource_group_name
+  account_name        = data.azurerm_cosmosdb_account.global.name
+  role_definition_id  = data.azurerm_cosmosdb_sql_role_definition.builtin_data_contributor.id
+  principal_id        = azurerm_user_assigned_identity.catalogservice.principal_id
+  scope               = data.azurerm_cosmosdb_account.global.id
+}
+
+# cosmosdb role assignment for healthservice identity
+resource "azurerm_cosmosdb_sql_role_assignment" "healthservice_contributor" {
+  resource_group_name = var.global_resource_group_name
+  account_name        = data.azurerm_cosmosdb_account.global.name
+  role_definition_id  = data.azurerm_cosmosdb_sql_role_definition.builtin_data_contributor.id
+  principal_id        = azurerm_user_assigned_identity.healthservice.principal_id
+  scope               = data.azurerm_cosmosdb_account.global.id
+}
+
 # cosmosdb role assignment for backgroundprocessor identity
 resource "azurerm_cosmosdb_sql_role_assignment" "backgroundprocessor_contributor" {
   resource_group_name = var.global_resource_group_name
