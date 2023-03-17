@@ -42,3 +42,9 @@ data "azurerm_virtual_network" "buildagent" {
   name                = "${var.prefix}buildinfra-vnet"
   resource_group_name = data.azurerm_resource_group.buildagent.name
 }
+
+data "azurerm_cosmosdb_sql_role_definition" "builtin_data_contributor" {
+  resource_group_name = var.global_resource_group_name
+  account_name        = data.azurerm_cosmosdb_account.global.name
+  role_definition_id  = "00000000-0000-0000-0000-000000000002"
+}

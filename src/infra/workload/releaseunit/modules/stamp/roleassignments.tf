@@ -28,11 +28,11 @@ resource "azurerm_role_assignment" "dns_contributor" {
   principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
 }
 
-# Permission for the kubelet as used by the Health Service to query the regional LA workspace
+# Permission for the healthservice to query the regional LA workspace
 resource "azurerm_role_assignment" "loganalyticsreader_role" {
   scope                = data.azurerm_log_analytics_workspace.stamp.id
   role_definition_name = "Log Analytics Reader"
-  principal_id         = azurerm_kubernetes_cluster.stamp.kubelet_identity.0.object_id
+  principal_id         = azurerm_user_assigned_identity.healthservice.principal_id
 }
 
 # cosmosdb role assignment for catalogservice identity
