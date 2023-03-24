@@ -92,6 +92,12 @@ variable "cosmosdb_collection_itemratings_max_autoscale_throughputunits" {
   default     = 4000 # 4000 is the minimum possible value
 }
 
+variable "law_daily_cap_gb" {
+  description = "Daily data cap for Log Analytics Workspace and Application Insights in GB"
+  type        = number
+  default     = 10
+}
+
 variable "backends_BackendApis" {
   type = list(object({
     address                = string
