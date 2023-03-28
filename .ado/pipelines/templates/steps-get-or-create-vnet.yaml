@@ -89,7 +89,7 @@ steps:
           }
 
           # Check DNS settings on each VNet. They need to be set to Default (Azure-provided)
-          foreach($vnetId in $vnets)
+          foreach($vnetId in $vnets.Values)
           {
             $dns = az network vnet show --ids $vnetId --query "dhcpOptions.dnsServers" | convertfrom-json # If DNS is set to Default, this call will come back empty
             if($dns)
