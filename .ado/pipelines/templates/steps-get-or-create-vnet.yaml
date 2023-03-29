@@ -87,6 +87,16 @@ steps:
           {
             throw "*** ERROR no available VNet found for location $location"
           }
+
+          # Check DNS settings on each VNet. They need to be set to Default (Azure-provided)
+          foreach($vnetId in $vnets.Values)
+          {
+            $dns = az network vnet show --ids $vnetId --query "dhcpOptions.dnsServers" | convertfrom-json # If DNS is set to Default, this call will come back empty
+            if($dns)
+            {
+              throw "*** VNet $vnetId has custom DNS servers set ($dns)! DNS settings must use 'Default (Azure-provided)' in order to work correctly with Private Endpoints. If you need custom DNS resolution, you need to set up Azure DNS Private resolver (https://learn.microsoft.com/azure/dns/dns-private-resolver-overview)"
+            }
+          }
         }
       }
       else
