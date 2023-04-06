@@ -151,7 +151,8 @@ resource keyvaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' =
 }
 
 resource keyvaultPeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${keyvaultPrivateDnsZone.name}/${keyvaultPrivateDnsZone.name}-link'
+  name: '${keyvaultPrivateDnsZone.name}-link'
+  parent: keyvaultPrivateDnsZone
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -167,7 +168,8 @@ resource acrPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 }
 
 resource acrPeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${acrPrivateDnsZone.name}/${acrPrivateDnsZone.name}-link'
+  name: '${acrPrivateDnsZone.name}-link'
+  parent: acrPrivateDnsZone
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -183,7 +185,8 @@ resource aksPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 }
 
 resource aksPeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${aksPrivateDnsZone.name}/${aksPrivateDnsZone.name}-link'
+  name: '${aksPrivateDnsZone.name}-link'
+  parent: aksPrivateDnsZone
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -199,7 +202,8 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 }
 
 resource blobPeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${blobPrivateDnsZone.name}/${blobPrivateDnsZone.name}-link'
+  name: '${blobPrivateDnsZone.name}-link'
+  parent: blobPrivateDnsZone
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -215,7 +219,8 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 }
 
 resource tablePeVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${tablePrivateDnsZone.name}/${tablePrivateDnsZone.name}-link'
+  name: '${tablePrivateDnsZone.name}-link'
+  parent: tablePrivateDnsZone
   location: 'global'
   properties: {
     registrationEnabled: false
