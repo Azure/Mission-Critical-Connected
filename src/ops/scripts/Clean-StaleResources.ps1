@@ -62,7 +62,7 @@ function Remove-DiagnosticSettingsOnResource {
   )
 
   # List all diagnostic settings for a given ResourceId
-  $diagnosticSettings = $(az monitor diagnostic-settings list --resource $ResourceId | ConvertFrom-Json).value
+  $diagnosticSettings = $(az monitor diagnostic-settings list --resource $ResourceId | ConvertFrom-Json)
 
   Write-Host "Found $($diagnosticSettings.Count) diagnostic settings"
 
