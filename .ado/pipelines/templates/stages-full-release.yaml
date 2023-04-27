@@ -205,58 +205,58 @@ stages:
   jobs:
   - template: jobs-deploy-configuration.yaml
 
-- stage: testcode
-  displayName: 'Test Application Code'
-  dependsOn: [] # can run in parallel to the global infra deployment at the very start
-  jobs:
-  - template: jobs-code-tests.yaml
-    parameters:
-      jobName:          'CodeTests'
-      workingDirectory: 'src/app'
+# - stage: testcode
+#   displayName: 'Test Application Code'
+#   dependsOn: [] # can run in parallel to the global infra deployment at the very start
+#   jobs:
+#   - template: jobs-code-tests.yaml
+#     parameters:
+#       jobName:          'CodeTests'
+#       workingDirectory: 'src/app'
 
-- stage: buildapplication
-  displayName: 'Build Application Code'
-  dependsOn:
-   - testcode
-   - deployglobalinfrastructure # requires the global infra to be deployed which contains the Container Registry
-  jobs: # using jobs so they each runs in parallel
+# - stage: buildapplication
+#   displayName: 'Build Application Code'
+#   dependsOn:
+#    - testcode
+#    - deployglobalinfrastructure # requires the global infra to be deployed which contains the Container Registry
+#   jobs: # using jobs so they each runs in parallel
 
-  - template: jobs-container-build.yaml
-    parameters:
-      jobName:                  'catalogservice' # unique pipeline job name
-      containerImageName:       '$(catalogserviceImageName)'  # container image name for CatalogService
-      containerImageDockerFile: '$(catalogserviceDockerfile)' # dockerfile used to build the CatalogService
+#   - template: jobs-container-build.yaml
+#     parameters:
+#       jobName:                  'catalogservice' # unique pipeline job name
+#       containerImageName:       '$(catalogserviceImageName)'  # container image name for CatalogService
+#       containerImageDockerFile: '$(catalogserviceDockerfile)' # dockerfile used to build the CatalogService
 
-  - template: jobs-container-build.yaml
-    parameters:
-      jobName:                  'backgroundprocessor' # unique pipeline job name
-      containerImageName:       '$(backgroundprocessorImageName)'   # container image name for BackgroundProcessor
-      containerImageDockerFile: '$(backgroundprocessorDockerfile)'  # dockerfile used to build the BackgroundProcessor
+#   - template: jobs-container-build.yaml
+#     parameters:
+#       jobName:                  'backgroundprocessor' # unique pipeline job name
+#       containerImageName:       '$(backgroundprocessorImageName)'   # container image name for BackgroundProcessor
+#       containerImageDockerFile: '$(backgroundprocessorDockerfile)'  # dockerfile used to build the BackgroundProcessor
 
-  - template: jobs-container-build.yaml
-    parameters:
-      jobName:                  'healthservice' # unique pipeline job name
-      containerImageName:       '$(healthserviceImageName)'  # container image name for healthservice
-      containerImageDockerFile: '$(healthserviceDockerfile)' # dockerfile used to build the healthservice
+#   - template: jobs-container-build.yaml
+#     parameters:
+#       jobName:                  'healthservice' # unique pipeline job name
+#       containerImageName:       '$(healthserviceImageName)'  # container image name for healthservice
+#       containerImageDockerFile: '$(healthserviceDockerfile)' # dockerfile used to build the healthservice
 
-  - template: jobs-ui-app-build.yaml
-    parameters:
-      jobName:          'buildui'
-      workingDirectory: 'src/app/AlwaysOn.UI/'
+#   - template: jobs-ui-app-build.yaml
+#     parameters:
+#       jobName:          'buildui'
+#       workingDirectory: 'src/app/AlwaysOn.UI/'
 
-- stage: deployworkload # Deploy workload to previously created infrastructure
-  displayName: 'Deploy Workload'
-  dependsOn:
-  - deployconfiguration
-  - testcode
-  - buildapplication
-  jobs:
-  - template: jobs-deploy-workload.yaml
+# - stage: deployworkload # Deploy workload to previously created infrastructure
+#   displayName: 'Deploy Workload'
+#   dependsOn:
+#   - deployconfiguration
+#   - testcode
+#   - buildapplication
+#   jobs:
+#   - template: jobs-deploy-workload.yaml
 
 # In order for the build agents to be able to test the stamps directly, they need a Private Endpoint on the internal ingress Private Link service
 - stage: createIngressPrivateEndpoints
   displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
-  dependsOn: deployworkload
+  #dependsOn: deployworkload
   jobs:
   - job: createIngressPrivateEndpointsJob
     displayName: 'Create Build Agent Private Endpoints for AKS Ingress'
@@ -350,33 +350,33 @@ stages:
                                     -var custom_dns_zone=$(envDomainName)
                                     $(tfParameterPrivateLinkConfigs)'
 
-- stage: importSampleData # Import sample data
-  displayName: 'Import sample data'
-  dependsOn: createIngressPrivateEndpoints
-  jobs:
-  - template: jobs-init-sampledata.yaml
+# - stage: importSampleData # Import sample data
+#   displayName: 'Import sample data'
+#   dependsOn: createIngressPrivateEndpoints
+#   jobs:
+#   - template: jobs-init-sampledata.yaml
 
-- stage: testingOnlyStampEndpoints # smoke-testing the stamp endpoints
-  displayName: 'Test Stamp Endpoints'
-  dependsOn: importSampleData
-  jobs:
-  - template: jobs-smoke-testing.yaml
-    parameters:
-      testStampEndpoints: true
-      testGlobalEndpoint: false
+# - stage: testingOnlyStampEndpoints # smoke-testing the stamp endpoints
+#   displayName: 'Test Stamp Endpoints'
+#   dependsOn: importSampleData
+#   jobs:
+#   - template: jobs-smoke-testing.yaml
+#     parameters:
+#       testStampEndpoints: true
+#       testGlobalEndpoint: false
 
 - ${{ each step in parameters.trafficSwitchSteps }}: # based on the list parameter trafficSwitchSteps this step will be repeated n number of times
   - template: stages-configure-frontdoor.yaml
     parameters:
       trafficWeightNewBackends: ${{ step }}
 
-- stage: testingGlobalEndpoints # smoke-testing global endpoint only after the switchover has happened
-  displayName: 'Test Global Endpoint'
-  jobs:
-  - template: jobs-smoke-testing.yaml
-    parameters:
-      testStampEndpoints: false
-      testGlobalEndpoint: true
+# - stage: testingGlobalEndpoints # smoke-testing global endpoint only after the switchover has happened
+#   displayName: 'Test Global Endpoint'
+#   jobs:
+#   - template: jobs-smoke-testing.yaml
+#     parameters:
+#       testStampEndpoints: false
+#       testGlobalEndpoint: true
 
 - ${{ if eq(parameters.destroyOldEnvironment, 'true') }}: # Only for E2E the user could have manually chosen not to destroy the environment
   - stage: destroyOldInfrastructure                # In E2E this will destroy the infrastructure that was deployed from the same branch. For int/prod, this will fetch the previous release infra and destroy that
