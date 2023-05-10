@@ -15,7 +15,7 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 
 ## Stamp ingress point
 
-- Azure Front Door (AFD) Premium SKU is the only publicly expossed ingress point of the solution.
+- Azure Front Door (AFD) Premium SKU is the only publicly exposed ingress point of the solution.
 - The entry point to each stamp is a private **Azure Standard Load Balancer** which is controlled by **Azure Kubernetes Service** (AKS) and the Kubernetes Ingress Controller (Nginx). On top of that Load Balancer AKS creates and manages an **Azure Private Link Service**.
 - AFD is using Private Endpoint connectivity to those Private Link Services.
 - **Azure Application Gateway** is not used because it does not provide sufficient added benefits (compared to AFD):
