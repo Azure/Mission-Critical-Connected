@@ -15,13 +15,13 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 
 ## Stamp ingress point
 
-- As Azure Front Door does not (currently) support private origins (backends), the stamp ingress point must be public (private origins are currently in Public Preview with Front Door Premium SKU).
-- The entry point to each stamp is a public **Azure Standard Load Balancer** (with one zone-redundant public IP) which is controlled by **Azure Kubernetes Service** (AKS) and the Kubernetes Ingress Controller (Nginx).
+- Azure Front Door (AFD) Premium SKU is the only publicly expossed ingress point of the solution.
+- The entry point to each stamp is a private **Azure Standard Load Balancer** which is controlled by **Azure Kubernetes Service** (AKS) and the Kubernetes Ingress Controller (Nginx). On top of that Load Balancer AKS creates and manages an **Azure Private Link Service**.
+- AFD is using Private Endpoint connectivity to those Private Link Services.
 - **Azure Application Gateway** is not used because it does not provide sufficient added benefits (compared to AFD):
   - Web Application Firewall (WAF) is provided as part of Azure Front Door.
   - TLS termination happens on the ingress controller and thus inside the cluster.
   - Using cert-manager, the procurement and renewal of SSL certificates is free of charge (with Let's Encrypt) and does not require additional processes or components.
-  - Azure Mission-Critical does not have a requirement for the AKS cluster to only run on a private VNet and therefore, having a public Load Balancer in front is acceptable.
   - (Auto-)Scaling of the ingress controller pods inside AKS is usually faster than scaling out Application Gateway to more instances.
   - Configuration settings including path-based routing and HTTP header checks could potentially be easier to set up using Application Gateway. However, Nginx provides all the required features and is configured through Helm charts.
 
@@ -29,22 +29,10 @@ See [Custom Domain Support](./Networking-Custom-Domains.md) for more details abo
 
 - Traffic to the cluster can only flow through Private Endpoints, the clusters do not have any public endpoints.
 - There is no additional firewall in place (such as Azure Firewall) as it provides no added benefits for reliability but instead would introduce another component adding further management overhead and failure risk.
-- Network Service Endpoints are used to lock down traffic to all services which support them.
+- All used Azure services are locked down using Private Endpoints.
 - In accordance with [Azure Networking Best Practices](https://learn.microsoft.com/azure/security/fundamentals/network-best-practices), all subnets have Network Security Groups (NSGs) assigned.
 - TLS termination happens at the ingress controllers. To issue and renew SSL certificates for the cluster ingress controller, the free Let's Encrypt Certificate Authority is used in conjunction with [cert-manager](https://cert-manager.io/docs/) Kubernetes certificate manager.
 - As there is no direct traffic between pods, there is no requirement for mutual TLS to be configured.
-
-### Public compute cluster endpoint
-
-> The first version of the reference implementation exposes the AKS cluster with a public load balancer that is directly accessible over the internet.
-
-- The current version of Azure Front Door only supports backends (origins) with public endpoints; the same would have been true with Traffic Manager if used as an alternative global load balancer. In order to not have a public endpoint on the compute cluster some additional service would have been required in the middle, such as Azure Application Gateway or Azure API Management. However, these would not add functionality, only complexity - and more potential points of failure.
-- A risk of publicly accessible cluster ingress points is that attackers could attempt [DDoS](https://en.wikipedia.org/wiki/Denial-of-service_attack) attacks against the endpoints. However, [Azure DDoS protection Basic](https://learn.microsoft.com/azure/ddos-protection/ddos-protection-overview) is in place to lower this risk. If required, DDoS Protection Standard could optionally be enabled to get even more tailored protection.
-- If attackers successfully acquire the Front Door ID which is used as the filter on the ingress level, they could directly reach the workload's APIs. However, the attacker would only succeed in circumventing the Web Application Firewall of Front Door. This was judged a small enough risk that the benefit of higher reliability through reduced complexity outweighed the minimal added protection of additional components.
-
-### Requirements to utilize a fully private cluster
-
-As described above, to remove the public endpoint on the compute clusters, another component such as Application Gateway would be required. In the future, the new [Azure Front Door Standard/Premium](https://learn.microsoft.com/azure/frontdoor/standard-premium/overview) offering will eliminate the need for this, as it will support private origins as well (in Public Preview as of February 2022).
 
 ---
 [Azure Mission-Critical - Full List of Documentation](/docs/README.md)
