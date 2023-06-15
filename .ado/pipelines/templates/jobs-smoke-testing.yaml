@@ -79,7 +79,7 @@ jobs:
 
           # install Playwright dependencies
           echo "Installing Playwright dependencies..."
-          npm install playwright-chromium @playwright/test -y
+          npm install playwright-chromium@1.32.0 @playwright/test@1.32.0 -y
           npx playwright install-deps # Installs some additional dependencies for PlayWright, based on the OS
 
           $env:TEST_BASEURL = "https://$(frontdoor_fqdn)"
