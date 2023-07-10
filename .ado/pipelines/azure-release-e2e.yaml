@@ -14,7 +14,7 @@ trigger: none
 pr: none
 
 pool:
-  name: 'e2e-private-agents' # self-hosted agentpool
+  name: 'Self-Hosted-Agent' # self-hosted agentpool
 
 parameters:
 - name: destroyEnvironment
