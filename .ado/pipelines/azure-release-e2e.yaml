@@ -30,7 +30,7 @@ variables:
 - name:  'workingDirectory'    # Terraform root working directory
   value: 'src/infra/workload'
 - name:  'azureServiceConnection' # environment specific service connection
-  value: 'alwayson-${{ variables.environment }}-serviceconnection'
+  value: 'alwayson-deployment-sp'
 
 - template: config/variables-values-${{ variables.environment }}.yaml # contains environment-specific values (non-secret)
 
