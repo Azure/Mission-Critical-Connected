@@ -14,13 +14,13 @@ trigger: none
 pr: none
 
 pool:
-  name: 'e2e-private-agents' # self-hosted agentpool
+  name: 'Self-Hosted-Agent' # self-hosted agentpool
 
 parameters:
 - name: destroyEnvironment
   displayName: "Destroy environment at the end"
   type: boolean
-  default: true
+  default: false
 
 variables:
 - name:  'environment' # set the environment name as variable
@@ -30,7 +30,7 @@ variables:
 - name:  'workingDirectory'    # Terraform root working directory
   value: 'src/infra/workload'
 - name:  'azureServiceConnection' # environment specific service connection
-  value: 'alwayson-${{ variables.environment }}-serviceconnection'
+  value: 'alwayson-deployment-sp'
 
 - template: config/variables-values-${{ variables.environment }}.yaml # contains environment-specific values (non-secret)
 
