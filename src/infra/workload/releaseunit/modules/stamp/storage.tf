@@ -93,10 +93,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -108,10 +104,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -132,10 +124,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public_blob" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -147,10 +135,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_public_blob" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -174,10 +158,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -189,10 +169,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -213,10 +189,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private_blob" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -228,10 +200,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_private_blob" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }

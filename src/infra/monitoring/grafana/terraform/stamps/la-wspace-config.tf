@@ -14,10 +14,6 @@ resource "azurerm_monitor_diagnostic_setting" "appservice" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -29,10 +25,6 @@ resource "azurerm_monitor_diagnostic_setting" "appservice" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -51,10 +43,6 @@ resource "azurerm_monitor_diagnostic_setting" "pgprimary" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -66,10 +54,6 @@ resource "azurerm_monitor_diagnostic_setting" "pgprimary" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -87,10 +71,6 @@ resource "azurerm_monitor_diagnostic_setting" "pgreplica" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -102,10 +82,6 @@ resource "azurerm_monitor_diagnostic_setting" "pgreplica" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -125,10 +101,6 @@ resource "azurerm_monitor_diagnostic_setting" "vnet" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -140,10 +112,6 @@ resource "azurerm_monitor_diagnostic_setting" "vnet" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -163,10 +131,6 @@ resource "azurerm_monitor_diagnostic_setting" "asp" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -178,10 +142,6 @@ resource "azurerm_monitor_diagnostic_setting" "asp" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
@@ -201,10 +161,6 @@ resource "azurerm_monitor_diagnostic_setting" "akv" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -216,10 +172,6 @@ resource "azurerm_monitor_diagnostic_setting" "akv" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }

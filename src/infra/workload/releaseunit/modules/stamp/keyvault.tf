@@ -80,10 +80,6 @@ resource "azurerm_monitor_diagnostic_setting" "kv" {
     content {
       category = entry.value
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 
@@ -95,10 +91,6 @@ resource "azurerm_monitor_diagnostic_setting" "kv" {
       category = entry.value
       enabled  = true
 
-      retention_policy {
-        enabled = true
-        days    = 30
-      }
     }
   }
 }
