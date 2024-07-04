@@ -24,7 +24,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '30 17 * * 5'
+    - cron: '36 23 * * 6'
 
 jobs:
   MSDO:
@@ -38,7 +38,7 @@ jobs:
         dotnet-version: |
           6.0.x
     - name: Run Microsoft Security DevOps
-      uses: microsoft/security-devops-action@v1
+      uses: microsoft/security-devops-action@v1.6.0
       id: msdo
     - name: Upload results to Security tab
       uses: github/codeql-action/upload-sarif@v3
