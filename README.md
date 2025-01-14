@@ -3,6 +3,11 @@
 
 ## Welcome to Azure Mission-Critical Connected
 
+> [!IMPORTANT]
+> This repository is no longer actively maintained. While it may still contain valuable information, which can be used for reference in mission-critical workloads, we recommend visiting [Microsoft Learn](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks-mission-critical/mission-critical-network-architecture) for the most up-to-date resources and guidance.
+>
+> Thank you for your understanding and support.
+
 Azure Mission-Critical is an open source project that provides a **prescriptive architectural approach to building highly-reliable cloud-native applications on Microsoft Azure for mission-critical workloads**. This repository contains the Azure Mission-Critical *connected* reference implementation a **Fully Functional Production-Ready Azure Mission-Critical Reference Implementation**:
 An end-to-end reference implementation intended to provide a solution orientated basis to showcase mission-critical application development on Microsoft Azure, leveraging Azure-native platform capabilities to maximize reliability and operational effectiveness. More specifically, the reference implementation consists of:
 
